@@ -1,232 +1,743 @@
-can make this website more modern ,elegant and catchy <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>The HillSide Oasis — Nature Retreat & Boutique Resort</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <style>
     :root{
-      --accent:#6bbf59; /* fresh leaf green */
-      --accent-2:#2b5b33; /* deep forest */
+      --accent:#6bbf59;
+      --accent-2:#2b5b33;
       --muted:#6b7a6b;
       --card:#ffffff;
-      --glass: rgba(255,255,255,0.7);
+      --gradient-1: linear-gradient(135deg, #6bbf59 0%, #2b5b33 100%);
+      --gradient-2: linear-gradient(135deg, rgba(107,191,89,0.1) 0%, rgba(43,91,51,0.05) 100%);
     }
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;line-height:1.5;color:var(--accent-2);background:#f5f8f3}
+    
+    body{
+      font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      line-height:1.6;
+      color:var(--accent-2);
+      background:#fafbfa;
+      overflow-x:hidden;
+    }
+
+    h1,h2,h3{font-family:'Playfair Display',serif;}
+
+    /* Smooth scroll */
+    html{scroll-behavior:smooth}
 
     /* NAV */
-    .nav{position:sticky;top:0;background:linear-gradient(90deg, rgba(255,255,255,0.85), rgba(255,255,255,0.65));backdrop-filter:blur(6px);z-index:60;box-shadow:0 6px 24px rgba(18,30,18,0.06)}
-    .nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:16px}
-    .brand{display:flex;align-items:center;gap:12px}
-    .brand .logo{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--accent-2),var(--accent));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:20px}
-    .brand h4{font-size:1.05rem}
-    .nav-links{display:flex;gap:20px;align-items:center}
-    .nav-links a{color:var(--accent-2);text-decoration:none;font-weight:600}
-    .book-btn{background:var(--accent);color:#fff;padding:10px 16px;border-radius:12px;text-decoration:none;font-weight:700}
+    .nav{
+      position:fixed;
+      top:0;
+      left:0;
+      right:0;
+      background:rgba(255,255,255,0.85);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      z-index:100;
+      border-bottom:1px solid rgba(107,191,89,0.1);
+      transition:all 0.3s ease;
+    }
+    .nav.scrolled{
+      background:rgba(255,255,255,0.95);
+      box-shadow:0 8px 32px rgba(43,91,51,0.08);
+    }
+    .nav-inner{
+      max-width:1400px;
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:20px 40px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      cursor:pointer;
+      transition:transform 0.3s ease;
+    }
+    .brand:hover{transform:translateY(-2px)}
+    .brand .logo{
+      width:52px;
+      height:52px;
+      border-radius:14px;
+      background:var(--gradient-1);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#fff;
+      font-weight:800;
+      font-size:20px;
+      box-shadow:0 4px 16px rgba(107,191,89,0.3);
+    }
+    .brand-text h4{font-size:1.15rem;font-weight:700;color:var(--accent-2)}
+    .brand-text .subtitle{font-size:12px;color:var(--muted);font-weight:500}
+    
+    .nav-links{
+      display:flex;
+      gap:36px;
+      align-items:center;
+    }
+    .nav-links a{
+      color:var(--accent-2);
+      text-decoration:none;
+      font-weight:600;
+      font-size:15px;
+      position:relative;
+      transition:color 0.3s ease;
+    }
+    .nav-links a:not(.book-btn):after{
+      content:'';
+      position:absolute;
+      bottom:-4px;
+      left:0;
+      width:0;
+      height:2px;
+      background:var(--accent);
+      transition:width 0.3s ease;
+    }
+    .nav-links a:not(.book-btn):hover:after{width:100%}
+    .nav-links a:hover{color:var(--accent)}
+    
+    .book-btn{
+      background:var(--gradient-1);
+      color:#fff !important;
+      padding:12px 24px;
+      border-radius:12px;
+      font-weight:700;
+      box-shadow:0 4px 16px rgba(107,191,89,0.3);
+      transition:all 0.3s ease;
+    }
+    .book-btn:hover{
+      transform:translateY(-2px);
+      box-shadow:0 6px 24px rgba(107,191,89,0.4);
+    }
 
     /* HERO */
-    .hero{min-height:72vh;background-image:url('images/DSC_0072-PANO.jpg');background-size:cover;background-position:center;display:grid;align-items:center}
-    .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(30,50,30,0.35), rgba(15,25,15,0.6));}
-    .hero-inner{position:relative;max-width:1200px;margin:0 auto;padding:48px 20px;display:grid;grid-template-columns:1fr 380px;gap:32px;align-items:center}
-    .hero-left{color:#fff;z-index:2}
-    .hero-left h1{font-size:2.6rem;line-height:1.03;margin-bottom:8px}
-    .hero-left p{opacity:0.95;margin-bottom:18px;color:rgba(255,255,255,0.92)}
-    .hero-cta{display:flex;gap:12px}
-    .ghost{background:transparent;border:1px solid rgba(255,255,255,0.2);color:#fff;padding:10px 14px;border-radius:12px;text-decoration:none}
+    .hero{
+      min-height:100vh;
+      background-image:url('images/DSC_0072-PANO.jpg');
+      background-size:cover;
+      background-position:center;
+      background-attachment:fixed;
+      display:flex;
+      align-items:center;
+      position:relative;
+      margin-top:92px;
+    }
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(135deg, rgba(43,91,51,0.7) 0%, rgba(15,25,15,0.5) 100%);
+      z-index:1;
+    }
+    .hero-inner{
+      position:relative;
+      max-width:1400px;
+      margin:0 auto;
+      padding:80px 40px;
+      display:grid;
+      grid-template-columns:1fr 420px;
+      gap:60px;
+      align-items:center;
+      z-index:2;
+    }
+    .hero-left{
+      color:#fff;
+      animation:fadeInUp 1s ease;
+    }
+    .hero-left h1{
+      font-size:4rem;
+      line-height:1.1;
+      margin-bottom:24px;
+      font-weight:700;
+      text-shadow:0 4px 24px rgba(0,0,0,0.3);
+    }
+    .hero-left p{
+      font-size:1.15rem;
+      opacity:0.95;
+      margin-bottom:32px;
+      line-height:1.7;
+      max-width:600px;
+    }
+    .hero-cta{
+      display:flex;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+    .ghost{
+      background:rgba(255,255,255,0.15);
+      backdrop-filter:blur(10px);
+      border:1px solid rgba(255,255,255,0.3);
+      color:#fff;
+      padding:14px 28px;
+      border-radius:12px;
+      text-decoration:none;
+      font-weight:600;
+      transition:all 0.3s ease;
+      display:inline-block;
+    }
+    .ghost:hover{
+      background:rgba(255,255,255,0.25);
+      transform:translateY(-2px);
+    }
 
     /* Booking card */
-    .booking-card{background:linear-gradient(180deg,var(--glass),rgba(255,255,255,0.5));backdrop-filter:blur(6px);padding:20px;border-radius:16px;box-shadow:0 12px 40px rgba(11,40,22,0.12);z-index:3}
-    .booking-card h4{margin-bottom:10px}
-    .booking-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .field{padding:10px;border-radius:10px;border:1px solid #e6efe4;background:transparent}
-    .book-action{display:flex;gap:10px;margin-top:12px}
-    .book-action .primary{flex:1;background:var(--accent-2);color:#fff;padding:10px;border-radius:10px;text-align:center;text-decoration:none;font-weight:700}
+    .booking-card{
+      background:rgba(255,255,255,0.95);
+      backdrop-filter:blur(20px);
+      padding:32px;
+      border-radius:24px;
+      box-shadow:0 20px 60px rgba(0,0,0,0.3);
+      border:1px solid rgba(255,255,255,0.5);
+      animation:fadeInRight 1s ease;
+    }
+    .booking-card h4{
+      margin-bottom:20px;
+      font-size:1.5rem;
+      color:var(--accent-2);
+    }
+    .booking-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    .field{
+      padding:14px 16px;
+      border-radius:12px;
+      border:1px solid #e0e8e0;
+      background:#fff;
+      font-size:14px;
+      transition:all 0.3s ease;
+      font-family:inherit;
+    }
+    .field:focus{
+      outline:none;
+      border-color:var(--accent);
+      box-shadow:0 0 0 3px rgba(107,191,89,0.1);
+    }
+    .book-action{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-top:16px;
+    }
+    .primary{
+      background:var(--accent-2);
+      color:#fff;
+      padding:14px;
+      border-radius:12px;
+      text-align:center;
+      text-decoration:none;
+      font-weight:700;
+      transition:all 0.3s ease;
+      border:none;
+      cursor:pointer;
+    }
+    .primary:hover{
+      background:#1f4225;
+      transform:translateY(-2px);
+      box-shadow:0 6px 20px rgba(43,91,51,0.3);
+    }
+    .primary.accent{
+      background:var(--gradient-1);
+    }
+    .help-text{
+      font-size:13px;
+      color:var(--muted);
+      margin-top:12px;
+      text-align:center;
+    }
+    .help-text strong{color:var(--accent-2)}
+
+    /* Audio controls */
+    .audio-wrapper{
+      text-align:center;
+      padding:20px;
+      background:rgba(107,191,89,0.05);
+      border-radius:16px;
+      margin:40px auto;
+      max-width:400px;
+    }
+    .audio-wrapper video{
+      display:none;
+    }
+    .audio-wrapper button{
+      margin:12px 6px 0;
+      padding:10px 24px;
+      background:var(--accent);
+      color:#fff;
+      border:none;
+      border-radius:10px;
+      font-weight:600;
+      cursor:pointer;
+      transition:all 0.3s ease;
+    }
+    .audio-wrapper button:hover{
+      background:var(--accent-2);
+      transform:translateY(-2px);
+    }
 
     /* Sections */
-    .section{padding:72px 20px}
-    .container{max-width:1200px;margin:0 auto}
-    h2{font-size:2rem;margin-bottom:12px;color:var(--accent-2)}
-    .muted{color:var(--muted)}
+    .section{
+      padding:120px 40px;
+      position:relative;
+    }
+    .container{
+      max-width:1400px;
+      margin:0 auto;
+    }
+    .section-header{
+      text-align:center;
+      margin-bottom:60px;
+      animation:fadeInUp 0.8s ease;
+    }
+    .section-header h2{
+      font-size:3rem;
+      margin-bottom:16px;
+      color:var(--accent-2);
+      font-weight:700;
+    }
+    .section-header p{
+      font-size:1.1rem;
+      color:var(--muted);
+      max-width:800px;
+      margin:0 auto;
+      line-height:1.8;
+    }
 
-    /* cards grid */
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px;margin-top:30px}
-    .card{background:var(--card);padding:20px;border-radius:14px;box-shadow:0 8px 24px rgba(10,30,10,0.06);border:1px solid rgba(98,140,95,0.06)}
-    .card h3{margin-bottom:8px}
-    .small{font-size:0.95rem;color:var(--muted)}
+    /* Cards grid */
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+      gap:32px;
+      margin-top:60px;
+    }
+    .card{
+      background:#fff;
+      padding:36px;
+      border-radius:20px;
+      box-shadow:0 4px 24px rgba(43,91,51,0.06);
+      border:1px solid rgba(107,191,89,0.1);
+      transition:all 0.4s ease;
+      position:relative;
+      overflow:hidden;
+    }
+    .card::before{
+      content:'';
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:4px;
+      background:var(--gradient-1);
+      transform:scaleX(0);
+      transition:transform 0.4s ease;
+    }
+    .card:hover::before{transform:scaleX(1)}
+    .card:hover{
+      transform:translateY(-8px);
+      box-shadow:0 12px 40px rgba(43,91,51,0.12);
+    }
+    .card h3{
+      margin-bottom:12px;
+      font-size:1.5rem;
+      color:var(--accent-2);
+    }
+    .card .small{
+      font-size:1rem;
+      color:var(--muted);
+      line-height:1.7;
+    }
 
-    /* Attractions + brochure */
-    .brochure{display:flex;gap:18px;align-items:center;justify-content:center;margin-top:18px}
-    .brochure a{background:var(--accent);color:#fff;padding:12px 18px;border-radius:12px;text-decoration:none;font-weight:700}
+    /* CTA Buttons */
+    .cta-wrapper{
+      display:flex;
+      gap:20px;
+      justify-content:center;
+      margin-top:48px;
+      flex-wrap:wrap;
+    }
+    .cta-btn{
+      background:var(--gradient-1);
+      color:#fff;
+      padding:16px 36px;
+      border-radius:14px;
+      text-decoration:none;
+      font-weight:700;
+      font-size:1rem;
+      transition:all 0.3s ease;
+      box-shadow:0 6px 24px rgba(107,191,89,0.3);
+      display:inline-block;
+    }
+    .cta-btn:hover{
+      transform:translateY(-3px);
+      box-shadow:0 10px 32px rgba(107,191,89,0.4);
+    }
+    .cta-btn.secondary{
+      background:transparent;
+      color:var(--accent-2);
+      border:2px solid var(--accent-2);
+      box-shadow:none;
+    }
+    .cta-btn.secondary:hover{
+      background:var(--accent-2);
+      color:#fff;
+    }
 
     /* Gallery */
-    .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-    .img{height:160px;border-radius:12px;background-size:cover;background-position:center}
+    .gallery{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:24px;
+      margin-top:60px;
+    }
+    .img{
+      height:320px;
+      border-radius:20px;
+      background-size:cover;
+      background-position:center;
+      transition:all 0.4s ease;
+      box-shadow:0 4px 24px rgba(0,0,0,0.1);
+      cursor:pointer;
+      overflow:hidden;
+      position:relative;
+    }
+    .img::after{
+      content:'';
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.3) 100%);
+      transition:opacity 0.3s ease;
+    }
+    .img:hover{
+      transform:scale(1.03);
+      box-shadow:0 12px 40px rgba(0,0,0,0.2);
+    }
+    .img:hover::after{opacity:0.5}
 
-    /* Sticky contact */
-    .sticky-contact{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:10px;z-index:80}
-    .fab{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:var(--accent-2);color:#fff;text-decoration:none;font-weight:800;box-shadow:0 10px 30px rgba(11,40,22,0.2)}
+    /* Form section */
+    .form-card{
+      background:#fff;
+      padding:48px;
+      border-radius:24px;
+      box-shadow:0 8px 32px rgba(43,91,51,0.08);
+      max-width:900px;
+      margin:40px auto 0;
+      border:1px solid rgba(107,191,89,0.1);
+    }
+    .form-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:16px;
+      margin-bottom:16px;
+    }
+    textarea.field{
+      min-height:120px;
+      resize:vertical;
+    }
+    .submit-btn{
+      background:var(--gradient-1);
+      color:#fff;
+      padding:16px 40px;
+      border-radius:12px;
+      border:none;
+      font-weight:700;
+      font-size:1rem;
+      cursor:pointer;
+      transition:all 0.3s ease;
+      margin-top:16px;
+    }
+    .submit-btn:hover{
+      transform:translateY(-2px);
+      box-shadow:0 8px 24px rgba(107,191,89,0.3);
+    }
 
     /* Footer */
-    footer{background:var(--accent-2);color:#fff;padding:36px 20px;margin-top:60px}
-    footer .foot-inner{max-width:1200px;margin:0 auto;display:flex;gap:24px;align-items:center;justify-content:space-between}
-
-    @media(max-width:980px){
-      .hero-inner{grid-template-columns:1fr}
-      .booking-card{order:2}
+    footer{
+      background:var(--accent-2);
+      color:#fff;
+      padding:60px 40px 40px;
+      position:relative;
+      overflow:hidden;
     }
-    @media(max-width:520px){
+    footer::before{
+      content:'';
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      height:1px;
+      background:linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    }
+    .foot-inner{
+      max-width:1400px;
+      margin:0 auto;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:32px;
+    }
+    .foot-left strong{
+      font-size:1.3rem;
+      display:block;
+      margin-bottom:8px;
+    }
+    .foot-left .info{
+      font-size:14px;
+      opacity:0.9;
+      margin-top:8px;
+    }
+    .foot-right{
+      text-align:right;
+    }
+    .foot-right .tagline{
+      font-weight:700;
+      font-size:1.1rem;
+      margin-bottom:8px;
+    }
+    .foot-right .copyright{
+      font-size:13px;
+      opacity:0.8;
+    }
+
+    /* Sticky contact */
+    .sticky-contact{
+      position:fixed;
+      right:32px;
+      bottom:32px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      z-index:90;
+    }
+    .fab{
+      width:60px;
+      height:60px;
+      border-radius:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:var(--gradient-1);
+      color:#fff;
+      text-decoration:none;
+      font-size:24px;
+      box-shadow:0 8px 32px rgba(107,191,89,0.4);
+      transition:all 0.3s ease;
+    }
+    .fab:hover{
+      transform:translateY(-4px) scale(1.05);
+      box-shadow:0 12px 40px rgba(107,191,89,0.5);
+    }
+
+    /* Animations */
+    @keyframes fadeInUp{
+      from{opacity:0;transform:translateY(30px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    @keyframes fadeInRight{
+      from{opacity:0;transform:translateX(30px)}
+      to{opacity:1;transform:translateX(0)}
+    }
+
+    /* Responsive */
+    @media(max-width:1200px){
+      .hero-inner{
+        grid-template-columns:1fr;
+        gap:40px;
+      }
+      .hero-left h1{font-size:3rem}
+      .section{padding:80px 32px}
+    }
+    @media(max-width:768px){
+      .nav-inner{padding:16px 24px}
       .nav-links{display:none}
-      .hero-left h1{font-size:1.6rem}
+      .hero{margin-top:84px}
+      .hero-left h1{font-size:2.2rem}
+      .hero-inner{padding:60px 24px}
+      .section-header h2{font-size:2.2rem}
+      .grid{grid-template-columns:1fr;gap:24px}
+      .form-grid{grid-template-columns:1fr}
       .booking-grid{grid-template-columns:1fr}
+      .book-action{grid-template-columns:1fr}
+      .foot-inner{flex-direction:column;text-align:center}
+      .foot-right{text-align:center}
+      .form-card{padding:32px 24px}
     }
   </style>
 </head>
 <body>
   <!-- NAV -->
-  <header class="nav">
-    <div class="nav-inner container">
+  <header class="nav" id="navbar">
+    <div class="nav-inner">
       <div class="brand">
         <div class="logo">THO</div>
-        <div>
+        <div class="brand-text">
           <h4>HillSide Oasis</h4>
-          <div style="font-size:12px;color:var(--muted)">Western Ghats • Pollachi</div>
+          <div class="subtitle">Western Ghats • Pollachi</div>
         </div>
       </div>
 
       <nav class="nav-links">
         <a href="#about">About</a>
         <a href="#stay">Stay</a>
-        <a href="#groups">Groups</a>
-        <a href="#things-to-do">Things to do</a>
-        <a class="book-btn" href="#book">Book</a>
+        <a href="#things-to-do">Activities</a>
+        <a href="#gallery">Gallery</a>
+        <a class="book-btn" href="#book">Book Now</a>
       </nav>
     </div>
   </header>
 
-  <!-- HERO + Booking -->
+  <!-- HERO -->
   <section class="hero">
-    <div class="hero-inner container">
+    <div class="hero-inner">
       <div class="hero-left">
         <h1>Generations of joy where memories meet the mountains</h1>
-        <p class="muted">A boutique nature retreat blending mango & coconut farms with elevated hospitality — stay in cottages, host intimate events, or bring your group for a private escape.</p>
-        <div class="hero-cta" style="margin-top:18px">
+        <p>A boutique nature retreat blending mango & coconut farms with elevated hospitality — stay in cottages, host intimate events, or bring your group for a private escape.</p>
+        <div class="hero-cta">
           <a class="ghost" href="#things-to-do">Explore Activities</a>
-          <a class="ghost" href="#attractions">Attractions Brochure</a>
+          <a class="ghost" href="#gallery">View Gallery</a>
         </div>
       </div>
 
-      <aside class="booking-card" id="book" aria-label="Booking widget">
-        <h4>Check availability</h4>
+      <aside class="booking-card" id="book">
+        <h4>Check Availability</h4>
         <div class="booking-grid">
-          <input class="field" type="date" aria-label="arrival" placeholder="Arrival" />
-          <input class="field" type="date" aria-label="departure" placeholder="Departure" />
-          <select class="field"><option>1 Guest</option><option>2 Guests</option><option>3 Guests</option></select>
-          <select class="field"><option>1 Cabin</option><option>2 Cabins</option></select>
+          <input class="field" type="date" aria-label="Check-in date" />
+          <input class="field" type="date" aria-label="Check-out date" />
+          <select class="field" aria-label="Number of guests">
+            <option>1 Guest</option>
+            <option>2 Guests</option>
+            <option>3 Guests</option>
+            <option>4+ Guests</option>
+          </select>
+          <select class="field" aria-label="Number of rooms">
+            <option>1 Room</option>
+            <option>2 Rooms</option>
+            <option>3+ Rooms</option>
+          </select>
         </div>
         <div class="book-action">
-          <a class="primary" href="#book-now">Check Rates</a>
-          <a class="primary" href="#group-rate" style="background:var(--accent);">Group Rates</a>
+          <button class="primary">Check Rates</button>
+          <button class="primary accent">Group Rates</button>
         </div>
-        <div style="font-size:12px;color:var(--muted);margin-top:8px">Need help? Call: <strong>+91 99657 30597</strong></div>
+        <div class="help-text">Need help? Call: <strong>+91 99657 30597</strong></div>
       </aside>
     </div>
   </section>
-  <!-- Background audio controls -->
-  <div style="text-align:center; margin:20px 0;">
-    <video id="bg-audio" loop controls style="width:300px; height:30px;">
+
+  <!-- Audio controls -->
+  <div class="audio-wrapper">
+    <video id="bg-audio" loop>
       <source src="images/video.mp4" type="video/mp4">
-      Your browser does not support the video tag.
     </video>
-    <br>
-    <button onclick="document.getElementById('bg-audio').play()">Play</button>
-    <button onclick="document.getElementById('bg-audio').pause()">Pause</button>
+    <div>
+      <button onclick="document.getElementById('bg-audio').play()">🔊 Play Background Audio</button>
+      <button onclick="document.getElementById('bg-audio').pause()">⏸ Pause Audio</button>
+    </div>
   </div>
-  <!-- ABOUT / WHY STAY -->
+
+  <!-- ABOUT -->
   <section id="about" class="section">
     <div class="container">
-      <h2>Why HillSide Oasis</h2>
-      <p class="muted" style="text-align:center;max-width:820px;margin:8px auto 0">An intimate retreat in the foothills of the Western Ghats — farm-to-table dining, guided nature walks, curated experiences and peaceful overnight stays in handcrafted cottages.</p>
+      <div class="section-header">
+        <h2>Why HillSide Oasis</h2>
+        <p>An intimate retreat in the foothills of the Western Ghats — farm-to-table dining, guided nature walks, curated experiences and peaceful overnight stays in handcrafted cottages.</p>
+      </div>
 
       <div class="grid">
         <div class="card">
-          <h3>Farm Living</h3>
-          <p class="small">Hands-on tours of our mango & coconut orchards, seasonal fruit picking and farm workshops.</p>
+          <h3>🌾 Farm Living</h3>
+          <p class="small">Hands-on tours of our mango & coconut orchards, seasonal fruit picking and immersive farm workshops.</p>
         </div>
         <div class="card">
-          <h3>Mountain Views</h3>
-          <p class="small">Private terraces and sunrise viewpoints overlooking the Ghats.</p>
+          <h3>⛰️ Mountain Views</h3>
+          <p class="small">Private terraces and sunrise viewpoints overlooking the majestic Western Ghats.</p>
         </div>
         <div class="card">
-          <h3>Events</h3>
+          <h3>🎉 Events & Celebrations</h3>
           <p class="small">Intimate venues, bespoke planning, and on-site catering — perfect for elopements and family celebrations.</p>
         </div>
         <div class="card">
-          <h3>Groups & Retreats</h3>
-          <p class="small">Custom packages for corporate retreats, reunions and yoga camps. Request a group rate.</p>
+          <h3>👥 Groups & Retreats</h3>
+          <p class="small">Custom packages for corporate retreats, reunions and yoga camps. Request a personalized group rate.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- STAY TYPES -->
-  <section id="stay" class="section" style="padding-top:40px">
+  <!-- STAY -->
+  <section id="stay" class="section" style="background:var(--gradient-2)">
     <div class="container">
-      <h2>Places to Stay</h2>
-      <p class="muted" style="text-align:center;max-width:900px;margin:8px auto 0">Choose from cozy cottages, private cabins with hot tubs, or spacious family suites — thoughtfully designed with natural materials and local craftsmanship.</p>
+      <div class="section-header">
+        <h2>Places to Stay</h2>
+        <p>Choose from cozy cottages, private cabins with hot tubs, or spacious family suites — thoughtfully designed with natural materials and local craftsmanship.</p>
+      </div>
 
       <div class="grid">
         <div class="card">
           <h3>Sky Suite</h3>
-          <p class="small">Modern suite with panoramic deck and king bed.</p>
+          <p class="small">Modern suite with panoramic deck and king bed. Perfect for couples seeking romance with a view.</p>
         </div>
         <div class="card">
           <h3>Hillside Suite</h3>
-          <p class="small">Large living area, private garden and farm views.</p>
+          <p class="small">Large living area, private garden and breathtaking farm views. Ideal for extended stays.</p>
         </div>
         <div class="card">
           <h3>Family Cottage</h3>
-          <p class="small">Two-bedroom cottage with shared courtyard.</p>
+          <p class="small">Two-bedroom cottage with shared courtyard. Perfect for families creating memories together.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- THINGS TO DO / ATTRACTIONS -->
+  <!-- ACTIVITIES -->
   <section id="things-to-do" class="section">
     <div class="container">
-      <h2>Things to Do</h2>
+      <div class="section-header">
+        <h2>Things to Do</h2>
+        <p>Immerse yourself in nature and local culture with our curated experiences</p>
+      </div>
+
       <div class="grid">
         <div class="card">
-          <h3>Guided Nature Walks</h3>
-          <p class="small">Learn about endemic species and conservation efforts.</p>
+          <h3>🥾 Guided Nature Walks</h3>
+          <p class="small">Learn about endemic species and conservation efforts with our expert naturalists.</p>
         </div>
         <div class="card">
-          <h3>Carriage Rides</h3>
-          <p class="small">Scenic rides around the property.</p>
+          <h3>🐴 Carriage Rides</h3>
+          <p class="small">Scenic rides around the property at sunset for a magical experience.</p>
         </div>
         <div class="card">
-          <h3>Birdwatching</h3>
-          <p class="small">Early-morning guided birding excursions.</p>
+          <h3>🦜 Birdwatching</h3>
+          <p class="small">Early-morning guided birding excursions to spot rare Western Ghats species.</p>
         </div>
         <div class="card">
-          <h3>Local Tours</h3>
-          <p class="small">Half-day trips to Aliyar Dam, Topslip, Valparai and Pollachi markets.</p>
+          <h3>🗺️ Local Tours</h3>
+          <p class="small">Half-day trips to Aliyar Dam, Topslip, Valparai and vibrant Pollachi markets.</p>
         </div>
       </div>
 
-      <div style="text-align:center" class="brochure">
-        <a href="#" aria-label="Download attractions brochure">Download Attractions Brochure</a>
-        <a href="#group-rate" style="background:transparent;color:var(--accent-2);font-weight:700">Request Group Rate</a>
+      <div class="cta-wrapper">
+        <a href="#" class="cta-btn">Download Attractions Brochure</a>
+        <a href="#group-rate" class="cta-btn secondary">Request Group Rate</a>
       </div>
     </div>
   </section>
 
   <!-- GALLERY -->
-  <section id="gallery" class="section">
+  <section id="gallery" class="section" style="background:var(--gradient-2)">
     <div class="container">
-      <h2>Gallery</h2>
+      <div class="section-header">
+        <h2>Gallery</h2>
+        <p>A glimpse into the beauty that awaits you</p>
+      </div>
       <div class="gallery">
         <div class="img" style="background-image:url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80')"></div>
         <div class="img" style="background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80')"></div>
@@ -236,44 +747,72 @@ can make this website more modern ,elegant and catchy <!DOCTYPE html>
     </div>
   </section>
 
-  <!-- GROUP RATE FORM (simple placeholder) -->
+  <!-- GROUP RATE FORM -->
   <section id="group-rate" class="section">
     <div class="container">
-      <h2>Request a Group Rate</h2>
-      <p class="muted">Planning a retreat, reunion or an event? Fill the short form and our events team will get back with a custom quote.</p>
-      <div style="margin-top:18px;max-width:780px" class="card">
-        <form>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-            <input class="field" placeholder="Name" />
-            <input class="field" placeholder="Email" />
-            <input class="field" placeholder="Phone" />
-            <input class="field" placeholder="Group size" />
-          </div>
-          <textarea class="field" style="margin-top:10px;min-height:100px" placeholder="Tell us about your event"></textarea>
-          <div style="margin-top:12px"><button class="book-btn" type="submit">Request Quote</button></div>
-        </form>
+      <div class="section-header">
+        <h2>Request a Group Rate</h2>
+        <p>Planning a retreat, reunion or an event? Fill the form and our events team will get back with a custom quote.</p>
+      </div>
+      
+      <div class="form-card">
+        <div class="form-grid">
+          <input class="field" placeholder="Full Name" />
+          <input class="field" type="email" placeholder="Email Address" />
+          <input class="field" type="tel" placeholder="Phone Number" />
+          <input class="field" type="number" placeholder="Group Size" />
+        </div>
+        <textarea class="field" placeholder="Tell us about your event (dates, requirements, special requests...)"></textarea>
+        <button class="submit-btn">Request Custom Quote</button>
       </div>
     </div>
   </section>
 
-  <!-- CONTACT / FOOTER -->
+  <!-- FOOTER -->
   <footer>
     <div class="foot-inner">
-      <div>
+      <div class="foot-left">
         <strong>The HillSide Oasis</strong>
-        <div style="font-size:13px;margin-top:6px">Pollachi, Tamil Nadu • +91 99657 30597</div>
+        <div class="info">📍 Pollachi, Tamil Nadu</div>
+        <div class="info">📞 +91 99657 30597</div>
       </div>
-      <div style="text-align:right;color:rgba(255,255,255,0.9)">
-        <div style="font-weight:700">Preserving Nature, Creating Memories</div>
-        <div style="font-size:13px;margin-top:6px">© 2025 HillSide Oasis</div>
+      <div class="foot-right">
+        <div class="tagline">Preserving Nature, Creating Memories</div>
+        <div class="copyright">© 2025 HillSide Oasis. All rights reserved.</div>
       </div>
     </div>
   </footer>
 
-  <!-- Sticky quick actions -->
+  <!-- Sticky contact -->
   <div class="sticky-contact">
-    <a class="fab" href="tel:+919965730597">📞</a>
-    <a class="fab" href="https://wa.me/919965730597">💬</a>
+    <a class="fab" href="tel:+919965730597" aria-label="Call us">📞</a>
+    <a class="fab" href="https://wa.me/919965730597" aria-label="WhatsApp us">💬</a>
   </div>
+
+  <script>
+    // Navbar scroll effect
+    window.addEventListener('scroll', function() {
+      const navbar = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    });
+  </script>
 </body>
 </html>
