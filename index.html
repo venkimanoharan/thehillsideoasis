@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>The HillSide Oasis</title>
+  <title>The HillSide Oasis — Nature Retreat & Boutique Resort</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <style>
     :root{
@@ -280,7 +280,6 @@
     }
     .help-text strong{color:var(--accent-2)}
 
-    
     /* Sections */
     .section{
       padding:120px 40px;
@@ -587,6 +586,10 @@
         <a href="#stay">Stay</a>
         <a href="#things-to-do">Activities</a>
         <a href="#gallery">Gallery</a>
+        <div class="social-links">
+          <a href="https://facebook.com/hillsideoasis" target="_blank" rel="noopener" aria-label="Facebook">📘</a>
+          <a href="https://instagram.com/hillsideoasis" target="_blank" rel="noopener" aria-label="Instagram">📷</a>
+        </div>
         <a class="book-btn" href="#book">Book Now</a>
       </nav>
     </div>
@@ -743,14 +746,20 @@
       </div>
       
       <div class="form-card">
-        <div class="form-grid">
-          <input class="field" placeholder="Full Name" />
-          <input class="field" type="email" placeholder="Email Address" />
-          <input class="field" type="tel" placeholder="Phone Number" />
-          <input class="field" type="number" placeholder="Group Size" />
-        </div>
-        <textarea class="field" placeholder="Tell us about your event (dates, requirements, special requests...)"></textarea>
-        <button class="submit-btn">Request Custom Quote</button>
+        <form action="https://formsubmit.co/your-email@example.com" method="POST">
+          <input type="hidden" name="_subject" value="New Group Rate Request - The HillSide Oasis">
+          <input type="hidden" name="_captcha" value="false">
+          <input type="hidden" name="_template" value="table">
+          
+          <div class="form-grid">
+            <input class="field" name="name" placeholder="Full Name" required />
+            <input class="field" type="email" name="email" placeholder="Email Address" required />
+            <input class="field" type="tel" name="phone" placeholder="Phone Number" required />
+            <input class="field" type="number" name="group_size" placeholder="Group Size" required />
+          </div>
+          <textarea class="field" name="message" placeholder="Tell us about your event (dates, requirements, special requests...)" required></textarea>
+          <button class="submit-btn" type="submit">Request Custom Quote</button>
+        </form>
       </div>
     </div>
   </section>
@@ -762,7 +771,11 @@
         <strong>The HillSide Oasis</strong>
         <div class="info">📍 Pollachi, Tamil Nadu</div>
         <div class="info">📞 +91 99657 30597</div>
-       </div>
+        <div style="display:flex;gap:12px;margin-top:16px">
+          <a href="https://facebook.com/hillsideoasis" target="_blank" rel="noopener" style="width:40px;height:40px;background:rgba(255,255,255,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;transition:all 0.3s ease;text-decoration:none" aria-label="Facebook">📘</a>
+          <a href="https://instagram.com/hillsideoasis" target="_blank" rel="noopener" style="width:40px;height:40px;background:rgba(255,255,255,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;transition:all 0.3s ease;text-decoration:none" aria-label="Instagram">📷</a>
+        </div>
+      </div>
       <div class="foot-right">
         <div class="tagline">Preserving Nature, Creating Memories</div>
         <div class="copyright">© 2025 The HillSide Oasis. All rights reserved.</div>
