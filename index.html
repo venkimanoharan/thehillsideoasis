@@ -133,7 +133,16 @@
       </aside>
     </div>
   </section>
-
+  <!-- Background audio controls -->
+  <div style="text-align:center; margin:20px 0;">
+    <video id="bg-audio" loop controls style="width:300px; height:30px;">
+      <source src="images/video.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <br>
+    <button onclick="document.getElementById('bg-audio').play()">Play</button>
+    <button onclick="document.getElementById('bg-audio').pause()">Pause</button>
+  </div>
   <!-- ABOUT / WHY STAY -->
   <section id="about" class="section">
     <div class="container">
