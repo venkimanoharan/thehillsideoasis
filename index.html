@@ -104,6 +104,30 @@
     .nav-links a:not(.book-btn):hover:after{width:100%}
     .nav-links a:hover{color:var(--accent)}
     
+    .social-links{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .social-links a{
+      width:36px;
+      height:36px;
+      border-radius:8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(107,191,89,0.1);
+      color:var(--accent-2);
+      text-decoration:none;
+      font-size:18px;
+      transition:all 0.3s ease;
+    }
+    .social-links a:hover{
+      background:var(--accent);
+      color:#fff;
+      transform:translateY(-2px);
+    }
+    
     .book-btn{
       background:var(--gradient-1);
       color:#fff !important;
@@ -558,6 +582,7 @@
     @media(max-width:768px){
       .nav-inner{padding:16px 24px}
       .nav-links{display:none}
+      .social-links{display:none}
       .hero{margin-top:84px}
       .hero-left h1{font-size:2.2rem}
       .hero-inner{padding:60px 24px}
@@ -589,6 +614,10 @@
         <a href="#stay">Stay</a>
         <a href="#things-to-do">Activities</a>
         <a href="#gallery">Gallery</a>
+        <div class="social-links">
+          <a href="https://facebook.com/hillsideoasis" target="_blank" rel="noopener" aria-label="Facebook">📘</a>
+          <a href="https://instagram.com/hillsideoasis" target="_blank" rel="noopener" aria-label="Instagram">📷</a>
+        </div>
         <a class="book-btn" href="#book">Book Now</a>
       </nav>
     </div>
@@ -775,6 +804,10 @@
         <strong>The HillSide Oasis</strong>
         <div class="info">📍 Pollachi, Tamil Nadu</div>
         <div class="info">📞 +91 99657 30597</div>
+        <div style="display:flex;gap:12px;margin-top:16px">
+          <a href="https://facebook.com/hillsideoasis" target="_blank" rel="noopener" style="width:40px;height:40px;background:rgba(255,255,255,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;transition:all 0.3s ease;text-decoration:none" aria-label="Facebook">📘</a>
+          <a href="https://instagram.com/hillsideoasis" target="_blank" rel="noopener" style="width:40px;height:40px;background:rgba(255,255,255,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;transition:all 0.3s ease;text-decoration:none" aria-label="Instagram">📷</a>
+        </div>
       </div>
       <div class="foot-right">
         <div class="tagline">Preserving Nature, Creating Memories</div>
