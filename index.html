@@ -1,365 +1,271 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>The HillSide Oasis - Nature Retreat</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HillSide Oasis — Nature Retreat & Boutique Resort</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --accent:#6bbf59; /* fresh leaf green */
+      --accent-2:#2b5b33; /* deep forest */
+      --muted:#6b7a6b;
+      --card:#ffffff;
+      --glass: rgba(255,255,255,0.7);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;line-height:1.5;color:var(--accent-2);background:#f5f8f3}
 
-    <!-- Modern Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    /* NAV */
+    .nav{position:sticky;top:0;background:linear-gradient(90deg, rgba(255,255,255,0.85), rgba(255,255,255,0.65));backdrop-filter:blur(6px);z-index:60;box-shadow:0 6px 24px rgba(18,30,18,0.06)}
+    .nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:16px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand .logo{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--accent-2),var(--accent));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:20px}
+    .brand h4{font-size:1.05rem}
+    .nav-links{display:flex;gap:20px;align-items:center}
+    .nav-links a{color:var(--accent-2);text-decoration:none;font-weight:600}
+    .book-btn{background:var(--accent);color:#fff;padding:10px 16px;border-radius:12px;text-decoration:none;font-weight:700}
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    /* HERO */
+    .hero{min-height:72vh;background-image:url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=80');background-size:cover;background-position:center;display:grid;align-items:center}
+    .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(30,50,30,0.35), rgba(15,25,15,0.6));}
+    .hero-inner{position:relative;max-width:1200px;margin:0 auto;padding:48px 20px;display:grid;grid-template-columns:1fr 380px;gap:32px;align-items:center}
+    .hero-left{color:#fff;z-index:2}
+    .hero-left h1{font-size:2.6rem;line-height:1.03;margin-bottom:8px}
+    .hero-left p{opacity:0.95;margin-bottom:18px;color:rgba(255,255,255,0.92)}
+    .hero-cta{display:flex;gap:12px}
+    .ghost{background:transparent;border:1px solid rgba(255,255,255,0.2);color:#fff;padding:10px 14px;border-radius:12px;text-decoration:none}
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            line-height: 1.7;
-            background: #f6f9f4;
-            color: #1e3d26;
-        }
+    /* Booking card */
+    .booking-card{background:linear-gradient(180deg,var(--glass),rgba(255,255,255,0.5));backdrop-filter:blur(6px);padding:20px;border-radius:16px;box-shadow:0 12px 40px rgba(11,40,22,0.12);z-index:3}
+    .booking-card h4{margin-bottom:10px}
+    .booking-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .field{padding:10px;border-radius:10px;border:1px solid #e6efe4;background:transparent}
+    .book-action{display:flex;gap:10px;margin-top:12px}
+    .book-action .primary{flex:1;background:var(--accent-2);color:#fff;padding:10px;border-radius:10px;text-align:center;text-decoration:none;font-weight:700}
 
-        /* Modern Hero Section */
-        header {
-            background: url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
-            min-height: 90vh;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 0 20px;
-        }
+    /* Sections */
+    .section{padding:72px 20px}
+    .container{max-width:1200px;margin:0 auto}
+    h2{font-size:2rem;margin-bottom:12px;color:var(--accent-2)}
+    .muted{color:var(--muted)}
 
-        header::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.45);
-        }
+    /* cards grid */
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px;margin-top:30px}
+    .card{background:var(--card);padding:20px;border-radius:14px;box-shadow:0 8px 24px rgba(10,30,10,0.06);border:1px solid rgba(98,140,95,0.06)}
+    .card h3{margin-bottom:8px}
+    .small{font-size:0.95rem;color:var(--muted)}
 
-        header .content {
-            position: relative;
-            z-index: 2;
-            color: #fff;
-        }
+    /* Attractions + brochure */
+    .brochure{display:flex;gap:18px;align-items:center;justify-content:center;margin-top:18px}
+    .brochure a{background:var(--accent);color:#fff;padding:12px 18px;border-radius:12px;text-decoration:none;font-weight:700}
 
-        header h1 {
-            font-size: 3.2em;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
+    /* Gallery */
+    .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+    .img{height:160px;border-radius:12px;background-size:cover;background-position:center}
 
-        header .tagline {
-            font-size: 1.3em;
-            font-weight: 300;
-        }
+    /* Sticky contact */
+    .sticky-contact{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:10px;z-index:80}
+    .fab{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:var(--accent-2);color:#fff;text-decoration:none;font-weight:800;box-shadow:0 10px 30px rgba(11,40,22,0.2)}
 
-        /* Navigation */
-        nav {
-            position: sticky;
-            top: 0;
-            background: #ffffffee;
-            backdrop-filter: blur(8px);
-            z-index: 50;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
+    /* Footer */
+    footer{background:var(--accent-2);color:#fff;padding:36px 20px;margin-top:60px}
+    footer .foot-inner{max-width:1200px;margin:0 auto;display:flex;gap:24px;align-items:center;justify-content:space-between}
 
-        nav ul {
-            display: flex;
-            justify-content: center;
-            gap: 35px;
-            padding: 18px 10px;
-            list-style: none;
-        }
-
-        nav a {
-            text-decoration: none;
-            font-weight: 500;
-            color: #1e3d26;
-            transition: 0.3s;
-        }
-
-        nav a:hover {
-            color: #6bbf59;
-        }
-
-        /* Section Base */
-        section {
-            padding: 80px 20px;
-            max-width: 1200px;
-            margin: auto;
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 2.5em;
-            color: #1e3d26;
-        }
-
-        .intro {
-            max-width: 800px;
-            text-align: center;
-            margin: auto;
-            font-size: 1.15em;
-            color: #4b5e50;
-        }
-
-        /* Feature Cards */
-        .features {
-            margin-top: 50px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 30px;
-        }
-
-        .feature-card {
-            background: white;
-            padding: 35px;
-            text-align: center;
-            border-radius: 20px;
-            box-shadow: 0 6px 25px rgba(0,0,0,0.1);
-            transition: 0.3s;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-8px);
-        }
-
-        .icon {
-            font-size: 3rem;
-            margin-bottom: 12px;
-        }
-
-        /* Gallery */
-        .gallery-grid {
-            margin-top: 40px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .media {
-            background: #dce8d7;
-            border-radius: 14px;
-            height: 220px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            font-size: 1.1em;
-            color: #3f6b41;
-            border: 2px dashed #8bc34a;
-        }
-
-        /* Wildlife */
-        .wildlife-grid {
-            margin-top: 40px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
-        }
-
-        .wildlife-item {
-            background: white;
-            padding: 30px;
-            border-radius: 18px;
-            text-align: center;
-            box-shadow: 0 3px 18px rgba(0,0,0,0.1);
-            transition: 0.3s;
-        }
-
-        .wildlife-item:hover {
-            transform: translateY(-5px);
-        }
-
-        /* Attractions */
-        .attractions-section {
-            background: #eef7ee;
-            padding: 80px 20px;
-        }
-
-        .attractions-grid {
-            margin-top: 40px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            max-width: 1200px;
-            margin: 40px auto 0;
-        }
-
-        .attraction-card {
-            background: white;
-            padding: 28px;
-            border-radius: 18px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            border-left: 5px solid #6bbf59;
-        }
-
-        .distance {
-            background: #def5dc;
-            padding: 6px 14px;
-            border-radius: 12px;
-            display: inline-block;
-            margin-top: 10px;
-            font-weight: 600;
-        }
-
-        /* CTA */
-        .cta {
-            background: linear-gradient(135deg, #1f3d2a, #3d6e3d);
-            padding: 70px 20px;
-            text-align: center;
-            border-radius: 22px;
-            color: white;
-            margin-top: 60px;
-        }
-
-        .cta a {
-            display: inline-block;
-            background: white;
-            color: #1f3d2a;
-            padding: 15px 45px;
-            text-decoration: none;
-            border-radius: 30px;
-            font-size: 1.2em;
-            font-weight: 600;
-            transition: 0.3s;
-        }
-
-        .cta a:hover {
-            transform: scale(1.05);
-        }
-
-        /* Footer */
-        footer {
-            background: #1f3d2a;
-            color: white;
-            text-align: center;
-            padding: 45px 20px;
-            margin-top: 60px;
-        }
-
-        @media(max-width: 768px) {
-            header h1 {
-                font-size: 2.2em;
-            }
-
-            nav ul {
-                gap: 18px;
-            }
-        }
-    </style>
+    @media(max-width:980px){
+      .hero-inner{grid-template-columns:1fr}
+      .booking-card{order:2}
+    }
+    @media(max-width:520px){
+      .nav-links{display:none}
+      .hero-left h1{font-size:1.6rem}
+      .booking-grid{grid-template-columns:1fr}
+    }
+  </style>
 </head>
-
 <body>
-    <header>
-        <div class="content">
-            <h1>🌿 The HillSide Oasis</h1>
-            <p class="tagline">Where Nature Meets Luxury in the Western Ghats</p>
+  <!-- NAV -->
+  <header class="nav">
+    <div class="nav-inner container">
+      <div class="brand">
+        <div class="logo">HO</div>
+        <div>
+          <h4>HillSide Oasis</h4>
+          <div style="font-size:12px;color:var(--muted)">Western Ghats • Pollachi</div>
         </div>
-    </header>
+      </div>
 
-    <nav>
-        <ul>
-            <li><a href="#about">About</a></li>
-            <li><a href="#experience">Experience</a></li>
-            <li><a href="#gallery">Gallery</a></li>
-            <li><a href="#wildlife">Wildlife</a></li>
-            <li><a href="#attractions">Attractions</a></li>
-            <li><a href="#contact">Contact</a></li>
-        </ul>
-    </nav>
+      <nav class="nav-links">
+        <a href="#about">About</a>
+        <a href="#stay">Stay</a>
+        <a href="#weddings">Weddings</a>
+        <a href="#groups">Groups</a>
+        <a href="#things-to-do">Things to do</a>
+        <a class="book-btn" href="#book">Book</a>
+      </nav>
+    </div>
+  </header>
 
-    <section id="about">
-        <h2>Your Gateway to Nature</h2>
-        <p class="intro">
-            Nestled in the pristine foothills of the Western Ghats near Pollachi, Tamil Nadu, HillSide Oasis offers a luxurious yet serene escape into untouched nature.
-        </p>
-    </section>
-
-    <section id="experience">
-        <h2>The Experience</h2>
-        <div class="features">
-            <div class="feature-card">
-                <div class="icon">🏔️</div>
-                <h3>Mountain Views</h3>
-                <p>Wake up to breathtaking Ghats panoramas.</p>
-            </div>
-
-            <div class="feature-card">
-                <div class="icon">🥥</div>
-                <h3>Farm Living</h3>
-                <p>Walk through lush coconut & mango plantations.</p>
-            </div>
-
-            <div class="feature-card">
-                <div class="icon">🦋</div>
-                <h3>Wildlife</h3>
-                <p>Experience nature's biodiversity firsthand.</p>
-            </div>
-
-            <div class="feature-card">
-                <div class="icon">🌅</div>
-                <h3>Calm & Peace</h3>
-                <p>Find your inner balance surrounded by nature.</p>
-            </div>
+  <!-- HERO + Booking -->
+  <section class="hero">
+    <div class="hero-inner container">
+      <div class="hero-left">
+        <h1>Generations of joy where memories meet the mountains</h1>
+        <p class="muted">A boutique nature retreat blending mango & coconut farms with elevated hospitality — stay in cottages, host intimate weddings, or bring your group for a private escape.</p>
+        <div class="hero-cta" style="margin-top:18px">
+          <a class="ghost" href="#things-to-do">Explore Activities</a>
+          <a class="ghost" href="#attractions">Attractions Brochure</a>
         </div>
-    </section>
+      </div>
 
-    <section id="gallery">
-        <h2>Photo & Video Gallery</h2>
-        <div class="gallery-grid">
-            <div class="media">📸 Image Placeholder</div>
-            <div class="media">📸 Image Placeholder</div>
-            <div class="media">🎥 Video Placeholder</div>
-            <div class="media">📸 Image Placeholder</div>
-            <div class="media">🎥 Video Placeholder</div>
-            <div class="media">📸 Image Placeholder</div>
+      <aside class="booking-card" id="book" aria-label="Booking widget">
+        <h4>Check availability</h4>
+        <div class="booking-grid">
+          <input class="field" type="date" aria-label="arrival" placeholder="Arrival" />
+          <input class="field" type="date" aria-label="departure" placeholder="Departure" />
+          <select class="field"><option>1 Guest</option><option>2 Guests</option><option>3 Guests</option></select>
+          <select class="field"><option>1 Cabin</option><option>2 Cabins</option></select>
         </div>
-    </section>
-
-    <section id="wildlife">
-        <h2>Wildlife Encounters</h2>
-        <p class="intro">Western Ghats bring magnificent species to your doorstep.</p>
-
-        <div class="wildlife-grid">
-            <div class="wildlife-item">🐘<br>Elephants</div>
-            <div class="wildlife-item">🐆<br>Leopards</div>
-            <div class="wildlife-item">🦌<br>Deer</div>
-            <div class="wildlife-item">🐗<br>Wild Hogs</div>
-            <div class="wildlife-item">🦔<br>Porcupines</div>
-            <div class="wildlife-item">🦅<br>Exotic Birds</div>
+        <div class="book-action">
+          <a class="primary" href="#book-now">Check Rates</a>
+          <a class="primary" href="#group-rate" style="background:var(--accent);">Group Rates</a>
         </div>
-    </section>
+        <div style="font-size:12px;color:var(--muted);margin-top:8px">Need help? Call: <strong>+91 99657 30597</strong></div>
+      </aside>
+    </div>
+  </section>
 
-    <section class="attractions-section" id="attractions">
-        <h2>Nearby Attractions</h2>
+  <!-- ABOUT / WHY STAY -->
+  <section id="about" class="section">
+    <div class="container">
+      <h2>Why HillSide Oasis</h2>
+      <p class="muted" style="text-align:center;max-width:820px;margin:8px auto 0">An intimate retreat in the foothills of the Western Ghats — farm-to-table dining, guided nature walks, curated experiences and peaceful overnight stays in handcrafted cottages.</p>
 
-        <div class="attractions-grid">
-            <div class="attraction-card">🏛️ <strong>Pollachi Town</strong><br><p>Local culture & cuisine.</p><span class="distance">8 km</span></div>
-            <div class="attraction-card">🌊 <strong>Aliyar Dam</strong><br><p>Boating & views.</p><span class="distance">25 km</span></div>
-            <div class="attraction-card">🌲 <strong>Topslip Sanctuary</strong><br><p>Elephants & tigers.</p><span class="distance">35 km</span></div>
-            <div class="attraction-card">⛰️ <strong>Valparai Hills</strong><br><p>Tea estates.</p><span class="distance">60 km</span></div>
-            <div class="attraction-card">🐅 <strong>Parambikulam</strong><br><p>Tiger reserve.</p><span class="distance">50 km</span></div>
-            <div class="attraction-card">🏞️ <strong>Anamalai Reserve</strong><br><p>Bird paradise.</p><span class="distance">40 km</span></div>
+      <div class="grid">
+        <div class="card">
+          <h3>Farm Living</h3>
+          <p class="small">Hands-on tours of our mango & coconut orchards, seasonal fruit picking and farm workshops.</p>
         </div>
-    </section>
+        <div class="card">
+          <h3>Mountain Views</h3>
+          <p class="small">Private terraces and sunrise viewpoints overlooking the Ghats.</p>
+        </div>
+        <div class="card">
+          <h3>Events & Weddings</h3>
+          <p class="small">Intimate venues, bespoke planning, and on-site catering — perfect for elopements and family celebrations.</p>
+        </div>
+        <div class="card">
+          <h3>Groups & Retreats</h3>
+          <p class="small">Custom packages for corporate retreats, reunions and yoga camps. Request a group rate.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <section id="contact" class="cta">
-        <h2>Ready for Your Nature Escape?</h2>
-        <p>Experience the magic of the Western Ghats.</p>
-        <a href="#contact">Book Your Stay</a>
-    </section>
+  <!-- STAY TYPES -->
+  <section id="stay" class="section" style="padding-top:40px">
+    <div class="container">
+      <h2>Places to Stay</h2>
+      <p class="muted" style="text-align:center;max-width:900px;margin:8px auto 0">Choose from cozy cottages, private cabins with hot tubs, or spacious family suites — thoughtfully designed with natural materials and local craftsmanship.</p>
 
-    <footer>
-        <h3>🌿 The HillSide Oasis</h3>
-        <p>&copy; 2025 The HillSide Oasis. All rights reserved.</p>
-        <p style="font-style: italic;">Preserving Nature, Creating Memories</p>
-    </footer>
+      <div class="grid">
+        <div class="card">
+          <h3>Sky Suite</h3>
+          <p class="small">Modern suite with panoramic deck and king bed.</p>
+        </div>
+        <div class="card">
+          <h3>Hillside Suite</h3>
+          <p class="small">Large living area, private garden and farm views.</p>
+        </div>
+        <div class="card">
+          <h3>Family Cottage</h3>
+          <p class="small">Two-bedroom cottage with shared courtyard.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THINGS TO DO / ATTRACTIONS -->
+  <section id="things-to-do" class="section">
+    <div class="container">
+      <h2>Things to Do</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Guided Nature Walks</h3>
+          <p class="small">Learn about endemic species and conservation efforts.</p>
+        </div>
+        <div class="card">
+          <h3>Horseback & Carriage Rides</h3>
+          <p class="small">Scenic rides around the property.</p>
+        </div>
+        <div class="card">
+          <h3>Birdwatching</h3>
+          <p class="small">Early-morning guided birding excursions.</p>
+        </div>
+        <div class="card">
+          <h3>Local Tours</h3>
+          <p class="small">Half-day trips to Aliyar Dam, Topslip, Valparai and Pollachi markets.</p>
+        </div>
+      </div>
+
+      <div style="text-align:center" class="brochure">
+        <a href="#" aria-label="Download attractions brochure">Download Attractions Brochure</a>
+        <a href="#group-rate" style="background:transparent;color:var(--accent-2);font-weight:700">Request Group Rate</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section id="gallery" class="section">
+    <div class="container">
+      <h2>Gallery</h2>
+      <div class="gallery">
+        <div class="img" style="background-image:url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80')"></div>
+        <div class="img" style="background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80')"></div>
+        <div class="img" style="background-image:url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80')"></div>
+        <div class="img" style="background-image:url('https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80')"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GROUP RATE FORM (simple placeholder) -->
+  <section id="group-rate" class="section">
+    <div class="container">
+      <h2>Request a Group Rate</h2>
+      <p class="muted">Planning a retreat, reunion or an event? Fill the short form and our events team will get back with a custom quote.</p>
+      <div style="margin-top:18px;max-width:780px" class="card">
+        <form>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <input class="field" placeholder="Name" />
+            <input class="field" placeholder="Email" />
+            <input class="field" placeholder="Phone" />
+            <input class="field" placeholder="Group size" />
+          </div>
+          <textarea class="field" style="margin-top:10px;min-height:100px" placeholder="Tell us about your event"></textarea>
+          <div style="margin-top:12px"><button class="book-btn" type="submit">Request Quote</button></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT / FOOTER -->
+  <footer>
+    <div class="foot-inner">
+      <div>
+        <strong>HillSide Oasis</strong>
+        <div style="font-size:13px;margin-top:6px">Pollachi, Tamil Nadu • +91 99657 30597</div>
+      </div>
+      <div style="text-align:right;color:rgba(255,255,255,0.9)">
+        <div style="font-weight:700">Preserving Nature, Creating Memories</div>
+        <div style="font-size:13px;margin-top:6px">© 2025 HillSide Oasis</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Sticky quick actions -->
+  <div class="sticky-contact">
+    <a class="fab" href="tel:+919965730597">📞</a>
+    <a class="fab" href="https://wa.me/919965730597">💬</a>
+  </div>
 </body>
 </html>
