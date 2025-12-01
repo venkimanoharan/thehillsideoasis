@@ -7,101 +7,137 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <style>
-    /* Lightbox overlay */
-    .lightbox {
-      position: fixed;
-      top: 0;
-      left: 0;
+    /* --- GALLERY GRID --- */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+    .gallery-item {
       width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.8);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      cursor: pointer;
-    }
-
-    .lightbox img {
-      max-width: 90%;
-      max-height: 90%;
-      border-radius: 8px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    }
-
-    /* Ensure gallery images look good */
-    .gallery-item .img {
+      padding-top: 70%;
       background-size: cover;
       background-position: center;
+      border-radius: 10px;
       cursor: pointer;
       transition: transform 0.3s ease;
+      position: relative;
     }
-    .gallery-item .img:hover {
-      transform: scale(1.05);
+    .gallery-item:hover { transform: scale(1.05); }
+
+    /* --- LIGHTBOX --- */
+    .lightbox {
+      position: fixed;
+      top:0; left:0; width:100%; height:100%;
+      background: rgba(0,0,0,0.95);
+      display:none;
+      flex-direction: column;
+      align-items:center;
+      justify-content:center;
+      z-index:1000;
+      padding: 20px 0;
     }
+    .lightbox img {
+      max-width:90%;
+      max-height:60%;
+      border-radius:8px;
+      box-shadow:0 0 20px rgba(0,0,0,0.5);
+      margin-bottom: 10px;
+      position: absolute;
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .lightbox img.active {
+      opacity: 1;
+      position: relative;
+      transform: scale(1);
+    }
+
+    .lightbox .close {
+      position: absolute;
+      top: 20px; right: 30px;
+      font-size: 40px;
+      color:#fff;
+      cursor:pointer;
+      font-weight:bold;
+    }
+    .lightbox .nav-arrow {
+      position: absolute;
+      top: 50%;
+      font-size: 50px;
+      color:#fff;
+      cursor:pointer;
+      user-select:none;
+      transform: translateY(-50%);
+      padding: 10px;
+      transition: color 0.3s ease;
+    }
+    .lightbox .nav-arrow:hover { color: #f0a500; }
+    .lightbox .prev { left: 20px; }
+    .lightbox .next { right: 20px; }
+
+    /* --- THUMBNAILS STRIP --- */
+    .lightbox-thumbs-wrapper {
+      position: relative;
+      width: 90%;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .thumb-arrow {
+      font-size: 30px;
+      color: #fff;
+      cursor: pointer;
+      user-select: none;
+      padding: 5px 10px;
+      transition: color 0.3s ease;
+    }
+    .thumb-arrow:hover { color: #f0a500; }
+    .lightbox-thumbs {
+      display: flex;
+      overflow-x: auto;
+      gap: 8px;
+      scroll-behavior: smooth;
+      flex: 1;
+      padding: 5px 0;
+    }
+    .lightbox-thumbs img {
+      width: 60px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 5px;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.3s ease, transform 0.3s ease, border 0.3s ease;
+      border: 2px solid transparent;
+    }
+    .lightbox-thumbs img.active {
+      opacity: 1;
+      border-color: #f0a500;
+      transform: scale(1.1);
+    }
+    .lightbox-thumbs img:hover { opacity: 1; }
   </style>
 </head>
 <body>
-  <!-- NAV -->
-  <header class="nav" id="navbar">
-    <div class="nav-inner">
-      <div class="brand" onclick="window.location.href='index.html'">
-        <div class="logo">THO</div>
-        <div class="brand-text">
-          <h4>The HillSide Oasis</h4>
-          <div class="subtitle">Western Ghats • Pollachi</div>
-        </div>
-      </div>
-      <!-- Hamburger button for mobile -->
-      <div class="hamburger" id="hamburger">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-
-      <nav class="nav-links" id="nav-links">
-        <a href="index.html">Home</a>
-        <a href="about.html">About</a>
-        <a href="stay.html">Stay</a>
-        <a href="activities.html">Activities</a>
-        <a href="gallery.html">Gallery</a>
-        <div class="social-links">
-          <a href="https://facebook.com/thehillsideoasis" target="_blank" rel="noopener" aria-label="Facebook">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-          </a>
-          <a href="https://instagram.com/thehillsideoasis" target="_blank" rel="noopener" aria-label="Instagram">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z"/></svg>
-          </a>
-        </div>
-        <a class="book-btn" href="contact.html">Book Now</a>
-      </nav>
-    </div>
-  </header>
-
-  <!-- PAGE HERO -->
-  <section class="page-hero">
-    <div class="page-hero-content">
-      <h1>Gallery</h1>
-      <p>A glimpse into the beauty that awaits you</p>
-    </div>
-  </section>
 
   <!-- GALLERY GRID -->
   <section class="section">
     <div class="container">
       <div class="gallery">
-        <a href="images/1.jpeg" class="gallery-item"><div class="img" style="background-image:url('images/1.jpeg')"></div></a>
-        <a href="images/2.jpeg" class="gallery-item"><div class="img" style="background-image:url('images/2.jpeg')"></div></a>
-        <a href="images/4.jpeg" class="gallery-item"><div class="img" style="background-image:url('images/4.jpeg')"></div></a>
-        <a href="images/6.jpeg" class="gallery-item"><div class="img" style="background-image:url('images/6.jpeg')"></div></a>
-        <a href="images/7.jpeg" class="gallery-item"><div class="img" style="background-image:url('images/7.jpeg')"></div></a>
-        <a href="images/9.jpeg" class="gallery-item"><div class="img" style="background-image:url('images/9.jpeg')"></div></a>
-        <a href="images/10.jpeg" class="gallery-item"><div class="img" style="background-image:url('images/10.jpeg')"></div></a>
-        <a href="images/11.jpeg" class="gallery-item"><div class="img" style="background-image:url('images/11.jpeg')"></div></a>
-        <a href="images/13.jpeg" class="gallery-item"><div class="img" style="background-image:url('images/13.jpeg')"></div></a>
-        <a href="images/15.jpeg" class="gallery-item"><div class="img" style="background-image:url('images/15.jpeg')"></div></a>
-        <a href="images/DSC_0072-PANO.jpg" class="gallery-item"><div class="img" style="background-image:url('images/DSC_0072-PANO.jpg')"></div></a>
-        <a href="images/1.jpeg" class="gallery-item"><div class="img" style="background-image:url('images/1.jpeg')"></div></a>
+        <a href="images/1.jpeg" class="gallery-item"></a>
+        <a href="images/2.jpeg" class="gallery-item"></a>
+        <a href="images/4.jpeg" class="gallery-item"></a>
+        <a href="images/6.jpeg" class="gallery-item"></a>
+        <a href="images/7.jpeg" class="gallery-item"></a>
+        <a href="images/9.jpeg" class="gallery-item"></a>
+        <a href="images/10.jpeg" class="gallery-item"></a>
+        <a href="images/11.jpeg" class="gallery-item"></a>
+        <a href="images/13.jpeg" class="gallery-item"></a>
+        <a href="images/15.jpeg" class="gallery-item"></a>
+        <a href="images/DSC_0072-PANO.jpg" class="gallery-item"></a>
+        <a href="images/1.jpeg" class="gallery-item"></a>
       </div>
 
       <div class="cta-wrapper">
@@ -113,32 +149,107 @@
     </div>
   </section>
 
-  <!-- LIGHTBOX ELEMENT -->
+  <!-- LIGHTBOX -->
   <div class="lightbox" id="lightbox">
-    <img src="" alt="Enlarged image" id="lightbox-img">
+    <span class="close">&times;</span>
+    <div id="lightbox-images"></div>
+    <div class="nav-arrow prev">&#10094;</div>
+    <div class="nav-arrow next">&#10095;</div>
+    
+    <div class="lightbox-thumbs-wrapper">
+      <div class="thumb-arrow left">&#10094;</div>
+      <div class="lightbox-thumbs" id="lightbox-thumbs"></div>
+      <div class="thumb-arrow right">&#10095;</div>
+    </div>
   </div>
 
-  <!-- FOOTER -->
-  <footer>
-    <!-- Footer content here (same as your original) -->
-  </footer>
-
-  <script src="script.js" defer></script>
   <script>
-    // Lightbox JS
     const lightbox = document.getElementById('lightbox');
-    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxImagesContainer = document.getElementById('lightbox-images');
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    const thumbsContainer = document.getElementById('lightbox-thumbs');
+    let currentIndex = 0;
 
-    document.querySelectorAll('.gallery-item').forEach(item => {
+    const images = [];
+    galleryItems.forEach(item => images.push(item.href));
+
+    // Create two images for crossfade
+    let img1 = document.createElement('img');
+    let img2 = document.createElement('img');
+    img1.classList.add('active');
+    lightboxImagesContainer.appendChild(img1);
+    lightboxImagesContainer.appendChild(img2);
+
+    function showImage(index) {
+      const activeImg = img1.classList.contains('active') ? img1 : img2;
+      const nextImg = img1.classList.contains('active') ? img2 : img1;
+      nextImg.src = images[index];
+      nextImg.style.opacity = 0;
+      nextImg.style.transform = "scale(0.95)";
+      nextImg.classList.add('active');
+
+      // Start crossfade with zoom
+      setTimeout(() => {
+        nextImg.style.opacity = 1;
+        nextImg.style.transform = "scale(1)";
+        activeImg.style.opacity = 0;
+        activeImg.style.transform = "scale(0.95)";
+      }, 50);
+
+      // Swap active class
+      activeImg.classList.remove('active');
+      currentIndex = index;
+      updateThumbs();
+    }
+
+    // Thumbnails
+    images.forEach((src, index) => {
+      const thumb = document.createElement('img');
+      thumb.src = src;
+      thumb.addEventListener('click', () => showImage(index));
+      thumbsContainer.appendChild(thumb);
+    });
+    const thumbImages = thumbsContainer.querySelectorAll('img');
+
+    function updateThumbs() {
+      thumbImages.forEach((img, i) => img.classList.toggle('active', i===currentIndex));
+      thumbImages[currentIndex].scrollIntoView({behavior:'smooth', inline:'center'});
+    }
+
+    // Open lightbox
+    galleryItems.forEach((item, index) => {
+      item.style.backgroundImage = `url(${item.href})`;
       item.addEventListener('click', e => {
         e.preventDefault();
         lightbox.style.display = 'flex';
-        lightboxImg.src = item.href;
+        showImage(index);
       });
     });
 
-    lightbox.addEventListener('click', () => {
-      lightbox.style.display = 'none';
+    lightbox.querySelector('.close').addEventListener('click', () => lightbox.style.display='none');
+
+    lightbox.querySelector('.prev').addEventListener('click', e => {
+      e.stopPropagation();
+      showImage((currentIndex-1+images.length)%images.length);
+    });
+
+    lightbox.querySelector('.next').addEventListener('click', e => {
+      e.stopPropagation();
+      showImage((currentIndex+1)%images.length);
+    });
+
+    document.querySelector('.thumb-arrow.left').addEventListener('click', () => { thumbsContainer.scrollBy({ left: -100, behavior: 'smooth' }); });
+    document.querySelector('.thumb-arrow.right').addEventListener('click', () => { thumbsContainer.scrollBy({ left: 100, behavior: 'smooth' }); });
+
+    lightbox.addEventListener('click', e => { if(e.target === lightbox) lightbox.style.display='none'; });
+
+    // Swipe support
+    let startX = 0;
+    lightbox.addEventListener('touchstart', e => { startX = e.touches[0].clientX; });
+    lightbox.addEventListener('touchend', e => {
+      let endX = e.changedTouches[0].clientX;
+      if(endX - startX > 50) showImage((currentIndex-1+images.length)%images.length);
+      else if(startX - endX > 50) showImage((currentIndex+1)%images.length);
     });
   </script>
 </body>
