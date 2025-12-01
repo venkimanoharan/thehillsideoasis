@@ -949,3 +949,35 @@ footer::before{
     display: none;
   }
 }
+/* ====== MOBILE HERO, PAGE-HERO, GALLERY & ACTIVITIES FIX ====== */
+@media (max-width:768px){
+
+  /* HERO & PAGE-HERO */
+  .hero { 
+    min-height: 60vh; 
+    background-attachment: scroll; /* fixes mobile disappearing background */
+  }
+  .page-hero { 
+    min-height: 40vh; 
+    background-attachment: scroll;
+  }
+  .hero::before, .page-hero::before {
+    background: linear-gradient(135deg, rgba(43,91,51,0.5) 0%, rgba(15,25,15,0.3) 100%);
+  }
+
+  /* GALLERY IMAGES */
+  .gallery .img {
+    height:200px;  /* smaller height for mobile */
+  }
+
+  /* ACTIVITY DETAILS */
+  .activity-details {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .activity-details span {
+    width: 100%;          /* stack each activity label */
+    text-align: center;
+  }
+}
+
