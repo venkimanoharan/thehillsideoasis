@@ -980,9 +980,3 @@ footer::before{
     text-align: center;
   }
 }
-
-/* Hide all booking cards everywhere */
-.booking-card {
-    display: none !important;
-}
-
