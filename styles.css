@@ -853,45 +853,50 @@ footer::before{
 */
 
 @media (max-width: 768px) {
-  .hamburger {
-    display: flex;
-    flex-direction: column;
-    cursor: pointer;
-    gap: 5px;
-  }
-  .hamburger span {
-    display: block;
-    width: 25px;
-    height: 3px;
-    background: #333;
-    border-radius: 2px;
-    transition: 0.3s;
-  }
-  .hamburger.open span:nth-child(1) {
-    transform: rotate(45deg) translate(5px, 5px);
-  }
-  .hamburger.open span:nth-child(2) {
-    opacity: 0;
-  }
-  .hamburger.open span:nth-child(3) {
-    transform: rotate(-45deg) translate(5px, -5px);
-  }
-
   .nav-links {
-    display: none;
-    flex-direction: column;
-    position: absolute;
-    top: 70px;
-    right: 0;
-    background: #fff;
-    width: 200px;
-    padding: 1rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    z-index: 100;
-  }
-
-  .nav-links.active {
-    display: flex;
-  }
+  display: flex;
+  flex-direction: column;
+  position: fixed; /* make it fixed so it slides over content */
+  top: 0;
+  right: -250px; /* hidden off-screen initially */
+  height: 100vh; /* full height */
+  background: #fff;
+  width: 250px;
+  padding: 80px 20px; /* push down below header */
+  box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+  z-index: 999;
+  transition: right 0.3s ease;
 }
 
+.nav-links.active {
+  right: 0; /* slide in from right */
+}
+
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  gap: 5px;
+  z-index: 1000;
+}
+
+.hamburger span {
+  display: block;
+  width: 25px;
+  height: 3px;
+  background: #333;
+  border-radius: 2px;
+  transition: 0.3s;
+}
+
+.hamburger.open span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.open span:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
