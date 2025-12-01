@@ -5,569 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>The HillSide Oasis — Nature Retreat & Boutique Resort</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --accent:#6bbf59;
-      --accent-2:#2b5b33;
-      --muted:#6b7a6b;
-      --card:#ffffff;
-      --gradient-1: linear-gradient(135deg, #6bbf59 0%, #2b5b33 100%);
-      --gradient-2: linear-gradient(135deg, rgba(107,191,89,0.1) 0%, rgba(43,91,51,0.05) 100%);
-    }
-    *{box-sizing:border-box;margin:0;padding:0}
-    
-    body{
-      font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      line-height:1.6;
-      color:var(--accent-2);
-      background:#fafbfa;
-      overflow-x:hidden;
-    }
-
-    h1,h2,h3{font-family:'Playfair Display',serif;}
-
-    /* Smooth scroll */
-    html{scroll-behavior:smooth}
-
-    /* NAV */
-    .nav{
-      position:fixed;
-      top:0;
-      left:0;
-      right:0;
-      background:rgba(255,255,255,0.85);
-      backdrop-filter:blur(20px);
-      -webkit-backdrop-filter:blur(20px);
-      z-index:100;
-      border-bottom:1px solid rgba(107,191,89,0.1);
-      transition:all 0.3s ease;
-    }
-    .nav.scrolled{
-      background:rgba(255,255,255,0.95);
-      box-shadow:0 8px 32px rgba(43,91,51,0.08);
-    }
-    .nav-inner{
-      max-width:1400px;
-      margin:0 auto;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:20px 40px;
-    }
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:14px;
-      cursor:pointer;
-      transition:transform 0.3s ease;
-    }
-    .brand:hover{transform:translateY(-2px)}
-    .brand .logo{
-      width:52px;
-      height:52px;
-      border-radius:14px;
-      background:var(--gradient-1);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:#fff;
-      font-weight:800;
-      font-size:20px;
-      box-shadow:0 4px 16px rgba(107,191,89,0.3);
-    }
-    .brand-text h4{font-size:1.15rem;font-weight:700;color:var(--accent-2)}
-    .brand-text .subtitle{font-size:12px;color:var(--muted);font-weight:500}
-    
-    .nav-links{
-      display:flex;
-      gap:36px;
-      align-items:center;
-    }
-    .nav-links a{
-      color:var(--accent-2);
-      text-decoration:none;
-      font-weight:600;
-      font-size:15px;
-      position:relative;
-      transition:color 0.3s ease;
-    }
-    .nav-links a:not(.book-btn):after{
-      content:'';
-      position:absolute;
-      bottom:-4px;
-      left:0;
-      width:0;
-      height:2px;
-      background:var(--accent);
-      transition:width 0.3s ease;
-    }
-    .nav-links a:not(.book-btn):hover:after{width:100%}
-    .nav-links a:hover{color:var(--accent)}
-    
-    .social-links{
-      display:flex;
-      gap:12px;
-      align-items:center;
-    }
-    .social-links a{
-      width:36px;
-      height:36px;
-      border-radius:8px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:rgba(107,191,89,0.1);
-      color:var(--accent-2);
-      text-decoration:none;
-      font-size:18px;
-      transition:all 0.3s ease;
-    }
-    .social-links a:hover{
-      background:var(--accent);
-      color:#fff;
-      transform:translateY(-2px);
-    }
-    
-    .book-btn{
-      background:var(--gradient-1);
-      color:#fff !important;
-      padding:12px 24px;
-      border-radius:12px;
-      font-weight:700;
-      box-shadow:0 4px 16px rgba(107,191,89,0.3);
-      transition:all 0.3s ease;
-    }
-    .book-btn:hover{
-      transform:translateY(-2px);
-      box-shadow:0 6px 24px rgba(107,191,89,0.4);
-    }
-
-    /* HERO */
-    .hero{
-      min-height:100vh;
-      background-image:url('images/DSC_0072-PANO.jpg');
-      background-size:cover;
-      background-position:center;
-      background-attachment:fixed;
-      display:flex;
-      align-items:center;
-      position:relative;
-      margin-top:92px;
-    }
-    .hero::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:linear-gradient(135deg, rgba(43,91,51,0.7) 0%, rgba(15,25,15,0.5) 100%);
-      z-index:1;
-    }
-    .hero-inner{
-      position:relative;
-      max-width:1400px;
-      margin:0 auto;
-      padding:80px 40px;
-      display:grid;
-      grid-template-columns:1fr 420px;
-      gap:60px;
-      align-items:center;
-      z-index:2;
-    }
-    .hero-left{
-      color:#fff;
-      animation:fadeInUp 1s ease;
-    }
-    .hero-left h1{
-      font-size:4rem;
-      line-height:1.1;
-      margin-bottom:24px;
-      font-weight:700;
-      text-shadow:0 4px 24px rgba(0,0,0,0.3);
-    }
-    .hero-left p{
-      font-size:1.15rem;
-      opacity:0.95;
-      margin-bottom:32px;
-      line-height:1.7;
-      max-width:600px;
-    }
-    .hero-cta{
-      display:flex;
-      gap:16px;
-      flex-wrap:wrap;
-    }
-    .ghost{
-      background:rgba(255,255,255,0.15);
-      backdrop-filter:blur(10px);
-      border:1px solid rgba(255,255,255,0.3);
-      color:#fff;
-      padding:14px 28px;
-      border-radius:12px;
-      text-decoration:none;
-      font-weight:600;
-      transition:all 0.3s ease;
-      display:inline-block;
-    }
-    .ghost:hover{
-      background:rgba(255,255,255,0.25);
-      transform:translateY(-2px);
-    }
-
-    /* Booking card */
-    .booking-card{
-      background:rgba(255,255,255,0.95);
-      backdrop-filter:blur(20px);
-      padding:32px;
-      border-radius:24px;
-      box-shadow:0 20px 60px rgba(0,0,0,0.3);
-      border:1px solid rgba(255,255,255,0.5);
-      animation:fadeInRight 1s ease;
-    }
-    .booking-card h4{
-      margin-bottom:20px;
-      font-size:1.5rem;
-      color:var(--accent-2);
-    }
-    .booking-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-    }
-    .field{
-      padding:14px 16px;
-      border-radius:12px;
-      border:1px solid #e0e8e0;
-      background:#fff;
-      font-size:14px;
-      transition:all 0.3s ease;
-      font-family:inherit;
-    }
-    .field:focus{
-      outline:none;
-      border-color:var(--accent);
-      box-shadow:0 0 0 3px rgba(107,191,89,0.1);
-    }
-    .book-action{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-      margin-top:16px;
-    }
-    .primary{
-      background:var(--accent-2);
-      color:#fff;
-      padding:14px;
-      border-radius:12px;
-      text-align:center;
-      text-decoration:none;
-      font-weight:700;
-      transition:all 0.3s ease;
-      border:none;
-      cursor:pointer;
-    }
-    .primary:hover{
-      background:#1f4225;
-      transform:translateY(-2px);
-      box-shadow:0 6px 20px rgba(43,91,51,0.3);
-    }
-    .primary.accent{
-      background:var(--gradient-1);
-    }
-    .help-text{
-      font-size:13px;
-      color:var(--muted);
-      margin-top:12px;
-      text-align:center;
-    }
-    .help-text strong{color:var(--accent-2)}
-
-    /* Sections */
-    .section{
-      padding:120px 40px;
-      position:relative;
-    }
-    .container{
-      max-width:1400px;
-      margin:0 auto;
-    }
-    .section-header{
-      text-align:center;
-      margin-bottom:60px;
-      animation:fadeInUp 0.8s ease;
-    }
-    .section-header h2{
-      font-size:3rem;
-      margin-bottom:16px;
-      color:var(--accent-2);
-      font-weight:700;
-    }
-    .section-header p{
-      font-size:1.1rem;
-      color:var(--muted);
-      max-width:800px;
-      margin:0 auto;
-      line-height:1.8;
-    }
-
-    /* Cards grid */
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-      gap:32px;
-      margin-top:60px;
-    }
-    .card{
-      background:#fff;
-      padding:36px;
-      border-radius:20px;
-      box-shadow:0 4px 24px rgba(43,91,51,0.06);
-      border:1px solid rgba(107,191,89,0.1);
-      transition:all 0.4s ease;
-      position:relative;
-      overflow:hidden;
-    }
-    .card::before{
-      content:'';
-      position:absolute;
-      top:0;
-      left:0;
-      width:100%;
-      height:4px;
-      background:var(--gradient-1);
-      transform:scaleX(0);
-      transition:transform 0.4s ease;
-    }
-    .card:hover::before{transform:scaleX(1)}
-    .card:hover{
-      transform:translateY(-8px);
-      box-shadow:0 12px 40px rgba(43,91,51,0.12);
-    }
-    .card h3{
-      margin-bottom:12px;
-      font-size:1.5rem;
-      color:var(--accent-2);
-    }
-    .card .small{
-      font-size:1rem;
-      color:var(--muted);
-      line-height:1.7;
-    }
-
-    /* CTA Buttons */
-    .cta-wrapper{
-      display:flex;
-      gap:20px;
-      justify-content:center;
-      margin-top:48px;
-      flex-wrap:wrap;
-    }
-    .cta-btn{
-      background:var(--gradient-1);
-      color:#fff;
-      padding:16px 36px;
-      border-radius:14px;
-      text-decoration:none;
-      font-weight:700;
-      font-size:1rem;
-      transition:all 0.3s ease;
-      box-shadow:0 6px 24px rgba(107,191,89,0.3);
-      display:inline-block;
-    }
-    .cta-btn:hover{
-      transform:translateY(-3px);
-      box-shadow:0 10px 32px rgba(107,191,89,0.4);
-    }
-    .cta-btn.secondary{
-      background:transparent;
-      color:var(--accent-2);
-      border:2px solid var(--accent-2);
-      box-shadow:none;
-    }
-    .cta-btn.secondary:hover{
-      background:var(--accent-2);
-      color:#fff;
-    }
-
-    /* Gallery */
-    .gallery{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-      gap:24px;
-      margin-top:60px;
-    }
-    .img{
-      height:320px;
-      border-radius:20px;
-      background-size:cover;
-      background-position:center;
-      transition:all 0.4s ease;
-      box-shadow:0 4px 24px rgba(0,0,0,0.1);
-      cursor:pointer;
-      overflow:hidden;
-      position:relative;
-    }
-    .img::after{
-      content:'';
-      position:absolute;
-      inset:0;
-      background:linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.3) 100%);
-      transition:opacity 0.3s ease;
-    }
-    .img:hover{
-      transform:scale(1.03);
-      box-shadow:0 12px 40px rgba(0,0,0,0.2);
-    }
-    .img:hover::after{opacity:0.5}
-
-    /* Form section */
-    .form-card{
-      background:#fff;
-      padding:48px;
-      border-radius:24px;
-      box-shadow:0 8px 32px rgba(43,91,51,0.08);
-      max-width:900px;
-      margin:40px auto 0;
-      border:1px solid rgba(107,191,89,0.1);
-    }
-    .form-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:16px;
-      margin-bottom:16px;
-    }
-    textarea.field{
-      min-height:120px;
-      resize:vertical;
-    }
-    .submit-btn{
-      background:var(--gradient-1);
-      color:#fff;
-      padding:16px 40px;
-      border-radius:12px;
-      border:none;
-      font-weight:700;
-      font-size:1rem;
-      cursor:pointer;
-      transition:all 0.3s ease;
-      margin-top:16px;
-    }
-    .submit-btn:hover{
-      transform:translateY(-2px);
-      box-shadow:0 8px 24px rgba(107,191,89,0.3);
-    }
-
-    /* Footer */
-    footer{
-      background:var(--accent-2);
-      color:#fff;
-      padding:60px 40px 40px;
-      position:relative;
-      overflow:hidden;
-    }
-    footer::before{
-      content:'';
-      position:absolute;
-      top:0;
-      left:0;
-      right:0;
-      height:1px;
-      background:linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    }
-    .foot-inner{
-      max-width:1400px;
-      margin:0 auto;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:32px;
-    }
-    .foot-left strong{
-      font-size:1.3rem;
-      display:block;
-      margin-bottom:8px;
-    }
-    .foot-left .info{
-      font-size:14px;
-      opacity:0.9;
-      margin-top:8px;
-    }
-    .foot-right{
-      text-align:right;
-    }
-    .foot-right .tagline{
-      font-weight:700;
-      font-size:1.1rem;
-      margin-bottom:8px;
-    }
-    .foot-right .copyright{
-      font-size:13px;
-      opacity:0.8;
-    }
-
-    /* Sticky contact */
-    .sticky-contact{
-      position:fixed;
-      right:32px;
-      bottom:32px;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      z-index:90;
-    }
-    .fab{
-      width:60px;
-      height:60px;
-      border-radius:16px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:var(--gradient-1);
-      color:#fff;
-      text-decoration:none;
-      font-size:24px;
-      box-shadow:0 8px 32px rgba(107,191,89,0.4);
-      transition:all 0.3s ease;
-    }
-    .fab:hover{
-      transform:translateY(-4px) scale(1.05);
-      box-shadow:0 12px 40px rgba(107,191,89,0.5);
-    }
-
-    /* Animations */
-    @keyframes fadeInUp{
-      from{opacity:0;transform:translateY(30px)}
-      to{opacity:1;transform:translateY(0)}
-    }
-    @keyframes fadeInRight{
-      from{opacity:0;transform:translateX(30px)}
-      to{opacity:1;transform:translateX(0)}
-    }
-
-    /* Responsive */
-    @media(max-width:1200px){
-      .hero-inner{
-        grid-template-columns:1fr;
-        gap:40px;
-      }
-      .hero-left h1{font-size:3rem}
-      .section{padding:80px 32px}
-    }
-    @media(max-width:768px){
-      .nav-inner{padding:16px 24px}
-      .nav-links{display:none}
-      .social-links{display:none}
-      .hero{margin-top:84px}
-      .hero-left h1{font-size:2.2rem}
-      .hero-inner{padding:60px 24px}
-      .section-header h2{font-size:2.2rem}
-      .grid{grid-template-columns:1fr;gap:24px}
-      .form-grid{grid-template-columns:1fr}
-      .booking-grid{grid-template-columns:1fr}
-      .book-action{grid-template-columns:1fr}
-      .foot-inner{flex-direction:column;text-align:center}
-      .foot-right{text-align:center}
-      .form-card{padding:32px 24px}
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <!-- NAV -->
@@ -582,10 +20,11 @@
       </div>
 
       <nav class="nav-links">
-        <a href="#about">About</a>
-        <a href="#stay">Stay</a>
-        <a href="#things-to-do">Activities</a>
-        <a href="#gallery">Gallery</a>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="stay.html">Stay</a>
+        <a href="activities.html">Activities</a>
+        <a href="gallery.html">Gallery</a>
         <div class="social-links">
           <a href="https://facebook.com/thehillsideoasis" target="_blank" rel="noopener" aria-label="Facebook">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
@@ -594,7 +33,7 @@
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z"/></svg>
           </a>
         </div>
-        <a class="book-btn" href="#book">Book Now</a>
+        <a class="book-btn" href="contact.html">Book Now</a>
       </nav>
     </div>
   </header>
@@ -606,12 +45,12 @@
         <h1>Generations of joy where memories meet the mountains</h1>
         <p>A boutique nature retreat blending mango & coconut farms with elevated hospitality — stay in cottages, host intimate events, or bring your group for a private escape.</p>
         <div class="hero-cta">
-          <a class="ghost" href="#things-to-do">Explore Activities</a>
-          <a class="ghost" href="#gallery">View Gallery</a>
+          <a class="ghost" href="activities.html">Explore Activities</a>
+          <a class="ghost" href="gallery.html">View Gallery</a>
         </div>
       </div>
 
-      <aside class="booking-card" id="book">
+      <aside class="booking-card">
         <h4>Check Availability</h4>
         <div class="booking-grid">
           <input class="field" type="date" aria-label="Check-in date" />
@@ -630,146 +69,47 @@
         </div>
         <div class="book-action">
           <button class="primary">Check Rates</button>
-          <button class="primary accent">Group Rates</button>
+          <button class="primary accent" onclick="window.location.href='contact.html'">Group Rates</button>
         </div>
         <div class="help-text">Need help? Call: <strong>+91 91503 60597</strong></div>
       </aside>
     </div>
   </section>
 
-  <!-- ABOUT -->
-  <section id="about" class="section">
+  <!-- QUICK HIGHLIGHTS -->
+  <section class="section">
     <div class="container">
       <div class="section-header">
-        <h2>Why The HillSide Oasis</h2>
-        <p>An intimate retreat in the foothills of the Western Ghats — farm-to-table dining, guided nature walks, curated experiences and peaceful overnight stays in handcrafted cottages.</p>
+        <h2>Your Mountain Escape Awaits</h2>
+        <p>Discover what makes The HillSide Oasis special</p>
       </div>
 
       <div class="grid">
         <div class="card">
           <h3>🌾 Farm Living</h3>
-          <p class="small">Hands-on tours of our mango & coconut orchards, seasonal fruit picking and immersive farm workshops.</p>
+          <p class="small">Immerse yourself in authentic farm life with guided tours of our mango & coconut orchards.</p>
+          <a href="about.html" style="color:var(--accent);font-weight:600;margin-top:12px;display:inline-block">Learn More →</a>
         </div>
         <div class="card">
-          <h3>⛰️ Mountain Views</h3>
-          <p class="small">Private terraces and sunrise viewpoints overlooking the majestic Western Ghats.</p>
+          <h3>🏡 Boutique Stays</h3>
+          <p class="small">Choose from handcrafted cottages and suites designed for comfort and tranquility.</p>
+          <a href="stay.html" style="color:var(--accent);font-weight:600;margin-top:12px;display:inline-block">View Rooms →</a>
         </div>
         <div class="card">
-          <h3>🎉 Events & Celebrations</h3>
-          <p class="small">Intimate venues, bespoke planning, and on-site catering — perfect for elopements and family celebrations.</p>
+          <h3>🎯 Curated Experiences</h3>
+          <p class="small">From nature walks to birdwatching, every activity is designed to connect you with nature.</p>
+          <a href="activities.html" style="color:var(--accent);font-weight:600;margin-top:12px;display:inline-block">Explore →</a>
         </div>
         <div class="card">
-          <h3>👥 Groups & Retreats</h3>
-          <p class="small">Custom packages for corporate retreats, reunions and yoga camps. Request a personalized group rate.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- STAY -->
-  <section id="stay" class="section" style="background:var(--gradient-2)">
-    <div class="container">
-      <div class="section-header">
-        <h2>Places to Stay</h2>
-        <p>Choose from cozy cottages, private cabins with hot tubs, or spacious family suites — thoughtfully designed with natural materials and local craftsmanship.</p>
-      </div>
-
-      <div class="grid">
-        <div class="card">
-          <h3>Sky Suite</h3>
-          <p class="small">Modern suite with panoramic deck and king bed. Perfect for couples seeking romance with a view.</p>
-        </div>
-        <div class="card">
-          <h3>Hillside Suite</h3>
-          <p class="small">Large living area, private garden and breathtaking farm views. Ideal for extended stays.</p>
-        </div>
-        <div class="card">
-          <h3>Family Cottage</h3>
-          <p class="small">Two-bedroom cottage with shared courtyard. Perfect for families creating memories together.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ACTIVITIES -->
-  <section id="things-to-do" class="section">
-    <div class="container">
-      <div class="section-header">
-        <h2>Things to Do</h2>
-        <p>Immerse yourself in nature and local culture with our curated experiences</p>
-      </div>
-
-      <div class="grid">
-        <div class="card">
-          <h3>🥾 Guided Nature Walks</h3>
-          <p class="small">Learn about endemic species and conservation efforts with our expert naturalists.</p>
-        </div>
-        <div class="card">
-          <h3>🐴 Carriage Rides</h3>
-          <p class="small">Scenic rides around the property at sunset for a magical experience.</p>
-        </div>
-        <div class="card">
-          <h3>🦜 Birdwatching</h3>
-          <p class="small">Early-morning guided birding excursions to spot rare Western Ghats species.</p>
-        </div>
-        <div class="card">
-          <h3>🗺️ Local Tours</h3>
-          <p class="small">Half-day trips to Aliyar Dam, Topslip, Valparai and vibrant Pollachi markets.</p>
+          <h3>🎉 Private Events</h3>
+          <p class="small">Host intimate celebrations, corporate retreats, or family reunions in our scenic venues.</p>
+          <a href="contact.html" style="color:var(--accent);font-weight:600;margin-top:12px;display:inline-block">Get Quote →</a>
         </div>
       </div>
 
       <div class="cta-wrapper">
-        <a href="#" class="cta-btn">Download Attractions Brochure</a>
-        <a href="#group-rate" class="cta-btn secondary">Request Group Rate</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- GALLERY -->
-  <section id="gallery" class="section" style="background:var(--gradient-2)">
-    <div class="container">
-      <div class="section-header">
-        <h2>Gallery</h2>
-        <p>A glimpse into the beauty that awaits you</p>
-      </div>
-      <div class="gallery">
-        <div class="img" style="background-image:url('images/1.jpeg')"></div>
-        <div class="img" style="background-image:url('images/2.jpeg')"></div>
-        <div class="img" style="background-image:url('images/4.jpeg')"></div>
-        <div class="img" style="background-image:url('images/6.jpeg')"></div>
-        <div class="img" style="background-image:url('images/7.jpeg')"></div>
-        <div class="img" style="background-image:url('images/9.jpeg')"></div>
-        <div class="img" style="background-image:url('images/10.jpeg')"></div>
-        <div class="img" style="background-image:url('images/11.jpeg')"></div>
-        <div class="img" style="background-image:url('images/13.jpeg')"></div>
-        <div class="img" style="background-image:url('images/15.jpeg')"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- GROUP RATE FORM -->
-  <section id="group-rate" class="section">
-    <div class="container">
-      <div class="section-header">
-        <h2>Request a Group Rate</h2>
-        <p>Planning a retreat, reunion or an event? Fill the form and our events team will get back with a custom quote.</p>
-      </div>
-      
-      <div class="form-card">
-        <form action="https://formsubmit.co/vn28565@gmail.com" method="POST">
-          <input type="hidden" name="_subject" value="New Group Rate Request - The HillSide Oasis">
-          <input type="hidden" name="_captcha" value="false">
-          <input type="hidden" name="_template" value="table">
-          
-          <div class="form-grid">
-            <input class="field" name="name" placeholder="Full Name" required />
-            <input class="field" type="email" name="email" placeholder="Email Address" required />
-            <input class="field" type="tel" name="phone" placeholder="Phone Number" required />
-            <input class="field" type="number" name="group_size" placeholder="Group Size" required />
-          </div>
-          <textarea class="field" name="message" placeholder="Tell us about your event (dates, requirements, special requests...)" required></textarea>
-          <button class="submit-btn" type="submit">Request Custom Quote</button>
-        </form>
+        <a href="about.html" class="cta-btn">Discover Our Story</a>
+        <a href="gallery.html" class="cta-btn secondary">View Gallery</a>
       </div>
     </div>
   </section>
@@ -803,30 +143,6 @@
     <a class="fab" href="https://wa.me/919150360597" aria-label="WhatsApp us">💬</a>
   </div>
 
-  <script>
-    // Navbar scroll effect
-    window.addEventListener('scroll', function() {
-      const navbar = document.getElementById('navbar');
-      if (window.scrollY > 50) {
-        navbar.classList.add('scrolled');
-      } else {
-        navbar.classList.remove('scrolled');
-      }
-    });
-
-    // Smooth scroll for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-        }
-      });
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
