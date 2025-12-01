@@ -43,17 +43,11 @@
       border-radius:8px;
       box-shadow:0 0 20px rgba(0,0,0,0.5);
       margin-bottom: 10px;
-      position: absolute;
-      opacity: 0;
-      transform: scale(0.95);
-      transition: opacity 0.5s ease, transform 0.5s ease;
+      transition: transform 0.5s ease; /* Zoom effect */
     }
-    .lightbox img.active {
-      opacity: 1;
-      position: relative;
-      transform: scale(1);
+    .lightbox img:hover {
+      transform: scale(1.05); /* Zoom on hover */
     }
-
     .lightbox .close {
       position: absolute;
       top: 20px; right: 30px;
@@ -122,6 +116,8 @@
 </head>
 <body>
 
+  <!-- NAV & HERO omitted for brevity -->
+
   <!-- GALLERY GRID -->
   <section class="section">
     <div class="container">
@@ -152,7 +148,7 @@
   <!-- LIGHTBOX -->
   <div class="lightbox" id="lightbox">
     <span class="close">&times;</span>
-    <div id="lightbox-images"></div>
+    <img src="" alt="Enlarged image" id="lightbox-img">
     <div class="nav-arrow prev">&#10094;</div>
     <div class="nav-arrow next">&#10095;</div>
     
@@ -165,54 +161,26 @@
 
   <script>
     const lightbox = document.getElementById('lightbox');
-    const lightboxImagesContainer = document.getElementById('lightbox-images');
+    const lightboxImg = document.getElementById('lightbox-img');
     const galleryItems = document.querySelectorAll('.gallery-item');
     const thumbsContainer = document.getElementById('lightbox-thumbs');
     let currentIndex = 0;
 
-    const images = [];
-    galleryItems.forEach(item => images.push(item.href));
-
-    // Create two images for crossfade
-    let img1 = document.createElement('img');
-    let img2 = document.createElement('img');
-    img1.classList.add('active');
-    lightboxImagesContainer.appendChild(img1);
-    lightboxImagesContainer.appendChild(img2);
-
-    function showImage(index) {
-      const activeImg = img1.classList.contains('active') ? img1 : img2;
-      const nextImg = img1.classList.contains('active') ? img2 : img1;
-      nextImg.src = images[index];
-      nextImg.style.opacity = 0;
-      nextImg.style.transform = "scale(0.95)";
-      nextImg.classList.add('active');
-
-      // Start crossfade with zoom
-      setTimeout(() => {
-        nextImg.style.opacity = 1;
-        nextImg.style.transform = "scale(1)";
-        activeImg.style.opacity = 0;
-        activeImg.style.transform = "scale(0.95)";
-      }, 50);
-
-      // Swap active class
-      activeImg.classList.remove('active');
-      currentIndex = index;
-      updateThumbs();
-    }
-
-    // Thumbnails
-    images.forEach((src, index) => {
+    // Create thumbnails
+    galleryItems.forEach((item, index) => {
       const thumb = document.createElement('img');
-      thumb.src = src;
-      thumb.addEventListener('click', () => showImage(index));
+      thumb.src = item.href;
+      thumb.addEventListener('click', () => {
+        currentIndex = index;
+        showImage();
+      });
       thumbsContainer.appendChild(thumb);
     });
     const thumbImages = thumbsContainer.querySelectorAll('img');
 
     function updateThumbs() {
-      thumbImages.forEach((img, i) => img.classList.toggle('active', i===currentIndex));
+      thumbImages.forEach((img,i) => img.classList.toggle('active', i===currentIndex));
+      // Scroll active thumb into view
       thumbImages[currentIndex].scrollIntoView({behavior:'smooth', inline:'center'});
     }
 
@@ -221,26 +189,40 @@
       item.style.backgroundImage = `url(${item.href})`;
       item.addEventListener('click', e => {
         e.preventDefault();
+        currentIndex = index;
+        showImage();
         lightbox.style.display = 'flex';
-        showImage(index);
       });
     });
 
-    lightbox.querySelector('.close').addEventListener('click', () => lightbox.style.display='none');
+    function showImage() {
+      lightboxImg.src = galleryItems[currentIndex].href;
+      updateThumbs();
+    }
+
+    lightbox.querySelector('.close').addEventListener('click', () => lightbox.style.display = 'none');
 
     lightbox.querySelector('.prev').addEventListener('click', e => {
       e.stopPropagation();
-      showImage((currentIndex-1+images.length)%images.length);
+      currentIndex = (currentIndex - 1 + galleryItems.length) % galleryItems.length;
+      showImage();
     });
 
     lightbox.querySelector('.next').addEventListener('click', e => {
       e.stopPropagation();
-      showImage((currentIndex+1)%images.length);
+      currentIndex = (currentIndex + 1) % galleryItems.length;
+      showImage();
     });
 
-    document.querySelector('.thumb-arrow.left').addEventListener('click', () => { thumbsContainer.scrollBy({ left: -100, behavior: 'smooth' }); });
-    document.querySelector('.thumb-arrow.right').addEventListener('click', () => { thumbsContainer.scrollBy({ left: 100, behavior: 'smooth' }); });
+    // Thumbnail scroll arrows
+    document.querySelector('.thumb-arrow.left').addEventListener('click', () => {
+      thumbsContainer.scrollBy({ left: -100, behavior: 'smooth' });
+    });
+    document.querySelector('.thumb-arrow.right').addEventListener('click', () => {
+      thumbsContainer.scrollBy({ left: 100, behavior: 'smooth' });
+    });
 
+    // Close lightbox when clicking outside image
     lightbox.addEventListener('click', e => { if(e.target === lightbox) lightbox.style.display='none'; });
 
     // Swipe support
@@ -248,8 +230,9 @@
     lightbox.addEventListener('touchstart', e => { startX = e.touches[0].clientX; });
     lightbox.addEventListener('touchend', e => {
       let endX = e.changedTouches[0].clientX;
-      if(endX - startX > 50) showImage((currentIndex-1+images.length)%images.length);
-      else if(startX - endX > 50) showImage((currentIndex+1)%images.length);
+      if(endX - startX > 50) currentIndex = (currentIndex - 1 + galleryItems.length) % galleryItems.length;
+      else if(startX - endX > 50) currentIndex = (currentIndex + 1) % galleryItems.length;
+      showImage();
     });
   </script>
 </body>
