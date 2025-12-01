@@ -852,51 +852,92 @@ footer::before{
    Add this block at the very end of styles.css
 */
 
-@media (max-width: 768px) {
+@media (max-width:768px){
+  /* General adjustments */
+  .nav-inner{padding:16px 24px}
+  .hero{margin-top:84px}
+  .page-hero{margin-top:84px}
+  .hero-left h1{font-size:2.2rem}
+  .page-hero-content h1{font-size:2.2rem}
+  .hero-inner{padding:60px 24px}
+  .section-header h2{font-size:2.2rem}
+  .grid{grid-template-columns:1fr;gap:24px}
+  .form-grid{grid-template-columns:1fr}
+  .booking-grid{grid-template-columns:1fr}
+  .book-action{grid-template-columns:1fr}
+  .foot-inner{flex-direction:column;text-align:center}
+  .foot-right{text-align:center}
+  .form-card{padding:32px 24px}
+  .amenities{grid-template-columns:1fr}
+  .room-meta{justify-content:center}
+  .room-cta{justify-content:center}
+
+  /* Hamburger button */
+  .hamburger {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    gap: 5px;
+    z-index: 1100; /* above overlay */
+  }
+  .hamburger span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background: #333;
+    border-radius: 2px;
+    transition: 0.3s;
+  }
+  .hamburger.open span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+  .hamburger.open span:nth-child(2) {
+    opacity: 0;
+  }
+  .hamburger.open span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+  }
+
+  /* Full-screen overlay menu */
   .nav-links {
-  display: flex;
-  flex-direction: column;
-  position: fixed; /* make it fixed so it slides over content */
-  top: 0;
-  right: -250px; /* hidden off-screen initially */
-  height: 100vh; /* full height */
-  background: #fff;
-  width: 250px;
-  padding: 80px 20px; /* push down below header */
-  box-shadow: -2px 0 10px rgba(0,0,0,0.2);
-  z-index: 999;
-  transition: right 0.3s ease;
-}
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    gap: 40px;
+  }
 
-.nav-links.active {
-  right: 0; /* slide in from right */
-}
+  .nav-links a {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
 
-.hamburger {
-  display: flex;
-  flex-direction: column;
-  cursor: pointer;
-  gap: 5px;
-  z-index: 1000;
-}
+  .nav-links a.book-btn {
+    background: var(--gradient-1);
+    color: #fff !important;
+    padding: 12px 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(107,191,89,0.3);
+  }
 
-.hamburger span {
-  display: block;
-  width: 25px;
-  height: 3px;
-  background: #333;
-  border-radius: 2px;
-  transition: 0.3s;
-}
+  .nav-links.active {
+    transform: translateX(0);
+  }
 
-.hamburger.open span:nth-child(1) {
-  transform: rotate(45deg) translate(5px, 5px);
-}
-
-.hamburger.open span:nth-child(2) {
-  opacity: 0;
-}
-
-.hamburger.open span:nth-child(3) {
-  transform: rotate(-45deg) translate(5px, -5px);
+  /* Hide social links in mobile menu */
+  .social-links {
+    display: none;
+  }
 }
