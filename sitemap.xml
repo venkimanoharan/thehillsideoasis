@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
-  
+
   <url>
     <loc>https://thehillsideoasis.com/</loc>
     <lastmod>2025-12-06</lastmod>
@@ -39,7 +39,7 @@
   <url>
     <loc>https://thehillsideoasis.com/contact.html</loc>
     <lastmod>2025-12-06</lastmod>
-    <changefreq>monthly</changefreq>
+    <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
 
