@@ -12,12 +12,18 @@
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="512x512" href="favicon-512.png">
 
-  <!-- Fonts & Styles -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
+  <!-- Preload Google Fonts for faster rendering -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  </noscript>
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="styles.css">
 
   <!-- SEO Meta Description -->
   <meta name="description" content="View the photo gallery of The HillSide Oasis — showcasing our cottages, nature views, mango farms, activities, and serene landscapes in Pollachi, Tamil Nadu." />
+  <meta name="robots" content="index, follow">
 
   <!-- Keywords -->
   <meta name="keywords" content="Pollachi resort gallery, HillSide Oasis photos, Western Ghats nature pictures, Pollachi farm stay images, resort gallery Tamil Nadu" />
@@ -29,14 +35,42 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://thehillsideoasis.com/gallery.html" />
   
-  <!-- Keywords -->
-  <meta name="keywords" content="Pollachi resort, Western Ghats stay, farm stay Pollachi, mango farm resort, cottages in Pollachi, nature resort Tamil Nadu, HillSide Oasis, coconut farm resort">
-  
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
 
   <!-- Canonical URL -->
   <link rel="canonical" href="https://thehillsideoasis.com/gallery.html" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Resort",
+    "name": "The HillSide Oasis",
+    "image": "https://thehillsideoasis.com/images/2.jpeg",
+    "description": "Explore beautiful photos of our farm stay, cottages, mango orchards, scenic views, and curated experiences in the Western Ghats.",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Arthanaripalayam",
+      "addressLocality": "Pollachi",
+      "addressRegion": "Tamilnadu",
+      "postalCode": "642007",
+      "addressCountry": "IN"
+    },
+    "telephone": "+91-9150360597",
+    "email": "vn28565@gmail.com",
+    "url": "https://thehillsideoasis.com",
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "10.517370",
+      "longitude": "77.039484"
+    },
+    "priceRange": "7500",
+    "sameAs": [
+      "https://www.facebook.com/thehillsideoasis",
+      "https://www.instagram.com/thehillsideoasis"
+    ]
+  }
+  </script>
 
   <style>
     /* --- GALLERY GRID --- */
