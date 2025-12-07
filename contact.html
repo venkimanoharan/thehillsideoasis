@@ -12,7 +12,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="512x512" href="favicon-512.png">
 
-  <!-- Google Fonts -->
+  <!-- Preload Google Fonts for faster rendering -->
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
@@ -21,22 +21,66 @@
   <!-- Main CSS -->
   <link rel="stylesheet" href="styles.css">
 
-  <!-- Meta -->
+  <!-- SEO Meta Description -->
   <meta name="description" content="Contact The HillSide Oasis in Pollachi for bookings, enquiries, and event reservations. Reach us easily by phone, WhatsApp, or email to plan your perfect farm stay." />
   <meta name="robots" content="index, follow">
+
+  <!-- Keywords -->
   <meta name="keywords" content="HillSide Oasis contact, book Pollachi resort, farm stay booking Pollachi, Western Ghats resort booking, HillSide Oasis phone number" />
+
+  <!-- Open Graph (Social Preview) -->
   <meta property="og:title" content="Contact & Book Your Stay — The HillSide Oasis" />
   <meta property="og:description" content="Reach out to book your stay, plan events, or enquire about activities at our nature retreat in Pollachi." />
   <meta property="og:image" content="https://thehillsideoasis.com/images/2.jpeg" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://thehillsideoasis.com/contact.html" />
+  
+  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Canonical URL -->
   <link rel="canonical" href="https://thehillsideoasis.com/contact.html" />
+
+  <!-- Content Security Headers -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' https://thehillsideoasis.com; script-src 'self'; style-src 'self' 'unsafe-inline';">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Resort",
+    "name": "The HillSide Oasis",
+    "image": "https://thehillsideoasis.com/images/2.jpeg",
+    "description": "Reach out to book your stay, plan events, or enquire about activities at our nature retreat in Pollachi.",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Arthanaripalayam",
+      "addressLocality": "Pollachi",
+      "addressRegion": "Tamilnadu",
+      "postalCode": "642007",
+      "addressCountry": "IN"
+    },
+    "telephone": "+91-9150360597",
+    "email": "vn28565@gmail.com",
+    "url": "https://thehillsideoasis.com",
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "10.517370",
+      "longitude": "77.039484"
+    },
+    "priceRange": "7500",
+    "sameAs": [
+      "https://www.facebook.com/thehillsideoasis",
+      "https://www.instagram.com/thehillsideoasis"
+    ]
+  }
+  </script>
 
 </head>
 
 <body>
-  <!-- NAV -->
   <!-- NAV -->
   <header class="nav" id="navbar">
     <div class="nav-inner">
@@ -47,7 +91,7 @@
           <div class="subtitle">Western Ghats • Pollachi</div>
         </div>
       </div>
-      
+
       <!-- Hamburger button for mobile -->
       <div class="hamburger" id="hamburger">
         <span></span>
@@ -74,7 +118,7 @@
     </div>
   </header>
 
-  <!-- HERO -->
+  <!-- PAGE HERO -->
   <section class="page-hero">
     <div class="page-hero-content">
       <h1>Get in Touch</h1>
@@ -82,38 +126,77 @@
     </div>
   </section>
 
-  <!-- CONTACT -->
+  <!-- CONTACT INFO -->
   <section class="section">
     <div class="container">
       <div class="contact-grid">
         <div class="contact-info">
           <h2>Contact Information</h2>
           <p>Reach out to us through any of these channels</p>
-          <div class="contact-item"><div class="contact-icon">📞</div><div><strong>Phone</strong><p><a href="tel:+919150360597">+91 91503 60597</a></p></div></div>
-          <div class="contact-item"><div class="contact-icon">💬</div><div><strong>WhatsApp</strong><p><a href="https://wa.me/919150360597" target="_blank">+91 91503 60597</a></p></div></div>
-          <div class="contact-item"><div class="contact-icon">📧</div><div><strong>Email</strong><p><a href="mailto:info@thehillsideoasis.com">info@thehillsideoasis.com</a></p></div></div>
-          <div class="contact-item"><div class="contact-icon">📍</div><div><strong>Location</strong><p>Pollachi, Tamil Nadu<br>Near Western Ghats</p></div></div>
-        </div>
+          
+          <div class="contact-item">
+            <div class="contact-icon">📞</div>
+            <div>
+              <strong>Phone</strong>
+              <p><a href="tel:+919150360597">+91 91503 60597</a></p>
+            </div>
+          </div>
 
-         <!-- HOW TO REACH US -->
-        <div class="location-details" style="margin-top:24px;">
-          <h3>How to Reach Us</h3>
-          <p><strong>Address:</strong> Arthanaripalayam, Pollachi, Tamil Nadu 642007</p>
-          <p><strong>From Coimbatore:</strong> 45 km (approx. 1 hour drive)</p>
-          <p><strong>From Coimbatore Airport:</strong> 50 km (approx. 1.2 hours)</p>
-          <p><strong>Nearest Railway Station:</strong> Pollachi Railway Station (12 km)</p>
+          <div class="contact-item">
+            <div class="contact-icon">💬</div>
+            <div>
+              <strong>WhatsApp</strong>
+              <p><a href="https://wa.me/919150360597" target="_blank">+91 91503 60597</a></p>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-icon">📧</div>
+            <div>
+              <strong>Email</strong>
+              <p><a href="mailto:info@thehillsideoasis.com">info@thehillsideoasis.com</a></p>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-icon">📍</div>
+            <div>
+              <strong>Location</strong>
+              <p>Pollachi, Tamil Nadu<br>Near Western Ghats</p>
+            </div>
+          </div>
+
+          <div class="location-details">
+            <h3>How to Reach Us</h3>
+            <p><strong>Address:</strong> Arthanaripalayam, Pollachi, Tamil Nadu 642007</p>
+            <p><strong>From Coimbatore:</strong> 45 km (1 hour drive)</p>
+            <p><strong>From Coimbatore Airport:</strong> 50 km (1.2 hours)</p>
+            <p><strong>Nearest Railway Station:</strong> Pollachi Railway Station (12 km)</p>
+          </div>
+
+          <div class="social-box">
+            <h3>Follow Us</h3>
+            <div style="display:flex;gap:12px;margin-top:12px">
+              <a href="https://facebook.com/thehillsideoasis" target="_blank" class="social-link-large">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+              </a>
+              <a href="https://instagram.com/thehillsideoasis" target="_blank" class="social-link-large">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z"/></svg>
+              </a>
+            </div>
+          </div>
         </div>
 
         <div class="form-card">
           <h3>Request a Group Rate or Book Your Stay</h3>
           <p style="margin-bottom:24px;color:var(--muted)">Fill out the form below and our team will get back to you within 24 hours with availability and pricing.</p>
+          
+          <form action="https://formsubmit.co/vn28565@gmail.com" method="POST">
+            <input type="hidden" name="_subject" value="New Booking Inquiry - The HillSide Oasis">
+            <input type="hidden" name="_captcha" value="false">
+            <input type="hidden" name="_template" value="table">
+            <input type="hidden" name="_next" value="https://thehillsideoasis.com/contact.html">
 
-          <!-- SUCCESS MESSAGE -->
-          <div id="form-success" style="display:none;background: #d4edda;color:#155724;padding:15px;border-radius:6px;margin-bottom:16px;text-align:center;">
-            ✅ Your inquiry has been sent! We will get back to you soon.
-          </div>
-
-          <form id="booking-form">
             <div class="form-grid">
               <input class="field" name="name" placeholder="Full Name *" required />
               <input class="field" type="email" name="email" placeholder="Email Address *" required />
@@ -122,7 +205,8 @@
               <input class="field" type="date" name="checkin" placeholder="Check-in Date" />
               <input class="field" type="date" name="checkout" placeholder="Check-out Date" />
             </div>
-            <select class="field" name="inquiry_type" style="margin-bottom:16px" required>
+            
+            <select class="field" name="inquiry_type" style="margin-bottom:16px">
               <option value="">Select Inquiry Type *</option>
               <option value="Individual Booking">Individual/Couple Booking</option>
               <option value="Family Booking">Family Booking</option>
@@ -131,7 +215,9 @@
               <option value="Event/Celebration">Event/Celebration</option>
               <option value="General Inquiry">General Inquiry</option>
             </select>
+            
             <textarea class="field" name="message" placeholder="Tell us about your plans, special requests, or any questions you have..." rows="5" maxlength="1000" required></textarea>
+            
             <button class="submit-btn" type="submit">Send</button>
           </form>
 
@@ -172,29 +258,50 @@
     <a class="fab" href="https://wa.me/919150360597" aria-label="WhatsApp us">💬</a>
   </div>
 
-  <!-- SCRIPT -->
   <script>
-    const form = document.getElementById("booking-form");
-    const successMsg = document.getElementById("form-success");
-
-    form.addEventListener("submit", async function(e) {
-      e.preventDefault();
-      const formData = new FormData(form);
-
-      // Send to Formsubmit
-      const response = await fetch("https://formsubmit.co/ajax/vn28565@gmail.com", {
-        method: "POST",
-        body: formData
-      });
-
-      if(response.ok) {
-        successMsg.style.display = "block";
-        form.reset();
-      } else {
-        alert("Oops! Something went wrong. Please try again.");
+      // Handle form submission
+  document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+  
+    const form = e.target;
+    const submitBtn = document.getElementById('submitBtn');
+    const formData = new FormData(form);
+  
+    // Disable button during submission
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+  
+    // Submit form via fetch
+    fetch(form.action, {
+      method: 'POST',
+      body: formData,
+      headers: {
+       'Accept': 'application/json'
       }
+    })
+    .then(response => {
+      // Show success message
+      document.getElementById('successMessage').classList.add('show');
+      document.getElementById('formContainer').classList.add('form-hidden');
+    
+      // Scroll to success message
+      document.getElementById('successMessage').scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+    
+      // Reset form
+      form.reset();
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('There was an error sending your message. Please try again or contact us directly.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send';
     });
-  </script>
+  });
+  </script>  
+
   <script src="script.js" defer></script>
 </body>
 </html>
