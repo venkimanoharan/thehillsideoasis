@@ -205,5 +205,332 @@
   </div>
 
   <script src="script.js" defer></script>
+    <!-- ADD THIS CODE TO YOUR HTML FILES -->
+  <!-- Place this BEFORE the closing </body> tag in index.html, stay.html, and any other pages -->
+
+  <!-- Step 1: Add Tailwind CSS (for styling) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Step 2: Add React dependencies -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Step 3: Add Babel for JSX transformation -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Step 4: Create container for chatbot -->
+  <div id="hillside-chatbot"></div>
+
+  <!-- Step 5: Add the chatbot code -->
+  <script type="text/babel">
+  const { useState, useRef, useEffect } = React;
+
+  // Import icons (simplified versions)
+  const MessageCircle = () => (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+    </svg>
+  );
+
+  const X = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  );
+
+  const Send = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <line x1="22" y1="2" x2="11" y2="13" />
+      <polygon points="22 2 15 22 11 13 2 9 22 2" />
+    </svg>
+  );
+
+  const Loader = () => (
+    <svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+    </svg>
+  );
+
+  function HillsideChatbot() {
+    const [isOpen, setIsOpen] = useState(false);
+    const [messages, setMessages] = useState([
+      {
+        role: 'assistant',
+        content: 'Welcome to The Hillside Oasis! 🏔️ I can help you with cottage types, pricing, and availability. What would you like to know?'
+      }
+    ]);
+    const [input, setInput] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const messagesEndRef = useRef(null);
+
+    // YOUR COTTAGE DATA - Update this with your actual information
+    const cottageData = {
+      cottages: [
+        {
+          type: 'Deluxe Cottage',
+          capacity: '2-4 persons',
+          price: '$150/night',
+          amenities: ['King bed', 'Private bathroom', 'Mountain view', 'WiFi', 'Mini kitchen'],
+          availability: 'Available'
+        },
+        {
+          type: 'Family Cottage',
+          capacity: '4-6 persons',
+          price: '$220/night',
+          amenities: ['2 bedrooms', '2 bathrooms', 'Full kitchen', 'Living area', 'Balcony'],
+          availability: 'Available'
+        },
+        {
+          type: 'Premium Suite',
+          capacity: '2 persons',
+          price: '$200/night',
+          amenities: ['Jacuzzi', 'Fireplace', 'King bed', 'Premium toiletries', 'Valley view'],
+          availability: 'Limited'
+        }
+      ],
+      policies: {
+        checkIn: '2:00 PM',
+        checkOut: '11:00 AM',
+        cancellation: '48 hours notice for full refund',
+        pets: 'Allowed with $25 fee'
+      }
+    };
+
+    useEffect(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
+
+    const generateResponse = (userMessage) => {
+      const lowerMessage = userMessage.toLowerCase();
+      
+      if (lowerMessage.includes('price') || lowerMessage.includes('cost') || lowerMessage.includes('rate')) {
+        const priceInfo = cottageData.cottages.map(c => 
+          `• ${c.type}: ${c.price} (${c.capacity})`
+        ).join('\n');
+        return `Here are our current rates:\n\n${priceInfo}\n\nAll prices are per night. Would you like details about any cottage?`;
+      }
+      
+      if (lowerMessage.includes('available') || lowerMessage.includes('availability') || lowerMessage.includes('book')) {
+        const availInfo = cottageData.cottages.map(c => 
+          `• ${c.type}: ${c.availability}`
+        ).join('\n');
+        return `Current availability:\n\n${availInfo}\n\nWhich type interests you?`;
+      }
+      
+      const cottageTypes = ['deluxe', 'family', 'premium', 'budget'];
+      const mentionedType = cottageTypes.find(type => lowerMessage.includes(type));
+      
+      if (mentionedType) {
+        const cottage = cottageData.cottages.find(c => 
+          c.type.toLowerCase().includes(mentionedType)
+        );
+        if (cottage) {
+          return `${cottage.type}:\n\n` +
+            `💰 Price: ${cottage.price}\n` +
+            `👥 Capacity: ${cottage.capacity}\n` +
+            `📊 Status: ${cottage.availability}\n\n` +
+            `Amenities:\n${cottage.amenities.map(a => `• ${a}`).join('\n')}\n\n` +
+            `Interested in booking?`;
+        }
+      }
+      
+      if (lowerMessage.includes('amenities') || lowerMessage.includes('facilities')) {
+        return 'Our cottages include:\n\n• WiFi\n• Kitchen facilities\n• Mountain/valley views\n• Premium bedding\n• Private/shared bathrooms\n\nWhich cottage type would you like details about?';
+      }
+      
+      if (lowerMessage.includes('policy') || lowerMessage.includes('check')) {
+        return `Our policies:\n\n` +
+          `🕐 Check-in: ${cottageData.policies.checkIn}\n` +
+          `🕐 Check-out: ${cottageData.policies.checkOut}\n` +
+          `❌ Cancellation: ${cottageData.policies.cancellation}\n` +
+          `🐕 Pets: ${cottageData.policies.pets}`;
+      }
+      
+      return 'I can help you with:\n\n• Cottage types & descriptions\n• Pricing\n• Availability\n• Amenities\n• Booking policies\n\nWhat would you like to know?';
+    };
+
+    const handleSubmit = () => {
+      if (!input.trim()) return;
+      const userMessage = input.trim();
+      setInput('');
+      setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+      setIsLoading(true);
+
+      setTimeout(() => {
+        const response = generateResponse(userMessage);
+        setMessages(prev => [...prev, { role: 'assistant', content: response }]);
+        setIsLoading(false);
+      }, 500);
+    };
+
+    const handleKeyPress = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleSubmit();
+      }
+    };
+
+    return (
+      <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 9999 }}>
+        {!isOpen && (
+          <button
+            onClick={() => setIsOpen(true)}
+            style={{
+              backgroundColor: '#16a34a',
+              color: 'white',
+              borderRadius: '50%',
+              padding: '16px',
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+              transition: 'transform 0.3s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            <MessageCircle />
+          </button>
+        )}
+
+        {isOpen && (
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            width: '384px',
+            height: '600px',
+            display: 'flex',
+            flexDirection: 'column',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.3)',
+            border: '1px solid #e5e7eb'
+          }}>
+            {/* Header */}
+            <div style={{
+              background: 'linear-gradient(to right, #16a34a, #15803d)',
+              color: 'white',
+              padding: '16px',
+              borderTopLeftRadius: '12px',
+              borderTopRightRadius: '12px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <div>
+                <h3 style={{ fontWeight: 'bold', fontSize: '18px', margin: 0 }}>Hillside Oasis</h3>
+                <p style={{ fontSize: '12px', margin: 0, opacity: 0.9 }}>Your virtual assistant</p>
+              </div>
+              <button
+                onClick={() => setIsOpen(false)}
+                style={{
+                  background: 'rgba(255,255,255,0.2)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  padding: '8px',
+                  cursor: 'pointer',
+                  color: 'white'
+                }}
+              >
+                <X />
+              </button>
+            </div>
+
+            {/* Messages */}
+            <div style={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: '16px',
+              backgroundColor: '#f9fafb'
+            }}>
+              {messages.map((message, index) => (
+                <div
+                  key={index}
+                  style={{
+                    display: 'flex',
+                    justifyContent: message.role === 'user' ? 'flex-end' : 'flex-start',
+                    marginBottom: '16px'
+                  }}
+                >
+                  <div
+                    style={{
+                      maxWidth: '80%',
+                      padding: '12px',
+                      borderRadius: '12px',
+                      backgroundColor: message.role === 'user' ? '#16a34a' : 'white',
+                      color: message.role === 'user' ? 'white' : '#1f2937',
+                      border: message.role === 'assistant' ? '1px solid #e5e7eb' : 'none',
+                      boxShadow: message.role === 'assistant' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+                    }}
+                  >
+                    <p style={{ margin: 0, fontSize: '14px', whiteSpace: 'pre-line' }}>
+                      {message.content}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              {isLoading && (
+                <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                  <div style={{
+                    backgroundColor: 'white',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '12px',
+                    padding: '12px',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                  }}>
+                    <Loader />
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input */}
+            <div style={{
+              padding: '16px',
+              borderTop: '1px solid #e5e7eb',
+              backgroundColor: 'white',
+              borderBottomLeftRadius: '12px',
+              borderBottomRightRadius: '12px'
+            }}>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Ask about cottages..."
+                  style={{
+                    flex: 1,
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    outline: 'none'
+                  }}
+                />
+                <button
+                  onClick={handleSubmit}
+                  disabled={!input.trim() || isLoading}
+                  style={{
+                    backgroundColor: input.trim() && !isLoading ? '#16a34a' : '#9ca3af',
+                    color: 'white',
+                    border: 'none',
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    cursor: input.trim() && !isLoading ? 'pointer' : 'not-allowed'
+                  }}
+                >
+                  <Send />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Render the chatbot
+  ReactDOM.render(<HillsideChatbot />, document.getElementById('hillside-chatbot'));
+  </script>
 </body>
 </html>
