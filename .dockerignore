@@ -9,3 +9,4 @@ pnpm-debug.log*
 .env*
 docker-compose.yml
 coverage
+legacy-static-site

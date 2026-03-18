@@ -1,291 +1,226 @@
-# 🏔️ The HillSide Oasis
+# The HillSide Oasis (Next.js)
 
-A modern, responsive website for The HillSide Oasis - a serene farm retreat nestled in the Western Ghats near Pollachi, Tamil Nadu.
+Modernized website migration for The HillSide Oasis using Next.js App Router, TypeScript, and Tailwind CSS.
 
-[![Live Website](https://img.shields.io/badge/Live-thehillsideoasis.com-4c9963)](https://thehillsideoasis.com)
-[![HTML](https://img.shields.io/badge/HTML-83.2%25-e34c26)](https://github.com/venkimanoharan/thehillsideoasis)
-[![CSS](https://img.shields.io/badge/CSS-16.0%25-1572b6)](https://github.com/venkimanoharan/thehillsideoasis)
-[![JavaScript](https://img.shields.io/badge/JavaScript-0.8%25-f7df1e)](https://github.com/venkimanoharan/thehillsideoasis)
+## Stack
 
-## 🌟 Overview
+- Next.js 16 (App Router)
+- TypeScript
+- Tailwind CSS 4
+- PostgreSQL (Docker)
+- Adminer (Docker)
 
-The HillSide Oasis website is a fully responsive, SEO-optimized website showcasing a nature retreat destination. Built with vanilla HTML, CSS, and JavaScript, it offers visitors an immersive digital experience of the physical retreat.
+## Routes
 
-**Live Site:** [thehillsideoasis.com](https://thehillsideoasis.com)
+- `/` -> migrated landing page
+- `/about` -> about page (DB-backed)
+- `/stay` -> migrated stay/accommodation page
+- `/activities` -> activities page (DB-backed)
+- `/gallery` -> gallery page (DB-backed)
+- `/contact` -> contact page
+- `/booking` -> interactive booking page
+- `/admin/login` -> admin login
+- `/admin` -> admin dashboard for content maintenance
+- `/api/booking` -> server-side booking endpoint with trace IDs
+- `/api/availability` -> unavailable dates for a room from DB bookings
+- `/api/admin/bookings` -> booking status management and availability blocking
 
-## ✨ Features
+## Local URLs
 
-### 🎨 Design & UX
-- **Modern, Clean Interface** - Contemporary design with smooth animations
-- **Fully Responsive** - Optimized for mobile, tablet, and desktop devices
-- **Smooth Navigation** - Hamburger menu for mobile, sticky navigation bar
-- **Interactive Elements** - Hover effects, smooth scrolling, and transitions
+- Website: `http://localhost:3000`
+- Booking page: `http://localhost:3000/booking`
+- Admin login: `http://localhost:3000/admin/login`
+- Admin dashboard: `http://localhost:3000/admin`
+- Adminer: `http://localhost:8081`
 
-### 📱 Pages
-- **Home** (`index.html`) - Hero section, features, testimonials, and CTAs
-- **About** (`about.html`) - Story, mission, and values
-- **Stay** (`stay.html`) - Accommodation details and pricing
-- **Activities** (`activities.html`) - Available activities and experiences
-- **Gallery** (`gallery.html`) - Photo showcase of the property
-- **Contact** (`contact.html`) - Contact form with multiple communication options
-- **Thank You** (`thankyou.html`) - Post-submission confirmation page
+## Production URLs
 
-### 🔧 Technical Features
-- **SEO Optimized** - Meta tags, Open Graph, Twitter Cards, Schema.org markup
-- **Performance** - Optimized images, preloaded fonts, minimal dependencies
-- **Accessibility** - Semantic HTML, ARIA labels, keyboard navigation support
-- **Security Headers** - CSP, XSS protection, MIME type sniffing prevention
-- **Form Handling** - Integrated with FormSubmit.co for contact inquiries
-- **Analytics Ready** - Structured data for search engines
+- Website: `https://thehillsideoasis.com`
+- Stay: `https://thehillsideoasis.com/stay`
+- Booking: `https://thehillsideoasis.com/booking`
 
-### 📞 Contact Integration
-- Direct phone call links (`tel:`)
-- WhatsApp integration (`wa.me`)
-- Email links (`mailto:`)
-- Sticky floating contact buttons
+## Development
 
-## 🛠️ Technology Stack
-
-- **HTML5** - Semantic markup with accessibility features
-- **CSS3** - Custom properties, flexbox, grid, animations
-- **Vanilla JavaScript** - No frameworks, lightweight and fast
-- **Google Fonts** - Inter & Playfair Display
-- **FormSubmit.co** - Contact form backend
-
-## 📂 Project Structure
-
-```
-thehillsideoasis/
-├── index.html          # Homepage
-├── about.html          # About page
-├── stay.html           # Accommodations
-├── activities.html     # Activities listing
-├── gallery.html        # Photo gallery
-├── contact.html        # Contact form
-├── thankyou.html       # Form submission confirmation
-├── styles.css          # Main stylesheet
-├── script.js           # JavaScript functionality
-├── sitemap.xml         # SEO sitemap
-├── robots.txt          # Search engine directives
-├── CNAME              # Custom domain configuration
-├── favicon.ico        # Website favicon
-└── images/            # Image assets
-```
-
-## 🚀 Getting Started
-
-### Prerequisites
-- A modern web browser
-- A text editor (VS Code, Sublime Text, etc.)
-- Basic knowledge of HTML/CSS/JS (for modifications)
-
-### Installation
-
-1. Clone the repository:
 ```bash
-git clone https://github.com/venkimanoharan/thehillsideoasis.git
+npm install
+npm run dev
 ```
 
-2. Navigate to the project directory:
+## Local Database (Docker)
+
+Start PostgreSQL + Adminer:
+
 ```bash
-cd thehillsideoasis
+docker compose up -d
 ```
 
-3. Open `index.html` in your browser:
+This project mounts `docker/postgres/init/001-init.sql` into the Postgres init directory.
+On first container creation, it will create tables and seed initial content.
+
+Adminer is available at `http://localhost:8081`.
+
+Default DB service values:
+
+- Host: `localhost`
+- Port: `5433`
+- Database: `hillsideoasis`
+- Username: `hillsideoasis`
+- Password: `hillsideoasis`
+
+Then run the app:
+
 ```bash
-# On macOS
-open index.html
-
-# On Windows
-start index.html
-
-# On Linux
-xdg-open index.html
+npm run dev
 ```
 
-Or use a local development server:
+Open `http://localhost:3000`.
+
+## Booking Flow
+
+Client form (`/booking`) submits to internal API route (`/api/booking`) which writes directly to PostgreSQL `bookings`.
+
+Availability is fully database-driven:
+
+1. `/api/availability?roomSlug=...` returns blocked/unavailable dates from `bookings` where status is `new`, `confirmed`, or `blocked`.
+2. Booking UI disables these dates.
+3. Booking API rejects overlaps server-side to prevent race-condition conflicts.
+4. Admin can set booking statuses and add internal `blocked` date ranges from `/admin`.
+
+## Environment Variables
+
+Copy `.env.example` to `.env.local` and fill the values.
+
 ```bash
-# Using Python 3
-python -m http.server 8000
-
-# Using Node.js (with http-server)
-npx http-server
+cp .env.example .env.local
 ```
 
-Then visit `http://localhost:8000` in your browser.
+### Required
 
-## 📝 Configuration
+- `DATABASE_URL`
+- `ADMIN_USERNAME`
+- `ADMIN_PASSWORD`
+- `ADMIN_SESSION_SECRET`
 
-### Update Contact Information
+### Legacy/Optional
 
-Edit the following files to update contact details:
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_BOOKINGS_TABLE` (default: `bookings`)
+- `GOOGLE_APPS_SCRIPT_BOOKING_URL`
 
-**In HTML files:**
-```html
-<!-- Phone number -->
-<a href="tel:+919150360597">+91 91503 60597</a>
+## Production Build
 
-<!-- WhatsApp -->
-<a href="https://wa.me/919150360597">Message on WhatsApp</a>
-
-<!-- Email -->
-<a href="mailto:info@thehillsideoasis.com">info@thehillsideoasis.com</a>
+```bash
+npm run build
+npm run start
 ```
 
-**In `contact.html`:**
-```html
-<!-- Update FormSubmit email -->
-<form action="https://formsubmit.co/your-email@example.com" method="POST">
+## Deploy to GCP (Cloud Run + Cloud SQL)
+
+This repo now includes:
+
+- `Dockerfile` for production container builds
+- `cloudbuild.yaml` to build, push, and deploy to Cloud Run
+- `.env.gcp.example` with Cloud SQL socket-based `DATABASE_URL`
+
+The deployment settings are pre-wired for:
+
+- Project: `thehillsideoasisweb`
+- Region: `us-central1`
+- Cloud Run service: `thehillsideoasis-web`
+- Cloud SQL instance connection: `thehillsideoasisweb:us-central1:thehillsideoasis-web`
+
+### 1) One-time GCP setup
+
+```bash
+gcloud config set project thehillsideoasisweb
+
+gcloud services enable run.googleapis.com \
+	cloudbuild.googleapis.com \
+	artifactregistry.googleapis.com \
+	sqladmin.googleapis.com
+
+gcloud artifacts repositories create thehillsideoasis-web \
+	--repository-format=docker \
+	--location=us-central1 \
+	--description="Docker repository for The HillSide Oasis"
 ```
 
-### Update Social Media Links
+### 2) Import schema + initial data into Cloud SQL
 
-Replace social media URLs throughout the site:
-```html
-<a href="https://facebook.com/thehillsideoasis">Facebook</a>
-<a href="https://instagram.com/thehillsideoasis">Instagram</a>
+If you already created DB/user, import the SQL file only:
+
+```bash
+BUCKET=REPLACE_WITH_GCS_BUCKET
+
+gsutil cp docker/postgres/init/001-init.sql gs://$BUCKET/001-init.sql
+
+gcloud sql import sql thehillsideoasis-web gs://$BUCKET/001-init.sql \
+	--database=postgres \
+	--project=thehillsideoasisweb
 ```
 
-### Customize Colors
+### 3) Set Cloud Run environment variables
 
-Edit CSS custom properties in `styles.css`:
-```css
-:root {
-  --primary: #2c5f3f;        /* Primary green */
-  --accent: #4c9963;         /* Accent green */
-  --accent-2: #6fb583;       /* Light accent */
-  --dark: #1a1a1a;          /* Dark text */
-  --light: #f8f9fa;         /* Light background */
-  --muted: #6c757d;         /* Muted text */
-}
+Set required app variables. Replace values as needed:
+
+```bash
+gcloud run services update thehillsideoasis-web \
+	--region=us-central1 \
+	--project=thehillsideoasisweb \
+	--add-cloudsql-instances=thehillsideoasisweb:us-central1:thehillsideoasis-web \
+	--set-env-vars="DATABASE_URL=postgres://thehillsideoasis:thehillsideoasis@/postgres?host=/cloudsql/thehillsideoasisweb:us-central1:thehillsideoasis-web,ADMIN_USERNAME=admin,ADMIN_PASSWORD=change-me,ADMIN_SESSION_SECRET=replace-with-a-long-random-secret"
 ```
 
-## 🎨 Customization
+You can also set SMTP variables for booking emails:
 
-### Adding New Pages
+- `SMTP_HOST`
+- `SMTP_PORT`
+- `SMTP_USER`
+- `SMTP_PASS`
+- `SMTP_FROM`
+- `NOTIFY_EMAIL`
 
-1. Create a new HTML file (e.g., `newpage.html`)
-2. Copy the header and footer from existing pages
-3. Add your content between the header and footer
-4. Update navigation links in all pages
-5. Add the page to `sitemap.xml`
+### 4) Deploy
 
-### Modifying the Gallery
+From repo root:
 
-Edit `gallery.html` and add images to the `images/` folder:
-```html
-<div class="gallery-item">
-  <img src="images/your-image.jpg" alt="Description" loading="lazy">
-</div>
+```bash
+gcloud builds submit --config cloudbuild.yaml
 ```
 
-### Updating Activities
+### 5) Verify database from Cloud SQL
 
-Edit `activities.html` to add or modify activities:
-```html
-<div class="activity-card">
-  <div class="activity-icon">🎯</div>
-  <h3>Activity Name</h3>
-  <p>Activity description...</p>
-</div>
+```bash
+gcloud sql connect thehillsideoasis-web \
+	--project=thehillsideoasisweb \
+	--user=thehillsideoasis \
+	--database=postgres
 ```
 
-## 🌐 Deployment
+Then run:
 
-### GitHub Pages
-
-1. Push your code to GitHub
-2. Go to Settings → Pages
-3. Select the `main` branch as source
-4. Your site will be live at `https://username.github.io/thehillsideoasis`
-
-### Custom Domain
-
-1. Add a `CNAME` file with your domain:
-```
-thehillsideoasis.com
+```sql
+\dt
+select count(*) from rooms;
+select count(*) from activities;
+select count(*) from gallery_items;
+select count(*) from site_sections;
 ```
 
-2. Configure DNS settings at your domain registrar:
-```
-Type: CNAME
-Name: www
-Value: username.github.io
-```
+## Open-Source Media Credits
 
-## 📊 SEO Features
+The redesigned visual experience uses open-license media from Pexels (free to use under the Pexels License).
 
-- ✅ Semantic HTML structure
-- ✅ Meta descriptions on all pages
-- ✅ Open Graph tags for social sharing
-- ✅ Twitter Card meta tags
-- ✅ Schema.org structured data
-- ✅ XML sitemap
-- ✅ Robots.txt file
-- ✅ Canonical URLs
-- ✅ Alt text for images
-- ✅ Mobile-friendly responsive design
+- Hero video (Western Ghats waterfall): https://www.pexels.com/video/athirappilly-water-falls-4488285/
+- Hero and section photos (Western Ghats region):
+- https://www.pexels.com/photo/scenic-view-of-a-mountain-12311221/
+- https://www.pexels.com/photo/scenic-road-through-wayanad-s-lush-tea-estates-34130875/
+- https://www.pexels.com/photo/lush-green-paddy-fields-in-palakkad-kerala-28901908/
+- https://www.pexels.com/photo/green-mountain-peak-against-blue-sky-6144912/
+- https://www.pexels.com/photo/landscape-of-a-mountain-valley-18827152/
+- https://www.pexels.com/photo/green-mountain-under-cloudy-sky-1786306/
 
-## 🔒 Security Features
+Reference design inspiration (structure and feel only, no direct copy):
 
-- Content Security Policy (CSP)
-- X-Content-Type-Options
-- X-XSS-Protection
-- X-Frame-Options
-- HTTPS ready (via GitHub Pages)
-
-## 🐛 Browser Support
-
-- ✅ Chrome/Edge (latest)
-- ✅ Firefox (latest)
-- ✅ Safari (latest)
-- ✅ Mobile browsers (iOS Safari, Chrome Mobile)
-
-## 📈 Performance
-
-- Optimized images with lazy loading
-- Minimal JavaScript footprint
-- Preloaded critical fonts
-- Efficient CSS with minimal specificity
-- No external dependencies beyond fonts
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## 📞 Contact
-
-**The HillSide Oasis**
-- 🌐 Website: [thehillsideoasis.com](https://thehillsideoasis.com)
-- 📞 Phone: +91 91503 60597
-- 📧 Email: info@thehillsideoasis.com
-- 📍 Location: Pollachi, Tamil Nadu, India
-
-**Developer**
-- 👤 GitHub: [@venkimanoharan](https://github.com/venkimanoharan)
-
-## 🙏 Acknowledgments
-
-- Google Fonts for Inter and Playfair Display typefaces
-- FormSubmit.co for form handling services
-- Icons and emojis for visual elements
-
----
-
-<div align="center">
-
-**Made with 💚 for nature lovers**
-
-[⭐ Star this repo](https://github.com/venkimanoharan/thehillsideoasis) | [🐛 Report Bug](https://github.com/venkimanoharan/thehillsideoasis/issues) | [✨ Request Feature](https://github.com/venkimanoharan/thehillsideoasis/issues)
-
-</div>
+- https://www.lakewayresortandspa.com
