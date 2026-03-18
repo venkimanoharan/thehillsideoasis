@@ -2,9 +2,11 @@ steps:
   - name: gcr.io/cloud-builders/docker
     args:
       - build
+      - -f
+      - thehillsideoasis-next/Dockerfile
       - -t
       - us-central1-docker.pkg.dev/thehillsideoasisweb/thehillsideoasis-web/thehillsideoasis-web:$SHORT_SHA
-      - .
+      - thehillsideoasis-next
 
   - name: gcr.io/cloud-builders/docker
     args:
