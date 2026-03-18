@@ -1,0 +1,208 @@
+@import "tailwindcss";
+
+:root {
+  --background: #faf6f0;
+  --foreground: #1c1309;
+  --surface: #ffffff;
+  --brand: #c45e2a;
+  --brand-strong: #9e3e12;
+  --brand-soft: #f5ddd0;
+  --ink-soft: #574030;
+  --gold: #b59045;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+  --color-ink-soft: var(--ink-soft);
+  --color-gold: var(--gold);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-playfair);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), sans-serif;
+  min-height: 100vh;
+}
+
+.font-display {
+  font-family: var(--font-playfair), serif;
+}
+
+.eyebrow {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+}
+
+.section-title {
+  font-family: var(--font-playfair), serif;
+  font-size: clamp(1.8rem, 2.8vw, 2.7rem);
+  line-height: 1.15;
+}
+
+.hero-title {
+  font-family: var(--font-playfair), serif;
+  font-size: clamp(2.2rem, 5.5vw, 4.2rem);
+  line-height: 1.06;
+}
+
+.lead-copy {
+  color: #4b5563;
+  line-height: 1.9;
+}
+
+.luxury-bg {
+  background: linear-gradient(180deg, #faf6f0 0%, #f5ece2 100%);
+}
+
+.glass-surface {
+  background: rgba(255, 250, 244, 0.88);
+  border: 1px solid rgba(255, 238, 220, 0.72);
+  backdrop-filter: blur(12px);
+}
+
+.hero-media-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-tint {
+  background: linear-gradient(108deg, rgba(50, 18, 5, 0.80) 0%, rgba(15, 8, 3, 0.62) 48%, rgba(90, 35, 10, 0.60) 100%);
+}
+
+.section-shell {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 84rem;
+}
+
+.hero-shell {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 90rem;
+}
+
+.hero-shell-xl {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 96rem;
+}
+
+.luxury-card {
+  border: 1px solid #ead8cc;
+  background: #ffffff;
+  box-shadow: 0 8px 32px -12px rgba(80, 35, 12, 0.14);
+}
+
+.luxury-btn-primary {
+  background: linear-gradient(135deg, var(--brand), #e07040);
+  color: #ffffff;
+}
+
+.luxury-btn-primary:hover {
+  background: linear-gradient(135deg, var(--brand-strong), var(--brand));
+}
+
+.luxury-btn-secondary {
+  border: 1px solid #d9c4b4;
+  background: #ffffff;
+  color: #1c1309;
+}
+
+.luxury-btn-secondary:hover {
+  border-color: #c9a48a;
+}
+
+.reveal-up {
+  animation: reveal-up 0.7s ease-out both;
+}
+
+.reveal-fade {
+  animation: reveal-fade 0.9s ease-out both;
+}
+
+.reveal-delay-1 {
+  animation-delay: 0.12s;
+}
+
+.reveal-delay-2 {
+  animation-delay: 0.24s;
+}
+
+.reveal-delay-3 {
+  animation-delay: 0.36s;
+}
+
+.parallax-surface {
+  background-attachment: scroll;
+}
+
+@media (min-width: 1024px) {
+  .parallax-surface {
+    background-attachment: fixed;
+  }
+}
+
+.stagger-grid > * {
+  animation: reveal-up 0.7s ease-out both;
+}
+
+.stagger-grid > *:nth-child(1) {
+  animation-delay: 0.03s;
+}
+
+.stagger-grid > *:nth-child(2) {
+  animation-delay: 0.08s;
+}
+
+.stagger-grid > *:nth-child(3) {
+  animation-delay: 0.13s;
+}
+
+.stagger-grid > *:nth-child(4) {
+  animation-delay: 0.18s;
+}
+
+.stagger-grid > *:nth-child(5) {
+  animation-delay: 0.23s;
+}
+
+.stagger-grid > *:nth-child(6) {
+  animation-delay: 0.28s;
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes reveal-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

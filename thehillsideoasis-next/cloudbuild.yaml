@@ -1,0 +1,27 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - us-central1-docker.pkg.dev/thehillsideoasisweb/thehillsideoasis-web/thehillsideoasis-web:$SHORT_SHA
+      - .
+
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - us-central1-docker.pkg.dev/thehillsideoasisweb/thehillsideoasis-web/thehillsideoasis-web:$SHORT_SHA
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - thehillsideoasis-web
+      - --image=us-central1-docker.pkg.dev/thehillsideoasisweb/thehillsideoasis-web/thehillsideoasis-web:$SHORT_SHA
+      - --region=us-central1
+      - --platform=managed
+      - --allow-unauthenticated
+      - --add-cloudsql-instances=thehillsideoasisweb:us-central1:thehillsideoasis-web
+      - --set-env-vars=NODE_ENV=production
+images:
+  - us-central1-docker.pkg.dev/thehillsideoasisweb/thehillsideoasis-web/thehillsideoasis-web:$SHORT_SHA
