@@ -22,7 +22,7 @@ steps:
       - --platform=managed
       - --allow-unauthenticated
       - --add-cloudsql-instances=thehillsideoasisweb:us-central1:thehillsideoasis-web
-      - --set-env-vars=NODE_ENV=production
+      - --update-env-vars=NODE_ENV=production
 images:
   - us-central1-docker.pkg.dev/thehillsideoasisweb/thehillsideoasis-web/thehillsideoasis-web:$SHORT_SHA
 
