@@ -1,12 +1,18 @@
 import Link from "next/link";
+import LogoMark from "@/components/logo-mark";
 
 export default function SiteFooter() {
   return (
     <footer className="mt-20 border-t border-[#ead8cc] bg-[linear-gradient(150deg,#1a0804,#2e110a,#4a1d0b)] text-zinc-200">
       <div className="mx-auto grid w-full max-w-[84rem] gap-8 px-6 py-12 sm:grid-cols-2">
         <div>
-          <p className="eyebrow text-orange-200">Luxury Nature Retreat</p>
-          <p className="font-display mt-2 text-3xl text-white sm:text-4xl">The HillSide Oasis</p>
+          <div className="flex items-center gap-4">
+            <LogoMark className="h-14 w-14 border-[#d8c1a8]/70 bg-[#efe3d3]" imageClassName="scale-[1.12]" />
+            <div>
+              <p className="eyebrow text-orange-200">Luxury Nature Retreat</p>
+              <p className="font-display mt-2 text-3xl text-white sm:text-4xl">The HillSide Oasis</p>
+            </div>
+          </div>
           <p className="mt-3 text-sm text-zinc-100">Pollachi, Tamil Nadu</p>
           <p className="text-sm text-zinc-100">Phone: +91 91503 60597</p>
           <p className="mt-4 max-w-md text-sm leading-7 text-zinc-200">

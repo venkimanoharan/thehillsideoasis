@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import LogoMark from "@/components/logo-mark";
 
 type Room = {
   id: number;
@@ -335,11 +336,17 @@ export default function BookingClient({ rooms }: BookingClientProps) {
         className="hero-shell rounded-3xl border border-white/30 p-8 shadow-2xl sm:p-12"
         style={{
           backgroundImage:
-            "linear-gradient(120deg, rgba(80, 30, 8, 0.84), rgba(15, 8, 3, 0.62)), url('https://images.pexels.com/photos/1786306/pexels-photo-1786306.jpeg?auto=compress&cs=tinysrgb&w=1800')",
+            "linear-gradient(120deg, rgba(80, 30, 8, 0.84), rgba(15, 8, 3, 0.62)), url('/images/4.jpeg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
+        <div className="mb-5 flex items-center gap-3">
+          <LogoMark className="h-14 w-14 border-white/35 bg-[#f4e9dc]" imageClassName="scale-[1.12]" />
+          <div className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-orange-50 backdrop-blur-sm">
+            Direct Booking
+          </div>
+        </div>
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-100">
           Book Your Stay
         </p>

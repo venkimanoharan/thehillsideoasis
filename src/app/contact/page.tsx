@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSection } from "@/lib/content";
+import LogoMark from "@/components/logo-mark";
 
 export const dynamic = "force-dynamic";
 
@@ -41,11 +42,17 @@ export default async function ContactPage() {
         className="hero-shell rounded-3xl border border-white/40 p-8 shadow-2xl sm:p-12 reveal-fade"
         style={{
           backgroundImage:
-            "linear-gradient(120deg, rgba(80, 30, 8, 0.82), rgba(20, 8, 3, 0.62)), url('https://images.pexels.com/photos/18827152/pexels-photo-18827152.jpeg?auto=compress&cs=tinysrgb&w=1800')",
+            "linear-gradient(120deg, rgba(80, 30, 8, 0.82), rgba(20, 8, 3, 0.62)), url('/images/DSC_0072-PANO.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
+        <div className="mb-5 flex items-center gap-3">
+          <LogoMark className="h-14 w-14 border-white/35 bg-[#f4e9dc]" imageClassName="scale-[1.12]" />
+          <div className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-orange-50 backdrop-blur-sm">
+            Concierge Desk
+          </div>
+        </div>
         <p className="eyebrow text-orange-100">Contact</p>
         <h1 className="font-display mt-3 text-4xl text-white sm:text-6xl">{section?.title ?? "Get in Touch"}</h1>
         <p className="mt-5 max-w-3xl text-lg leading-8 text-orange-50">

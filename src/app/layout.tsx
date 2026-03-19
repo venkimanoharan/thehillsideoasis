@@ -59,7 +59,8 @@ export const metadata: Metadata = {
     images: ["/images/DSC_0072-PANO.jpg"],
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: "/icon.png",
+    apple: "/icon.png",
   },
 };
 

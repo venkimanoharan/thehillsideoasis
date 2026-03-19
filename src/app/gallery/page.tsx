@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { getGalleryItems } from "@/lib/content";
+import LogoMark from "@/components/logo-mark";
 
 export const dynamic = "force-dynamic";
 
@@ -41,11 +42,17 @@ export default async function GalleryPage() {
         className="hero-shell rounded-3xl border border-white/40 p-8 shadow-2xl sm:p-12 reveal-fade parallax-surface"
         style={{
           backgroundImage:
-            "linear-gradient(120deg, rgba(85, 32, 8, 0.82), rgba(9, 6, 3, 0.55)), url('https://images.pexels.com/photos/6144912/pexels-photo-6144912.jpeg?auto=compress&cs=tinysrgb&w=1800')",
+            "linear-gradient(120deg, rgba(85, 32, 8, 0.82), rgba(9, 6, 3, 0.55)), url('/images/9.jpeg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
+        <div className="mb-5 flex items-center gap-3">
+          <LogoMark className="h-14 w-14 border-white/35 bg-[#f4e9dc]" imageClassName="scale-[1.12]" />
+          <div className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-orange-50 backdrop-blur-sm">
+            Visual Journey
+          </div>
+        </div>
         <p className="eyebrow text-orange-100">Gallery</p>
         <h1 className="font-display mt-3 text-4xl text-white sm:text-6xl">A Glimpse of The Oasis</h1>
         <p className="mt-5 max-w-3xl text-lg leading-8 text-orange-50">
@@ -65,7 +72,7 @@ export default async function GalleryPage() {
           className="parallax-surface min-h-[20rem] overflow-hidden rounded-3xl border border-zinc-200 shadow-xl reveal-up reveal-delay-1"
           style={{
             backgroundImage:
-              "linear-gradient(170deg, rgba(10,20,35,0.2), rgba(10,20,35,0.6)), url('https://images.pexels.com/photos/18827152/pexels-photo-18827152.jpeg?auto=compress&cs=tinysrgb&w=1800')",
+              "linear-gradient(170deg, rgba(10,20,35,0.2), rgba(10,20,35,0.6)), url('/images/12.jpeg')",
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}

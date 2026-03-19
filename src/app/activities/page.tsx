@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getActivities } from "@/lib/content";
+import LogoMark from "@/components/logo-mark";
 
 export const dynamic = "force-dynamic";
 
@@ -43,11 +44,17 @@ export default async function ActivitiesPage() {
         className="hero-shell rounded-3xl border border-white/40 p-8 shadow-2xl sm:p-12 reveal-fade parallax-surface"
         style={{
           backgroundImage:
-            "linear-gradient(120deg, rgba(20, 8, 3, 0.72), rgba(110, 45, 12, 0.72)), url('https://images.pexels.com/photos/28901908/pexels-photo-28901908.jpeg?auto=compress&cs=tinysrgb&w=1800')",
+            "linear-gradient(120deg, rgba(20, 8, 3, 0.72), rgba(110, 45, 12, 0.72)), url('/images/10.jpeg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
+        <div className="mb-5 flex items-center gap-3">
+          <LogoMark className="h-14 w-14 border-white/35 bg-[#f4e9dc]" imageClassName="scale-[1.12]" />
+          <div className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-orange-50 backdrop-blur-sm">
+            Curated Experiences
+          </div>
+        </div>
         <p className="eyebrow text-orange-100">Experiences</p>
         <h1 className="font-display mt-3 text-4xl text-white sm:text-6xl">Things to Do</h1>
         <p className="mt-5 max-w-3xl text-lg leading-8 text-orange-50">
@@ -67,7 +74,7 @@ export default async function ActivitiesPage() {
           className="parallax-surface min-h-[19rem] overflow-hidden rounded-3xl border border-zinc-200 shadow-xl reveal-up reveal-delay-1"
           style={{
             backgroundImage:
-              "linear-gradient(170deg, rgba(8,18,37,0.28), rgba(8,18,37,0.62)), url('https://images.pexels.com/photos/12311221/pexels-photo-12311221.jpeg?auto=compress&cs=tinysrgb&w=1800')",
+              "linear-gradient(170deg, rgba(8,18,37,0.28), rgba(8,18,37,0.62)), url('/images/1.jpeg')",
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}

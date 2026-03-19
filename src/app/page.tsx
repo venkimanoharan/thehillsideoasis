@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import LogoMark from "@/components/logo-mark";
 
 export const metadata: Metadata = {
   title: "Luxury Farm Stay in Pollachi",
@@ -46,13 +47,13 @@ const heroVideo =
 
 const imageSet = {
   sunrise:
-    "https://images.pexels.com/photos/12311221/pexels-photo-12311221.jpeg?auto=compress&cs=tinysrgb&w=1800",
+    "/images/1.jpeg",
   estates:
-    "https://images.pexels.com/photos/34130875/pexels-photo-34130875.jpeg?auto=compress&cs=tinysrgb&w=1800",
+    "/images/12.jpeg",
   valleys:
-    "https://images.pexels.com/photos/28901908/pexels-photo-28901908.jpeg?auto=compress&cs=tinysrgb&w=1800",
+    "/images/10.jpeg",
   mountain:
-    "https://images.pexels.com/photos/6144912/pexels-photo-6144912.jpeg?auto=compress&cs=tinysrgb&w=1800",
+    "/images/9.jpeg",
 };
 
 export default function Home() {
@@ -120,6 +121,7 @@ export default function Home() {
       <section className="hero-shell-xl relative isolate overflow-hidden rounded-3xl border border-white/20 p-8 shadow-2xl sm:p-12">
         <video
           className="absolute inset-0 h-full w-full object-cover"
+          poster="/images/DSC_0072-PANO.jpg"
           src={heroVideo}
           autoPlay
           muted
@@ -127,10 +129,20 @@ export default function Home() {
           playsInline
           aria-label="Western Ghats waterfall cinematic background"
         />
+        <div
+          className="absolute inset-0 h-full w-full bg-cover bg-center opacity-45"
+          style={{ backgroundImage: "url('/images/DSC_0072-PANO.jpg')" }}
+        />
           <div className="absolute inset-0 bg-[linear-gradient(108deg,rgba(45,16,4,0.78)_0%,rgba(15,8,3,0.60)_48%,rgba(85,32,8,0.58)_100%)]" />
 
         <div className="relative grid gap-10 lg:grid-cols-[1.5fr_1fr]">
           <div>
+            <div className="mb-5 flex items-center gap-3">
+              <LogoMark className="h-14 w-14 border-white/35 bg-[#f4e9dc]" imageClassName="scale-[1.12]" />
+              <div className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-orange-50 backdrop-blur-sm">
+                Signature Nature Retreat
+              </div>
+            </div>
             <p className="eyebrow tracking-[0.3em] text-orange-100">
               The HillSide Oasis | Pollachi, Tamil Nadu
             </p>
