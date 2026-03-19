@@ -8,23 +8,23 @@ type LogoMarkProps = {
 
 export default function LogoMark({
   className = "h-11 w-11 sm:h-12 sm:w-12",
-  imageClassName = "scale-[0.92]",
+  imageClassName = "",
   priority = false,
 }: LogoMarkProps) {
   return (
     <div
       className={[
-        "relative overflow-hidden rounded-full border border-[#d8c1a8] bg-transparent shadow-[0_6px_18px_-10px_rgba(28,19,9,0.45)]",
+        "relative",
         className,
       ].join(" ")}
     >
       <Image
-        src="/images/logo.jpeg"
+        src="/images/logo.png"
         alt="The HillSide Oasis logo"
         fill
         priority={priority}
         sizes="(max-width: 640px) 52px, 72px"
-        className={["object-contain", imageClassName].join(" ")}
+        className={["object-contain drop-shadow-md", imageClassName].join(" ")}
       />
     </div>
   );
