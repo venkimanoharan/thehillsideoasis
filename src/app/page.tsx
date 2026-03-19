@@ -138,7 +138,7 @@ export default function Home() {
         <div className="relative grid gap-10 lg:grid-cols-[1.5fr_1fr]">
           <div>
             <div className="mb-5 flex items-center gap-3">
-              <LogoMark className="h-14 w-14 border-white/35 bg-[#f4e9dc]" imageClassName="scale-[1.12]" />
+              <LogoMark className="h-14 w-14 border-white/35" />
               <div className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-orange-50 backdrop-blur-sm">
                 Signature Nature Retreat
               </div>

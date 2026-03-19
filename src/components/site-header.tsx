@@ -23,7 +23,7 @@ export default function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-[#ead8cc] bg-white/96 backdrop-blur">
       <div className="mx-auto flex w-full max-w-[84rem] items-center justify-between px-4 py-4 sm:px-6">
         <Link href="/" className="group flex items-center gap-3">
-          <LogoMark priority />
+          <LogoMark priority className="h-11 w-11 sm:h-12 sm:w-12" />
           <div>
             <p className="font-display text-base text-zinc-900 sm:text-lg">The HillSide Oasis</p>
             <p className="eyebrow text-[0.62rem] text-[#574030] sm:text-[0.66rem]">Western Ghats · Pollachi</p>

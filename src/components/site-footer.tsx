@@ -7,7 +7,7 @@ export default function SiteFooter() {
       <div className="mx-auto grid w-full max-w-[84rem] gap-8 px-6 py-12 sm:grid-cols-2">
         <div>
           <div className="flex items-center gap-4">
-            <LogoMark className="h-14 w-14 border-[#d8c1a8]/70 bg-[#efe3d3]" imageClassName="scale-[1.12]" />
+            <LogoMark className="h-14 w-14 border-[#d8c1a8]/70" />
             <div>
               <p className="eyebrow text-orange-200">Luxury Nature Retreat</p>
               <p className="font-display mt-2 text-3xl text-white sm:text-4xl">The HillSide Oasis</p>
