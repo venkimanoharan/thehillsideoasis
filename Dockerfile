@@ -23,6 +23,9 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
+# Allow the non-root runtime user to write Next.js runtime cache on Cloud Run.
+RUN mkdir -p /app/.next/cache && chown -R nextjs:nodejs /app
+
 USER nextjs
 EXPOSE 8080
 CMD ["node", "server.js"]

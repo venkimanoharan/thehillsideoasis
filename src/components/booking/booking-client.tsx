@@ -248,6 +248,7 @@ export default function BookingClient({ rooms }: BookingClientProps) {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const form = event.currentTarget;
 
     if (!checkinDate || !checkoutDate) {
       setAlert({ type: "error", message: "Please select check-in and check-out dates." });
@@ -259,7 +260,7 @@ export default function BookingClient({ rooms }: BookingClientProps) {
       return;
     }
 
-    const formData = new FormData(event.currentTarget);
+    const formData = new FormData(form);
 
     const payload = {
       checkin: toKey(checkinDate),
@@ -308,7 +309,7 @@ export default function BookingClient({ rooms }: BookingClientProps) {
         message: "Booking request submitted successfully. We will confirm your stay within 24 hours.",
       });
 
-      event.currentTarget.reset();
+      form.reset();
       setCheckinDate(null);
       setCheckoutDate(null);
       setSelectedRoom(rooms[0] ?? null);
