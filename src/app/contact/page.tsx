@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getSection } from "@/lib/content";
 import LogoMark from "@/components/logo-mark";
+import { getSection } from "@/lib/content";
 
 export const dynamic = "force-dynamic";
 
@@ -9,27 +9,8 @@ export const metadata: Metadata = {
   title: "Contact and Booking Enquiries | The HillSide Oasis Pollachi",
   description:
     "Contact The HillSide Oasis in Pollachi for room bookings, family holidays, private events, and concierge-planned getaways.",
-  keywords: [
-    "contact hillside oasis",
-    "Pollachi resort booking contact",
-    "farm stay enquiry Tamil Nadu",
-  ],
   alternates: {
     canonical: "/contact",
-  },
-  openGraph: {
-    title: "Contact and Booking Enquiries | The HillSide Oasis Pollachi",
-    description:
-      "Connect with our concierge for direct booking support, celebration stays, and custom itineraries.",
-    images: ["/images/9.jpeg"],
-    type: "website",
-    url: "https://thehillsideoasis.com/contact",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Contact and Booking Enquiries | The HillSide Oasis Pollachi",
-    description: "Talk to our booking concierge for personalized trip planning.",
-    images: ["/images/9.jpeg"],
   },
 };
 
@@ -37,75 +18,56 @@ export default async function ContactPage() {
   const section = await getSection("contact_main");
 
   return (
-    <main className="luxury-bg px-6 pb-16 pt-24 text-foreground">
+    <main className="luxury-bg px-5 pb-16 pt-24 text-foreground sm:px-6">
       <section
-        className="hero-shell rounded-3xl border border-white/40 p-8 shadow-2xl sm:p-12 reveal-fade"
+        className="hero-shell overflow-hidden rounded-[2rem] border border-[#d7c8b5] p-8 shadow-[0_26px_56px_-42px_rgba(35,24,14,0.75)] sm:p-12"
         style={{
           backgroundImage:
-            "linear-gradient(120deg, rgba(80, 30, 8, 0.82), rgba(20, 8, 3, 0.62)), url('/images/DSC_0072-PANO.jpg')",
+            "linear-gradient(120deg, rgba(17, 35, 28, 0.82), rgba(17, 35, 28, 0.58), rgba(91, 67, 42, 0.45)), url('/images/DSC_0072-PANO.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
-        <div className="mb-5 flex items-center gap-3">
-          <LogoMark className="h-14 w-14 border-white/35" />
-          <div className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-orange-50 backdrop-blur-sm">
-            Concierge Desk
-          </div>
+        <div className="mb-5 inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur">
+          <LogoMark className="h-10 w-10" />
+          <p className="eyebrow text-[#f4e7d6]">Concierge Desk</p>
         </div>
-        <p className="eyebrow text-orange-100">Contact</p>
-        <h1 className="font-display mt-3 text-4xl text-white sm:text-6xl">{section?.title ?? "Get in Touch"}</h1>
-        <p className="mt-5 max-w-3xl text-lg leading-8 text-orange-50">
-          {section?.subtitle ?? "We are here to help plan your perfect luxury mountain getaway in Pollachi."}
+        <p className="eyebrow text-[#e7d3b8]">Contact</p>
+        <h1 className="hero-title mt-4 max-w-4xl text-[#fbf1e4]">{section?.title ?? "Connect with The HillSide Oasis"}</h1>
+        <p className="mt-6 max-w-3xl text-[1.04rem] leading-8 text-[#e8d9c3]">
+          {section?.subtitle ?? "We help you plan every detail of your stay, celebrations, and curated itinerary."}
         </p>
       </section>
 
-      <section className="mx-auto mt-10 grid max-w-[84rem] gap-6 lg:grid-cols-2">
-        <article className="rounded-2xl luxury-card p-6 reveal-up">
-          <h2 className="section-title text-zinc-900">Contact Information</h2>
-          <div className="mt-5 grid gap-3 text-zinc-700">
-            <a href="tel:+919150360597" className="rounded-xl border border-zinc-200 px-4 py-3">
+      <section className="section-shell mt-10 grid gap-6 lg:grid-cols-2">
+        <article className="luxury-card rounded-3xl p-7">
+          <h2 className="section-title text-[#241d16]">Contact Information</h2>
+          <div className="mt-6 grid gap-3 text-sm text-[#5f5245]">
+            <a href="tel:+919150360597" className="rounded-xl border border-[#d2c2ae] bg-[#f9f3e9] px-4 py-3">
               Phone: +91 91503 60597
             </a>
-            <a href="https://wa.me/919150360597" className="rounded-xl border border-zinc-200 px-4 py-3">
+            <a href="https://wa.me/919150360597" className="rounded-xl border border-[#d2c2ae] bg-[#f9f3e9] px-4 py-3">
               WhatsApp: +91 91503 60597
             </a>
-            <a
-              href="mailto:info@thehillsideoasis.com"
-              className="rounded-xl border border-zinc-200 px-4 py-3"
-            >
+            <a href="mailto:info@thehillsideoasis.com" className="rounded-xl border border-[#d2c2ae] bg-[#f9f3e9] px-4 py-3">
               Email: info@thehillsideoasis.com
             </a>
-            <div className="rounded-xl border border-zinc-200 px-4 py-3">Pollachi, Tamil Nadu</div>
+            <div className="rounded-xl border border-[#d2c2ae] bg-[#f9f3e9] px-4 py-3">Arthanaripalayam, Pollachi, Tamil Nadu 642007</div>
           </div>
-          <p className="mt-5 text-sm text-zinc-700">
-            Address: Arthanaripalayam, Pollachi, Tamil Nadu 642007
-          </p>
         </article>
 
-        <article className="rounded-2xl luxury-card p-6 reveal-up">
-          <h2 className="section-title text-zinc-900">Speak To Our Booking Concierge</h2>
-          <p className="lead-copy mt-3">
-            For suite recommendations, celebration stays, and private itinerary planning,
-            connect with us directly or proceed to instant booking.
+        <article className="luxury-card rounded-3xl p-7">
+          <h2 className="section-title text-[#241d16]">Need Help Booking?</h2>
+          <p className="lead-copy mt-4">
+            Share your dates and preferences. Our concierge team will recommend rooms, experiences, and complete your stay plan quickly.
           </p>
-          <div className="mt-6 flex gap-3">
-            <Link
-              href="/booking"
-              className="luxury-btn-primary rounded-full px-5 py-3 text-sm font-bold"
-            >
+          <div className="mt-7 flex flex-wrap gap-3">
+            <Link href="/booking" className="luxury-btn-primary rounded-full px-5 py-3 text-xs font-bold uppercase tracking-[0.12em]">
               Go To Booking
             </Link>
-            <Link
-              href="/stay"
-              className="luxury-btn-secondary rounded-full px-5 py-3 text-sm font-bold"
-            >
-              View Rooms
+            <Link href="/stay" className="luxury-btn-secondary rounded-full px-5 py-3 text-xs font-bold uppercase tracking-[0.12em]">
+              View Suites
             </Link>
-          </div>
-
-          <div className="mt-6 rounded-2xl border border-brand-soft bg-brand-soft/35 p-4 text-sm text-brand-strong">
-            Typical response time: under 30 minutes during active hours.
           </div>
         </article>
       </section>

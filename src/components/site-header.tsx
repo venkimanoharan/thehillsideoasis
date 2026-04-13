@@ -20,25 +20,25 @@ export default function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[#ead8cc] bg-white/96 backdrop-blur">
-      <div className="mx-auto flex w-full max-w-[84rem] items-center justify-between px-4 py-4 sm:px-6">
+    <header className="sticky top-0 z-40 border-b border-[#d5c7b3] bg-[#f8f3ea]/94 backdrop-blur-md">
+      <div className="mx-auto flex w-full max-w-[90rem] items-center justify-between px-4 py-4 sm:px-6">
         <Link href="/" className="group flex items-center gap-3">
-          <LogoMark priority className="h-11 w-11 sm:h-12 sm:w-12" />
+          <LogoMark priority className="h-11 w-11 sm:h-12 sm:w-12" imageClassName="drop-shadow-lg" />
           <div>
-            <p className="font-display text-base text-zinc-900 sm:text-lg">The HillSide Oasis</p>
-            <p className="eyebrow text-[0.62rem] text-[#574030] sm:text-[0.66rem]">Western Ghats · Pollachi</p>
+            <p className="font-display text-[1.35rem] leading-none text-[#1f1812] sm:text-[1.52rem]">The HillSide Oasis</p>
+            <p className="eyebrow text-[0.58rem] text-[#6c5c4c] sm:text-[0.62rem]">Pollachi . Heritage Retreat</p>
           </div>
         </Link>
 
         <button
           type="button"
           onClick={() => setMenuOpen((value) => !value)}
-          className="rounded-lg border border-[#ead8cc] bg-white px-3 py-2 text-xs font-semibold text-zinc-700 sm:hidden"
+          className="rounded-full border border-[#c8b79f] bg-[#fffaf2] px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-zinc-700 lg:hidden"
         >
           Menu
         </button>
 
-        <nav className="hidden items-center sm:flex">
+        <nav className="hidden items-center rounded-full border border-[#d7c8b5] bg-[#fbf6ee] px-2 py-1.5 lg:flex">
           {navItems.map((item) => {
             const active = pathname === item.href;
             return (
@@ -46,10 +46,10 @@ export default function SiteHeader() {
                 key={item.href}
                 href={item.href}
                 className={[
-                  "px-4 py-2 text-[0.84rem] font-medium transition",
+                  "rounded-full px-4 py-2 text-[0.74rem] font-bold uppercase tracking-[0.12em] transition",
                   active
-                    ? "text-[#c45e2a] font-semibold"
-                    : "text-zinc-600 hover:text-[#c45e2a]",
+                    ? "bg-[#214032] text-[#f8f0e4]"
+                    : "text-zinc-600 hover:bg-[#efe3d4] hover:text-[#214032]",
                 ].join(" ")}
               >
                 {item.label}
@@ -60,14 +60,14 @@ export default function SiteHeader() {
 
         <a
           href="tel:+919150360597"
-          className="hidden rounded-full bg-[#c45e2a] px-5 py-2 text-sm font-bold text-white transition hover:bg-[#9e3e12] sm:block"
+          className="hidden rounded-full border border-[#2f4f41] bg-[#214032] px-5 py-2 text-xs font-bold uppercase tracking-[0.12em] text-[#f8f0e4] transition hover:bg-[#163125] xl:block"
         >
-          Call Now
+          Reserve By Phone
         </a>
       </div>
 
       {menuOpen ? (
-        <div className="border-t border-[#ead8cc] bg-white p-4 sm:hidden">
+        <div className="border-t border-[#d6c7b4] bg-[#f9f3ea] p-4 lg:hidden">
           <nav className="grid gap-1">
             {navItems.map((item) => {
               const active = pathname === item.href;
@@ -77,8 +77,10 @@ export default function SiteHeader() {
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
                   className={[
-                    "rounded-xl px-4 py-3 text-sm font-medium",
-                    active ? "bg-orange-50 text-[#c45e2a] font-semibold" : "text-zinc-700 hover:text-[#c45e2a]",
+                    "rounded-xl border px-4 py-3 text-sm font-semibold uppercase tracking-[0.11em]",
+                    active
+                      ? "border-[#214032] bg-[#214032] text-[#f8f0e4]"
+                      : "border-[#decfbc] bg-[#fffaf2] text-zinc-700 hover:border-[#b9a489] hover:text-[#214032]",
                   ].join(" ")}
                 >
                   {item.label}

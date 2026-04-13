@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 type RoomItem = {
   id: number;
@@ -127,36 +127,43 @@ export default function AdminDashboardClient() {
   const [blockNote, setBlockNote] = useState<string>("");
   const [message, setMessage] = useState<string>("");
 
-  async function fetchData() {
-    const [roomsRes, activitiesRes, galleryRes, bookingsRes] = await Promise.all([
-      fetch("/api/admin/rooms", { cache: "no-store" }),
-      fetch("/api/admin/activities", { cache: "no-store" }),
-      fetch("/api/admin/gallery", { cache: "no-store" }),
-      fetch("/api/admin/bookings", { cache: "no-store" }),
-    ]);
+  const fetchData = useCallback(async () => {
+    try {
+      const [roomsRes, activitiesRes, galleryRes, bookingsRes] = await Promise.all([
+        fetch("/api/admin/rooms", { cache: "no-store" }),
+        fetch("/api/admin/activities", { cache: "no-store" }),
+        fetch("/api/admin/gallery", { cache: "no-store" }),
+        fetch("/api/admin/bookings", { cache: "no-store" }),
+      ]);
 
-    if (!roomsRes.ok || !activitiesRes.ok || !galleryRes.ok || !bookingsRes.ok) {
-      throw new Error("Failed to load admin data.");
+      if (!roomsRes.ok || !activitiesRes.ok || !galleryRes.ok || !bookingsRes.ok) {
+        throw new Error("Failed to load admin data.");
+      }
+
+      const roomsData = (await roomsRes.json()) as { items: RoomItem[] };
+      const activitiesData = (await activitiesRes.json()) as { items: ActivityItem[] };
+      const galleryData = (await galleryRes.json()) as { items: GalleryItem[] };
+      const bookingsData = (await bookingsRes.json()) as { items: BookingItem[] };
+
+      setRooms(roomsData.items);
+      setActivities(activitiesData.items);
+      setGallery(galleryData.items);
+      setBookings(bookingsData.items);
+
+      if (!blockRoom && roomsData.items[0]?.slug) {
+        setBlockRoom(roomsData.items[0].slug);
+      }
+
+      if (!calendarRoom && roomsData.items[0]?.slug) {
+        setCalendarRoom(roomsData.items[0].slug);
+      }
+
+      return true;
+    } catch {
+      setMessage("Unable to load admin data.");
+      return false;
     }
-
-    const roomsData = (await roomsRes.json()) as { items: RoomItem[] };
-    const activitiesData = (await activitiesRes.json()) as { items: ActivityItem[] };
-    const galleryData = (await galleryRes.json()) as { items: GalleryItem[] };
-    const bookingsData = (await bookingsRes.json()) as { items: BookingItem[] };
-
-    setRooms(roomsData.items);
-    setActivities(activitiesData.items);
-    setGallery(galleryData.items);
-    setBookings(bookingsData.items);
-
-    if (!blockRoom && roomsData.items[0]?.slug) {
-      setBlockRoom(roomsData.items[0].slug);
-    }
-
-    if (!calendarRoom && roomsData.items[0]?.slug) {
-      setCalendarRoom(roomsData.items[0].slug);
-    }
-  }
+  }, [blockRoom, calendarRoom]);
 
   const monthLabel = useMemo(() => {
     return new Intl.DateTimeFormat("en-US", {
@@ -214,10 +221,8 @@ export default function AdminDashboardClient() {
   }, [bookings, calendarRoom]);
 
   useEffect(() => {
-    fetchData().catch(() => {
-      setMessage("Unable to load admin data.");
-    });
-  }, []);
+    void fetchData();
+  }, [fetchData]);
 
   async function saveRoom(item: RoomItem) {
     const response = await fetch("/api/admin/rooms", {

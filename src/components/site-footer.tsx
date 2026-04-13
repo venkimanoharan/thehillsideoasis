@@ -3,19 +3,19 @@ import LogoMark from "@/components/logo-mark";
 
 export default function SiteFooter() {
   return (
-    <footer className="mt-20 border-t border-[#ead8cc] bg-[linear-gradient(150deg,#1a0804,#2e110a,#4a1d0b)] text-zinc-200">
-      <div className="mx-auto grid w-full max-w-[84rem] gap-8 px-6 py-12 sm:grid-cols-2">
+    <footer className="mt-20 border-t border-[#304b3f] bg-[radial-gradient(circle_at_10%_0%,#294536,#162a21_48%,#102019_100%)] text-[#e7dcc9]">
+      <div className="mx-auto grid w-full max-w-[90rem] gap-8 px-6 py-12 sm:grid-cols-2">
         <div>
           <div className="flex items-center gap-4">
-            <LogoMark className="h-14 w-14 border-[#d8c1a8]/70" />
+            <LogoMark className="h-14 w-14 border-[#d8c1a8]/70" imageClassName="drop-shadow-xl" />
             <div>
-              <p className="eyebrow text-orange-200">Luxury Nature Retreat</p>
-              <p className="font-display mt-2 text-3xl text-white sm:text-4xl">The HillSide Oasis</p>
+              <p className="eyebrow text-[#d2b98d]">Signature Heritage Escape</p>
+              <p className="font-display mt-2 text-3xl text-[#f9f2e6] sm:text-4xl">The HillSide Oasis</p>
             </div>
           </div>
-          <p className="mt-3 text-sm text-zinc-100">Pollachi, Tamil Nadu</p>
-          <p className="text-sm text-zinc-100">Phone: +91 91503 60597</p>
-          <p className="mt-4 max-w-md text-sm leading-7 text-zinc-200">
+          <p className="mt-3 text-sm text-[#e7ddce]">Pollachi, Tamil Nadu</p>
+          <p className="text-sm text-[#e7ddce]">Phone: +91 91503 60597</p>
+          <p className="mt-4 max-w-md text-sm leading-7 text-[#cabda8]">
             Signature hospitality in the foothills of the Western Ghats with curated stays and private experiences.
           </p>
         </div>
@@ -26,7 +26,7 @@ export default function SiteFooter() {
               href="https://facebook.com/thehillsideoasis"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg border border-zinc-500/50 px-3 py-2 text-xs font-semibold hover:border-orange-300"
+              className="rounded-full border border-[#5d7467] px-3 py-2 text-xs font-semibold uppercase tracking-[0.1em] hover:border-[#d2b98d]"
             >
               Facebook
             </a>
@@ -34,37 +34,37 @@ export default function SiteFooter() {
               href="https://instagram.com/thehillsideoasis"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg border border-zinc-500/50 px-3 py-2 text-xs font-semibold hover:border-orange-300"
+              className="rounded-full border border-[#5d7467] px-3 py-2 text-xs font-semibold uppercase tracking-[0.1em] hover:border-[#d2b98d]"
             >
               Instagram
             </a>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-2 sm:justify-end">
-            <Link href="/" className="text-xs text-zinc-100 hover:text-white">
+          <div className="mt-4 flex flex-wrap gap-3 sm:justify-end">
+            <Link href="/" className="text-xs uppercase tracking-[0.11em] text-[#d7ccbc] hover:text-white">
               Home
             </Link>
-            <Link href="/about" className="text-xs text-zinc-100 hover:text-white">
+            <Link href="/about" className="text-xs uppercase tracking-[0.11em] text-[#d7ccbc] hover:text-white">
               About
             </Link>
-            <Link href="/stay" className="text-xs text-zinc-100 hover:text-white">
+            <Link href="/stay" className="text-xs uppercase tracking-[0.11em] text-[#d7ccbc] hover:text-white">
               Stay
             </Link>
-            <Link href="/activities" className="text-xs text-zinc-100 hover:text-white">
+            <Link href="/activities" className="text-xs uppercase tracking-[0.11em] text-[#d7ccbc] hover:text-white">
               Activities
             </Link>
-            <Link href="/gallery" className="text-xs text-zinc-100 hover:text-white">
+            <Link href="/gallery" className="text-xs uppercase tracking-[0.11em] text-[#d7ccbc] hover:text-white">
               Gallery
             </Link>
-            <Link href="/contact" className="text-xs text-zinc-100 hover:text-white">
+            <Link href="/contact" className="text-xs uppercase tracking-[0.11em] text-[#d7ccbc] hover:text-white">
               Contact
             </Link>
-            <Link href="/booking" className="text-xs text-zinc-100 hover:text-white">
+            <Link href="/booking" className="text-xs uppercase tracking-[0.11em] text-[#d7ccbc] hover:text-white">
               Booking
             </Link>
           </div>
 
-          <p className="mt-4 text-xs text-zinc-300">&#169; 2026 The HillSide Oasis. All rights reserved.</p>
+          <p className="mt-5 text-xs uppercase tracking-[0.1em] text-[#9fb2a7]">&#169; 2026 The HillSide Oasis. All rights reserved.</p>
         </div>
       </div>
     </footer>

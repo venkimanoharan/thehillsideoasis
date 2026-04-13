@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getSection } from "@/lib/content";
 import LogoMark from "@/components/logo-mark";
+import { getSection } from "@/lib/content";
 
 export const dynamic = "force-dynamic";
 
@@ -9,46 +9,27 @@ export const metadata: Metadata = {
   title: "About The HillSide Oasis Luxury Farm Retreat",
   description:
     "Learn about The HillSide Oasis, a luxury farm retreat in Pollachi built on sustainability, hospitality, and authentic local experiences.",
-  keywords: [
-    "about hillside oasis",
-    "Pollachi luxury farm retreat",
-    "boutique resort Tamil Nadu",
-  ],
   alternates: {
     canonical: "/about",
-  },
-  openGraph: {
-    title: "About The HillSide Oasis Luxury Farm Retreat",
-    description:
-      "Discover the story, values, and service philosophy behind The HillSide Oasis in Pollachi.",
-    images: ["/images/DSC_0072-PANO.jpg"],
-    type: "website",
-    url: "https://thehillsideoasis.com/about",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "About The HillSide Oasis Luxury Farm Retreat",
-    description: "Explore our story, values, and hospitality vision.",
-    images: ["/images/DSC_0072-PANO.jpg"],
   },
 };
 
 const values = [
   {
-    title: "Sustainability",
-    text: "Organic farming, water-conscious operations, and long-term ecological care.",
+    title: "Heritage Hospitality",
+    text: "Service rituals designed with warmth, discretion, and deeply personal guest attention.",
   },
   {
-    title: "Hospitality",
-    text: "Warm, personalized service that feels local, unhurried, and thoughtful.",
+    title: "Landscape Respect",
+    text: "Every stay experience is shaped around ecology, calm movement, and lower-impact operations.",
   },
   {
-    title: "Community",
-    text: "Working with nearby villages and local partners across food, staffing, and experiences.",
+    title: "Local Culture",
+    text: "Cuisine, stories, and activities are rooted in Pollachi and the surrounding foothill communities.",
   },
   {
-    title: "Authenticity",
-    text: "Real farm life, regional food, and meaningful time in nature.",
+    title: "Curated Living",
+    text: "From arrival details to departure ease, each moment is planned with intent.",
   },
 ];
 
@@ -57,74 +38,66 @@ export default async function AboutPage() {
   const valuesSection = await getSection("about_values");
 
   return (
-    <main className="luxury-bg px-6 pb-16 pt-24 text-foreground">
+    <main className="luxury-bg px-5 pb-16 pt-24 text-foreground sm:px-6">
       <section
-        className="hero-shell relative overflow-hidden rounded-3xl border border-white/40 p-8 shadow-2xl sm:p-12 reveal-fade"
+        className="hero-shell overflow-hidden rounded-[2rem] border border-[#d7c8b5] p-8 shadow-[0_26px_56px_-42px_rgba(35,24,14,0.75)] sm:p-12"
         style={{
           backgroundImage:
-            "linear-gradient(120deg, rgba(85, 32, 8, 0.82), rgba(15, 8, 3, 0.5)), url('/images/12.jpeg')",
+            "linear-gradient(120deg, rgba(17, 35, 28, 0.82), rgba(17, 35, 28, 0.58), rgba(91, 67, 42, 0.45)), url('/images/12.jpeg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
-        <div className="mb-5 flex items-center gap-3">
-          <LogoMark className="h-14 w-14 border-white/35" />
-          <div className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-orange-50 backdrop-blur-sm">
-            Our Story
-          </div>
+        <div className="mb-5 inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur">
+          <LogoMark className="h-10 w-10" />
+          <p className="eyebrow text-[#f4e7d6]">Our Story</p>
         </div>
-        <p className="eyebrow text-orange-100">About Us</p>
-        <h1 className="font-display mt-3 text-4xl text-white sm:text-6xl">About The HillSide Oasis</h1>
-        <p className="mt-5 max-w-3xl text-lg leading-8 text-orange-50">
+        <p className="eyebrow text-[#e7d3b8]">About The Estate</p>
+        <h1 className="hero-title mt-4 max-w-4xl text-[#fbf1e4]">A crafted retreat where nature and ceremony meet</h1>
+        <p className="mt-6 max-w-3xl text-[1.04rem] leading-8 text-[#e8d9c3]">
           {story?.subtitle ?? "Where nature meets hospitality in the heart of the Western Ghats."}
         </p>
       </section>
 
-      <section className="mx-auto mt-10 max-w-[84rem] rounded-3xl luxury-card p-7 shadow-xl sm:p-10 reveal-up">
-        <h2 className="section-title text-zinc-900">{story?.title ?? "Our Story"}</h2>
-        <p className="lead-copy mt-4">{story?.body ?? "The HillSide Oasis is a family-led nature retreat in Pollachi."}</p>
-        <p className="lead-copy mt-4">
-          Our vision is to deliver a private-estate style hospitality experience where every stay feels curated, elegant, and deeply connected to the landscape.
-        </p>
+      <section className="section-shell mt-10 grid gap-6 lg:grid-cols-[1.15fr_1fr]">
+        <article className="heritage-frame luxury-card rounded-3xl p-7 sm:p-10">
+          <h2 className="section-title text-[#241d16]">{story?.title ?? "Our Story"}</h2>
+          <p className="lead-copy mt-4">{story?.body ?? "The HillSide Oasis is a family-led nature retreat in Pollachi."}</p>
+          <p className="lead-copy mt-4">
+            Our vision is to offer estate-style comfort with timeless Indian hospitality, where every stay feels deliberate, elegant, and deeply connected to place.
+          </p>
+        </article>
+
+        <article className="rounded-3xl border border-[#d8c9b5] bg-[#f9f3e9] p-7 sm:p-9">
+          <p className="eyebrow text-[#7b664b]">Design Principle</p>
+          <h2 className="font-display mt-3 text-4xl leading-none text-[#211a13]">Quiet Grandeur</h2>
+          <p className="mt-4 text-sm leading-8 text-[#5f5245]">
+            We believe luxury should feel composed, never loud. Our rooms, materials, and service details are designed for calm and lasting comfort.
+          </p>
+          <div className="section-rule my-6" />
+          <p className="text-sm leading-8 text-[#5f5245]">
+            Whether you travel for celebration, retreat, or family time, the experience is tailored to your own rhythm.
+          </p>
+        </article>
       </section>
 
-      <section className="mx-auto mt-10 max-w-[84rem]">
-        <h2 className="section-title text-zinc-900">{valuesSection?.title ?? "Our Values"}</h2>
+      <section className="section-shell mt-10">
+        <h2 className="section-title text-[#241d16]">{valuesSection?.title ?? "Our Values"}</h2>
         <p className="lead-copy mt-2">{valuesSection?.subtitle ?? "What guides us every day"}</p>
-
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 stagger-grid">
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {values.map((value) => (
-            <article key={value.title} className="rounded-2xl luxury-card p-5">
-              <h3 className="text-lg font-semibold text-zinc-900">{value.title}</h3>
-              <p className="mt-2 text-sm leading-7 text-zinc-700">{value.text}</p>
-            </article>
-          ))}
-        </div>
-
-        <div className="mt-10 grid gap-4 sm:grid-cols-3 reveal-up">
-          {[
-            { label: "Estate Philosophy", value: "Nature, Craft, Calm" },
-            { label: "Guest Promise", value: "Personalized Luxury" },
-            { label: "Hospitality Style", value: "Warm and Intentional" },
-          ].map((item) => (
-            <article key={item.label} className="rounded-2xl border border-brand-soft bg-white p-5 text-center shadow-lg">
-              <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">{item.label}</p>
-              <p className="font-display mt-2 text-2xl text-zinc-900">{item.value}</p>
+            <article key={value.title} className="luxury-card rounded-2xl p-5">
+              <h3 className="font-display text-2xl leading-none text-[#241d16]">{value.title}</h3>
+              <p className="mt-3 text-sm leading-7 text-[#5d5044]">{value.text}</p>
             </article>
           ))}
         </div>
 
         <div className="mt-8 flex flex-wrap gap-3">
-          <Link
-            href="/stay"
-            className="luxury-btn-primary rounded-full px-5 py-3 text-sm font-bold"
-          >
-            Explore Accommodations
+          <Link href="/stay" className="luxury-btn-primary rounded-full px-5 py-3 text-xs font-bold uppercase tracking-[0.12em]">
+            Explore Suites
           </Link>
-          <Link
-            href="/booking"
-            className="luxury-btn-secondary rounded-full px-5 py-3 text-sm font-bold"
-          >
+          <Link href="/booking" className="luxury-btn-secondary rounded-full px-5 py-3 text-xs font-bold uppercase tracking-[0.12em]">
             Plan Your Visit
           </Link>
         </div>

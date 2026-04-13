@@ -114,6 +114,26 @@ export default function BookingClient({ rooms }: BookingClientProps) {
   }, [loadAvailability]);
 
   // If availability changed while user was on the page, clear stale selections.
+  const hasUnavailableBetween = useCallback(
+    (start: Date, end: Date) => {
+      const MS_PER_DAY = 86_400_000;
+      // start from the day AFTER checkin, up to and including checkout
+      const startMs = start.getTime() + MS_PER_DAY;
+      const endMs = end.getTime();
+
+      for (let t = startMs; t <= endMs; t += MS_PER_DAY) {
+        const d = new Date(t);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        if (unavailableDates.has(key)) {
+          return true;
+        }
+      }
+
+      return false;
+    },
+    [unavailableDates],
+  );
+
   useEffect(() => {
     if (!checkinDate) {
       return;
@@ -142,24 +162,7 @@ export default function BookingClient({ rooms }: BookingClientProps) {
         message: "Your selected range is no longer available. Please choose a new check-out date.",
       });
     }
-  }, [unavailableDates, checkinDate, checkoutDate]);
-
-  function hasUnavailableBetween(start: Date, end: Date) {
-    const MS_PER_DAY = 86_400_000;
-    // start from the day AFTER checkin, up to and including checkout
-    const startMs = start.getTime() + MS_PER_DAY;
-    const endMs = end.getTime();
-
-    for (let t = startMs; t <= endMs; t += MS_PER_DAY) {
-      const d = new Date(t);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-      if (unavailableDates.has(key)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
+  }, [unavailableDates, checkinDate, checkoutDate, hasUnavailableBetween]);
 
   const nights = useMemo(() => {
     if (!checkinDate || !checkoutDate) {
@@ -331,35 +334,35 @@ export default function BookingClient({ rooms }: BookingClientProps) {
   };
 
   return (
-    <main className="luxury-bg px-6 pb-16 pt-24 text-foreground">
+    <main className="luxury-bg px-5 pb-16 pt-24 text-foreground sm:px-6">
       <section
-        className="hero-shell rounded-3xl border border-white/30 p-8 shadow-2xl sm:p-12"
+        className="hero-shell overflow-hidden rounded-[2rem] border border-[#d7c8b5] p-8 shadow-[0_26px_56px_-42px_rgba(35,24,14,0.75)] sm:p-12"
         style={{
           backgroundImage:
-            "linear-gradient(120deg, rgba(80, 30, 8, 0.84), rgba(15, 8, 3, 0.62)), url('/images/4.jpeg')",
+            "linear-gradient(120deg, rgba(17, 35, 28, 0.82), rgba(17, 35, 28, 0.58), rgba(91, 67, 42, 0.45)), url('/images/4.jpeg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
         <div className="mb-5 flex items-center gap-3">
           <LogoMark className="h-14 w-14 border-white/35" />
-          <div className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-orange-50 backdrop-blur-sm">
+          <div className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#f4e7d6] backdrop-blur-sm">
             Direct Booking
           </div>
         </div>
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-100">
+        <p className="eyebrow text-[#e7d3b8]">
           Book Your Stay
         </p>
-        <h1 className="font-display mt-3 text-4xl text-white sm:text-6xl">
+        <h1 className="hero-title mt-3 max-w-4xl text-[#fbf1e4]">
           Reserve Your Mountain Retreat
         </h1>
-        <p className="mt-5 max-w-3xl text-lg leading-8 text-orange-50">
+        <p className="mt-5 max-w-3xl text-[1.03rem] leading-8 text-[#e8d9c3]">
           Pick dates, choose your room, and submit your booking request. We will
           contact you quickly with confirmation.
         </p>
       </section>
 
-      <section className="mx-auto mt-10 grid max-w-[84rem] gap-8 lg:grid-cols-2">
+      <section className="section-shell mt-10 grid gap-8 lg:grid-cols-2">
         <article
           className={[
             "luxury-card rounded-3xl p-6 sm:p-8",
@@ -376,7 +379,7 @@ export default function BookingClient({ rooms }: BookingClientProps) {
                   new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1),
                 )
               }
-              className="rounded-full bg-[#c45e2a] px-4 py-2 text-sm font-semibold text-white hover:bg-[#9e3e12]"
+              className="luxury-btn-primary rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em]"
             >
               Previous
             </button>
@@ -388,7 +391,7 @@ export default function BookingClient({ rooms }: BookingClientProps) {
                   new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1),
                 )
               }
-              className="rounded-full bg-[#c45e2a] px-4 py-2 text-sm font-semibold text-white hover:bg-[#9e3e12]"
+              className="luxury-btn-primary rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em]"
             >
               Next
             </button>
@@ -396,7 +399,7 @@ export default function BookingClient({ rooms }: BookingClientProps) {
 
           <div className="mt-6 grid grid-cols-7 gap-2 text-center text-xs sm:text-sm">
             {dayHeaders.map((header) => (
-              <div key={header} className="rounded-lg bg-brand py-2 font-semibold text-white">
+              <div key={header} className="rounded-lg bg-[#214032] py-2 font-semibold text-[#f8f0e4]">
                 {header}
               </div>
             ))}
@@ -428,8 +431,8 @@ export default function BookingClient({ rooms }: BookingClientProps) {
                       : isPast
                         ? "cursor-not-allowed border-zinc-200 bg-zinc-100 text-zinc-400"
                         : isSelected
-                          ? "border-[#c45e2a] bg-[#c45e2a] text-white"
-                          : "border-zinc-200 bg-white text-zinc-800 hover:border-[#c45e2a] hover:bg-orange-50",
+                          ? "border-[#214032] bg-[#214032] text-[#f8f0e4]"
+                          : "border-[#d2c2ae] bg-[#f9f3e9] text-zinc-800 hover:border-[#214032] hover:bg-[#efe4d6]",
                   ].join(" ")}
                 >
                   {entry.date.getDate()}
@@ -439,11 +442,11 @@ export default function BookingClient({ rooms }: BookingClientProps) {
           </div>
 
           <div className="mt-6 flex flex-wrap gap-4 text-xs text-zinc-600">
-            <span className="rounded-full border border-zinc-300 px-3 py-1">Available</span>
+            <span className="rounded-full border border-[#d2c2ae] bg-[#f9f3e9] px-3 py-1">Available</span>
             <span className="rounded-full border border-rose-300 bg-rose-100 px-3 py-1 text-rose-700">
               Unavailable
             </span>
-            <span className="rounded-full bg-[#c45e2a] px-3 py-1 text-white">Selected</span>
+            <span className="rounded-full bg-[#214032] px-3 py-1 text-[#f8f0e4]">Selected</span>
           </div>
         </article>
 
@@ -477,7 +480,7 @@ export default function BookingClient({ rooms }: BookingClientProps) {
               className={[
                 "mt-5 rounded-xl px-4 py-3 text-sm font-medium",
                 alert.type === "success"
-                  ? "border border-orange-200 bg-orange-50 text-orange-900"
+                  ? "border border-[#d2c2ae] bg-[#f4ebdf] text-[#6b4f2d]"
                   : "border border-rose-200 bg-rose-50 text-rose-800",
               ].join(" ")}
             >
@@ -507,7 +510,7 @@ export default function BookingClient({ rooms }: BookingClientProps) {
               </article>
             </div>
 
-            <div className="grid gap-4 rounded-2xl border border-zinc-200 bg-white p-4 sm:grid-cols-[1fr_auto] sm:items-end">
+            <div className="grid gap-4 rounded-2xl border border-[#d2c2ae] bg-[#f9f3e9] p-4 sm:grid-cols-[1fr_auto] sm:items-end">
               <label className="grid gap-2 text-sm font-semibold text-zinc-800">
                 Choose Your Room
                 <select
@@ -528,8 +531,8 @@ export default function BookingClient({ rooms }: BookingClientProps) {
                 </select>
               </label>
 
-              <div className="rounded-xl bg-brand-soft px-4 py-3 text-right">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-strong">Capacity</p>
+              <div className="rounded-xl border border-[#d2c2ae] bg-[#e7ece8] px-4 py-3 text-right">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#214032]">Capacity</p>
                 <p className="text-sm font-semibold text-zinc-900">{selectedRoom?.capacity ?? "-"}</p>
               </div>
             </div>
@@ -544,7 +547,7 @@ export default function BookingClient({ rooms }: BookingClientProps) {
                   <span>Nights</span>
                   <span>{nights}</span>
                 </div>
-                <div className="mt-3 flex justify-between border-t border-zinc-200 pt-3 text-sm font-bold text-[#c45e2a]">
+                <div className="mt-3 flex justify-between border-t border-zinc-200 pt-3 text-sm font-bold text-[#214032]">
                   <span>Total Amount</span>
                   <span>INR {totalAmount.toLocaleString()}</span>
                 </div>
@@ -620,7 +623,7 @@ export default function BookingClient({ rooms }: BookingClientProps) {
         </article>
       </section>
 
-      <section className="mx-auto mt-10 max-w-[84rem] rounded-3xl border border-orange-100 bg-[linear-gradient(135deg,#fdf0e8,#f6efe1)] p-6 shadow-xl sm:p-8">
+      <section className="section-shell mt-10 rounded-3xl border border-[#d7c8b5] bg-[linear-gradient(145deg,#f9f4ea,#f2eade)] p-6 shadow-xl sm:p-8">
         <h3 className="font-display text-3xl text-zinc-900">Need Help with Your Booking?</h3>
         <p className="mt-2 text-zinc-700">Our team is available by phone, WhatsApp, and email.</p>
 
