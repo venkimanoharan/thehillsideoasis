@@ -1,7 +1,19 @@
 import Link from "next/link";
 import LogoMark from "@/components/logo-mark";
 
-export default function SiteFooter() {
+type SiteFooterProps = {
+  contactPhoneDisplay: string;
+  contactAddressDisplay: string;
+  facebookUrl: string;
+  instagramUrl: string;
+};
+
+export default function SiteFooter({
+  contactPhoneDisplay,
+  contactAddressDisplay,
+  facebookUrl,
+  instagramUrl,
+}: SiteFooterProps) {
   return (
     <footer className="mt-20 border-t border-[#304b3f] bg-[radial-gradient(circle_at_10%_0%,#294536,#162a21_48%,#102019_100%)] text-[#e7dcc9]">
       <div className="mx-auto grid w-full max-w-[90rem] gap-8 px-6 py-12 sm:grid-cols-2">
@@ -13,8 +25,8 @@ export default function SiteFooter() {
               <p className="font-display mt-2 text-3xl text-[#f9f2e6] sm:text-4xl">The HillSide Oasis</p>
             </div>
           </div>
-          <p className="mt-3 text-sm text-[#e7ddce]">Pollachi, Tamil Nadu</p>
-          <p className="text-sm text-[#e7ddce]">Phone: +91 91503 60597</p>
+          <p className="mt-3 text-sm text-[#e7ddce]">{contactAddressDisplay}</p>
+          <p className="text-sm text-[#e7ddce]">Phone: {contactPhoneDisplay}</p>
           <p className="mt-4 max-w-md text-sm leading-7 text-[#cabda8]">
             Signature hospitality in the foothills of the Western Ghats with curated stays and private experiences.
           </p>
@@ -23,7 +35,7 @@ export default function SiteFooter() {
         <div className="sm:text-right">
           <div className="flex gap-2 sm:justify-end">
             <a
-              href="https://facebook.com/thehillsideoasis"
+              href={facebookUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-full border border-[#5d7467] px-3 py-2 text-xs font-semibold uppercase tracking-[0.1em] hover:border-[#d2b98d]"
@@ -31,7 +43,7 @@ export default function SiteFooter() {
               Facebook
             </a>
             <a
-              href="https://instagram.com/thehillsideoasis"
+              href={instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-full border border-[#5d7467] px-3 py-2 text-xs font-semibold uppercase tracking-[0.1em] hover:border-[#d2b98d]"

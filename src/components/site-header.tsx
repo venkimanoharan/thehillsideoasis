@@ -15,7 +15,11 @@ const navItems = [
   { href: "/booking", label: "Booking" },
 ];
 
-export default function SiteHeader() {
+type SiteHeaderProps = {
+  contactPhoneHref: string;
+};
+
+export default function SiteHeader({ contactPhoneHref }: SiteHeaderProps) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -59,7 +63,7 @@ export default function SiteHeader() {
         </nav>
 
         <a
-          href="tel:+919150360597"
+          href={contactPhoneHref}
           className="hidden rounded-full border border-[#2f4f41] bg-[#214032] px-5 py-2 text-xs font-bold uppercase tracking-[0.12em] text-[#f8f0e4] transition hover:bg-[#163125] xl:block"
         >
           Reserve By Phone

@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { getSiteSettings } from "@/lib/site-settings";
 
 export type BookingEmailData = {
   traceId: string;
@@ -35,7 +36,15 @@ function formatCurrency(amount: number): string {
   return `INR ${amount.toLocaleString("en-IN")}`;
 }
 
-function guestConfirmationHtml(data: BookingEmailData): string {
+function guestConfirmationHtml(
+  data: BookingEmailData,
+  settings: {
+    contactPhoneDisplay: string;
+    contactPhoneHref: string;
+    contactEmailDisplay: string;
+    contactAddressDisplay: string;
+  },
+): string {
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -115,13 +124,13 @@ function guestConfirmationHtml(data: BookingEmailData): string {
               <table cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
                 <tr>
                   <td style="background:#0b6b53;border-radius:8px;padding:12px 24px;">
-                    <a href="tel:+919150360597" style="color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;">Call us: +91 91503 60597</a>
+                    <a href="${settings.contactPhoneHref}" style="color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;">Call us: ${settings.contactPhoneDisplay}</a>
                   </td>
                 </tr>
               </table>
 
               <p style="margin:0;color:#9ca3af;font-size:12px;line-height:1.6;">
-                The HillSide Oasis · Pollachi, Tamil Nadu · info@thehillsideoasis.com
+                The HillSide Oasis · ${settings.contactAddressDisplay} · ${settings.contactEmailDisplay}
               </p>
 
             </td>
@@ -171,13 +180,14 @@ export async function sendBookingEmails(data: BookingEmailData): Promise<void> {
 
   const from = process.env.SMTP_FROM ?? process.env.SMTP_USER ?? "noreply@thehillsideoasis.com";
   const notifyEmail = process.env.NOTIFY_EMAIL;
+  const settings = await getSiteSettings();
 
   const sends: Promise<unknown>[] = [
     transporter.sendMail({
       from: `"The HillSide Oasis" <${from}>`,
       to: data.guestEmail,
       subject: `Booking Request Received – ${data.roomName} | The HillSide Oasis`,
-      html: guestConfirmationHtml(data),
+      html: guestConfirmationHtml(data, settings),
     }),
   ];
 

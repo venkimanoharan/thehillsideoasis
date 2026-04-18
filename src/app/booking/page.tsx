@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import BookingClient from "@/components/booking/booking-client";
 import { getRooms } from "@/lib/content";
+import { getCachedSiteSettings } from "@/lib/site-settings";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,6 @@ export const metadata: Metadata = {
 };
 
 export default async function BookingPage() {
-  const rooms = await getRooms();
-  return <BookingClient rooms={rooms} />;
+  const [rooms, settings] = await Promise.all([getRooms(), getCachedSiteSettings()]);
+  return <BookingClient rooms={rooms} settings={settings} />;
 }

@@ -2,6 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import LogoMark from "@/components/logo-mark";
+import type { SiteSettings } from "@/lib/site-settings";
 
 type Room = {
   id: number;
@@ -18,6 +19,7 @@ type AlertState = {
 
 type BookingClientProps = {
   rooms: Room[];
+  settings: SiteSettings;
 };
 
 const dayHeaders = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -37,7 +39,7 @@ function displayDate(date: Date): string {
   }).format(date);
 }
 
-export default function BookingClient({ rooms }: BookingClientProps) {
+export default function BookingClient({ rooms, settings }: BookingClientProps) {
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
   const [checkinDate, setCheckinDate] = useState<Date | null>(null);
   const [checkoutDate, setCheckoutDate] = useState<Date | null>(null);
@@ -297,7 +299,7 @@ export default function BookingClient({ rooms }: BookingClientProps) {
       };
 
       if (!response.ok || !data.ok) {
-        let userMessage = "Unable to submit online right now. Please call +91 91503 60597 or send us a WhatsApp message.";
+        let userMessage = `Unable to submit online right now. Please call ${settings.contactPhoneDisplay} or send us a WhatsApp message.`;
 
         if (response.status === 409) {
           userMessage = "Those dates are no longer available. Please choose different dates.";
@@ -322,7 +324,7 @@ export default function BookingClient({ rooms }: BookingClientProps) {
       const message =
         error instanceof Error && error.message
           ? error.message
-          : "Unable to submit online right now. Please call +91 91503 60597 or send us a WhatsApp message.";
+          : `Unable to submit online right now. Please call ${settings.contactPhoneDisplay} or send us a WhatsApp message.`;
 
       setAlert({
         type: "error",
@@ -618,7 +620,7 @@ export default function BookingClient({ rooms }: BookingClientProps) {
           </form>
 
           <p className="mt-4 text-center text-xs text-zinc-600">
-            Need immediate help? Call <strong>+91 91503 60597</strong>
+            Need immediate help? Call <strong>{settings.contactPhoneDisplay}</strong>
           </p>
         </article>
       </section>
@@ -628,23 +630,23 @@ export default function BookingClient({ rooms }: BookingClientProps) {
         <p className="mt-2 text-zinc-700">Our team is available by phone, WhatsApp, and email.</p>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <a href="tel:+919150360597" className="rounded-xl bg-white p-4 font-medium text-zinc-800 shadow-sm">
-            Phone: +91 91503 60597
+          <a href={settings.contactPhoneHref} className="rounded-xl bg-white p-4 font-medium text-zinc-800 shadow-sm">
+            Phone: {settings.contactPhoneDisplay}
           </a>
           <a
-            href="https://wa.me/919150360597"
+            href={settings.contactWhatsappHref}
             className="rounded-xl bg-white p-4 font-medium text-zinc-800 shadow-sm"
           >
-            WhatsApp: +91 91503 60597
+            WhatsApp: {settings.contactWhatsappDisplay}
           </a>
           <a
-            href="mailto:info@thehillsideoasis.com"
+            href={settings.contactEmailHref}
             className="rounded-xl bg-white p-4 font-medium text-zinc-800 shadow-sm"
           >
-            Email: info@thehillsideoasis.com
+            Email: {settings.contactEmailDisplay}
           </a>
           <div className="rounded-xl bg-white p-4 font-medium text-zinc-800 shadow-sm">
-            Pollachi, Tamil Nadu
+            {settings.contactAddressDisplay}
           </div>
         </div>
       </section>

@@ -53,7 +53,19 @@ type BookingItem = {
   created_at: string;
 };
 
-type TabKey = "rooms" | "activities" | "gallery" | "bookings";
+type SettingsItem = {
+  contactPhoneDisplay: string;
+  contactPhoneHref: string;
+  contactWhatsappDisplay: string;
+  contactWhatsappHref: string;
+  contactEmailDisplay: string;
+  contactEmailHref: string;
+  contactAddressDisplay: string;
+  facebookUrl: string;
+  instagramUrl: string;
+};
+
+type TabKey = "rooms" | "activities" | "gallery" | "bookings" | "settings";
 
 const dayHeaders = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -119,6 +131,17 @@ export default function AdminDashboardClient() {
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
   const [bookings, setBookings] = useState<BookingItem[]>([]);
+  const [settings, setSettings] = useState<SettingsItem>({
+    contactPhoneDisplay: "",
+    contactPhoneHref: "",
+    contactWhatsappDisplay: "",
+    contactWhatsappHref: "",
+    contactEmailDisplay: "",
+    contactEmailHref: "",
+    contactAddressDisplay: "",
+    facebookUrl: "",
+    instagramUrl: "",
+  });
   const [blockRoom, setBlockRoom] = useState<string>("");
   const [calendarRoom, setCalendarRoom] = useState<string>("");
   const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
@@ -129,14 +152,15 @@ export default function AdminDashboardClient() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [roomsRes, activitiesRes, galleryRes, bookingsRes] = await Promise.all([
+      const [roomsRes, activitiesRes, galleryRes, bookingsRes, settingsRes] = await Promise.all([
         fetch("/api/admin/rooms", { cache: "no-store" }),
         fetch("/api/admin/activities", { cache: "no-store" }),
         fetch("/api/admin/gallery", { cache: "no-store" }),
         fetch("/api/admin/bookings", { cache: "no-store" }),
+        fetch("/api/admin/settings", { cache: "no-store" }),
       ]);
 
-      if (!roomsRes.ok || !activitiesRes.ok || !galleryRes.ok || !bookingsRes.ok) {
+      if (!roomsRes.ok || !activitiesRes.ok || !galleryRes.ok || !bookingsRes.ok || !settingsRes.ok) {
         throw new Error("Failed to load admin data.");
       }
 
@@ -144,11 +168,13 @@ export default function AdminDashboardClient() {
       const activitiesData = (await activitiesRes.json()) as { items: ActivityItem[] };
       const galleryData = (await galleryRes.json()) as { items: GalleryItem[] };
       const bookingsData = (await bookingsRes.json()) as { items: BookingItem[] };
+      const settingsData = (await settingsRes.json()) as { settings: SettingsItem };
 
       setRooms(roomsData.items);
       setActivities(activitiesData.items);
       setGallery(galleryData.items);
       setBookings(bookingsData.items);
+      setSettings(settingsData.settings);
 
       if (!blockRoom && roomsData.items[0]?.slug) {
         setBlockRoom(roomsData.items[0].slug);
@@ -288,6 +314,30 @@ export default function AdminDashboardClient() {
     await fetchData();
   }
 
+  async function saveSettings() {
+    const response = await fetch("/api/admin/settings", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contactPhoneDisplay: settings.contactPhoneDisplay,
+        contactWhatsappDisplay: settings.contactWhatsappDisplay,
+        contactEmailDisplay: settings.contactEmailDisplay,
+        contactAddressDisplay: settings.contactAddressDisplay,
+        facebookUrl: settings.facebookUrl,
+        instagramUrl: settings.instagramUrl,
+      }),
+    });
+
+    if (!response.ok) {
+      setMessage("Settings update failed.");
+      return;
+    }
+
+    const data = (await response.json()) as { settings: SettingsItem };
+    setSettings(data.settings);
+    setMessage("Settings updated.");
+  }
+
   async function createAvailabilityBlock() {
     if (!blockRoom || !blockCheckin || !blockCheckout) {
       setMessage("Please select room, check-in and check-out for blocking.");
@@ -335,7 +385,7 @@ export default function AdminDashboardClient() {
       </div>
 
       <div className="mt-6 flex flex-wrap gap-2">
-        {(["rooms", "activities", "gallery", "bookings"] as TabKey[]).map((key) => (
+        {(["rooms", "activities", "gallery", "bookings", "settings"] as TabKey[]).map((key) => (
           <button
             key={key}
             onClick={() => setTab(key)}
@@ -628,6 +678,113 @@ export default function AdminDashboardClient() {
               </article>
             ))}
           </div>
+        </div>
+      ) : null}
+
+      {tab === "settings" ? (
+        <div className="mt-6 grid gap-4">
+          <article className="rounded-2xl border border-zinc-200 p-4">
+            <h2 className="text-lg font-semibold text-zinc-900">Site Settings</h2>
+            <p className="mt-1 text-sm text-zinc-600">Update public contact details and social links used across the site.</p>
+            <label className="mt-4 grid gap-2 text-sm font-semibold text-zinc-800">
+              Contact Phone Number
+              <input
+                value={settings.contactPhoneDisplay}
+                onChange={(event) =>
+                  setSettings((prev) => ({
+                    ...prev,
+                    contactPhoneDisplay: event.target.value,
+                  }))
+                }
+                className="rounded-xl border border-zinc-300 px-3 py-2"
+                placeholder="+1-949-282-8611"
+              />
+            </label>
+            <label className="mt-4 grid gap-2 text-sm font-semibold text-zinc-800">
+              WhatsApp Number
+              <input
+                value={settings.contactWhatsappDisplay}
+                onChange={(event) =>
+                  setSettings((prev) => ({
+                    ...prev,
+                    contactWhatsappDisplay: event.target.value,
+                  }))
+                }
+                className="rounded-xl border border-zinc-300 px-3 py-2"
+                placeholder="+1-949-282-8611"
+              />
+            </label>
+            <label className="mt-4 grid gap-2 text-sm font-semibold text-zinc-800">
+              Contact Email
+              <input
+                value={settings.contactEmailDisplay}
+                onChange={(event) =>
+                  setSettings((prev) => ({
+                    ...prev,
+                    contactEmailDisplay: event.target.value,
+                  }))
+                }
+                className="rounded-xl border border-zinc-300 px-3 py-2"
+                placeholder="info@thehillsideoasis.com"
+              />
+            </label>
+            <label className="mt-4 grid gap-2 text-sm font-semibold text-zinc-800">
+              Address
+              <textarea
+                value={settings.contactAddressDisplay}
+                onChange={(event) =>
+                  setSettings((prev) => ({
+                    ...prev,
+                    contactAddressDisplay: event.target.value,
+                  }))
+                }
+                className="rounded-xl border border-zinc-300 px-3 py-2"
+                rows={3}
+                placeholder="Arthanaripalayam, Pollachi, Tamil Nadu 642007"
+              />
+            </label>
+            <label className="mt-4 grid gap-2 text-sm font-semibold text-zinc-800">
+              Facebook URL
+              <input
+                value={settings.facebookUrl}
+                onChange={(event) =>
+                  setSettings((prev) => ({
+                    ...prev,
+                    facebookUrl: event.target.value,
+                  }))
+                }
+                className="rounded-xl border border-zinc-300 px-3 py-2"
+                placeholder="https://facebook.com/thehillsideoasis"
+              />
+            </label>
+            <label className="mt-4 grid gap-2 text-sm font-semibold text-zinc-800">
+              Instagram URL
+              <input
+                value={settings.instagramUrl}
+                onChange={(event) =>
+                  setSettings((prev) => ({
+                    ...prev,
+                    instagramUrl: event.target.value,
+                  }))
+                }
+                className="rounded-xl border border-zinc-300 px-3 py-2"
+                placeholder="https://instagram.com/thehillsideoasis"
+              />
+            </label>
+
+            <div className="mt-4 grid gap-2 text-sm text-zinc-600">
+              <p>Phone link: {settings.contactPhoneHref || "Will be generated after save"}</p>
+              <p>WhatsApp link: {settings.contactWhatsappHref || "Will be generated after save"}</p>
+              <p>Email link: {settings.contactEmailHref || "Will be generated after save"}</p>
+            </div>
+
+            <button
+              onClick={saveSettings}
+              className="mt-4 rounded-xl bg-[#c45e2a] px-4 py-2 text-sm font-bold text-white hover:bg-[#9e3e12]"
+            >
+              Save Settings
+            </button>
+          </article>
         </div>
       ) : null}
     </section>

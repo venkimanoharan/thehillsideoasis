@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import LogoMark from "@/components/logo-mark";
+import { getCachedSiteSettings } from "@/lib/site-settings";
 
 export const metadata: Metadata = {
   title: "Luxury Farm Stay in Pollachi",
@@ -50,7 +51,9 @@ const journey = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const settings = await getCachedSiteSettings();
+
   const resortStructuredData = {
     "@context": "https://schema.org",
     "@type": "Resort",
@@ -58,16 +61,10 @@ export default function Home() {
     description:
       "Luxury farm stay and private cottage retreat in Pollachi, Tamil Nadu with curated nature experiences.",
     url: "https://thehillsideoasis.com",
-    telephone: "+91 91503 60597",
-    email: "info@thehillsideoasis.com",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "Arthanaripalayam",
-      addressLocality: "Pollachi",
-      addressRegion: "Tamil Nadu",
-      postalCode: "642007",
-      addressCountry: "IN",
-    },
+    telephone: settings.contactPhoneDisplay,
+    email: settings.contactEmailDisplay,
+    address: settings.contactAddressDisplay,
+    sameAs: [settings.facebookUrl, settings.instagramUrl],
     image: ["https://thehillsideoasis.com/images/DSC_0072-PANO.jpg"],
   };
 
@@ -80,7 +77,7 @@ export default function Home() {
         name: "Where is The HillSide Oasis located?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "The HillSide Oasis is located in Arthanaripalayam, Pollachi, Tamil Nadu near the Western Ghats.",
+          text: `The HillSide Oasis is located at ${settings.contactAddressDisplay} near the Western Ghats.`,
         },
       },
       {
@@ -164,7 +161,7 @@ export default function Home() {
               <li>Direct booking with responsive concierge assistance</li>
             </ul>
             <a
-              href="tel:+919150360597"
+              href={settings.contactPhoneHref}
               className="mt-7 inline-flex rounded-full border border-[#2f4f41] bg-[#214032] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-[#f8f0e4]"
             >
               Call Concierge

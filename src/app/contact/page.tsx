@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import LogoMark from "@/components/logo-mark";
 import { getSection } from "@/lib/content";
+import { getCachedSiteSettings } from "@/lib/site-settings";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ContactPage() {
-  const section = await getSection("contact_main");
+  const [section, settings] = await Promise.all([getSection("contact_main"), getCachedSiteSettings()]);
 
   return (
     <main className="luxury-bg px-5 pb-16 pt-24 text-foreground sm:px-6">
@@ -43,16 +44,16 @@ export default async function ContactPage() {
         <article className="luxury-card rounded-3xl p-7">
           <h2 className="section-title text-[#241d16]">Contact Information</h2>
           <div className="mt-6 grid gap-3 text-sm text-[#5f5245]">
-            <a href="tel:+919150360597" className="rounded-xl border border-[#d2c2ae] bg-[#f9f3e9] px-4 py-3">
-              Phone: +91 91503 60597
+            <a href={settings.contactPhoneHref} className="rounded-xl border border-[#d2c2ae] bg-[#f9f3e9] px-4 py-3">
+              Phone: {settings.contactPhoneDisplay}
             </a>
-            <a href="https://wa.me/919150360597" className="rounded-xl border border-[#d2c2ae] bg-[#f9f3e9] px-4 py-3">
-              WhatsApp: +91 91503 60597
+            <a href={settings.contactWhatsappHref} className="rounded-xl border border-[#d2c2ae] bg-[#f9f3e9] px-4 py-3">
+              WhatsApp: {settings.contactWhatsappDisplay}
             </a>
-            <a href="mailto:info@thehillsideoasis.com" className="rounded-xl border border-[#d2c2ae] bg-[#f9f3e9] px-4 py-3">
-              Email: info@thehillsideoasis.com
+            <a href={settings.contactEmailHref} className="rounded-xl border border-[#d2c2ae] bg-[#f9f3e9] px-4 py-3">
+              Email: {settings.contactEmailDisplay}
             </a>
-            <div className="rounded-xl border border-[#d2c2ae] bg-[#f9f3e9] px-4 py-3">Arthanaripalayam, Pollachi, Tamil Nadu 642007</div>
+            <div className="rounded-xl border border-[#d2c2ae] bg-[#f9f3e9] px-4 py-3">{settings.contactAddressDisplay}</div>
           </div>
         </article>
 

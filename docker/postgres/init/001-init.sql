@@ -49,6 +49,12 @@ CREATE TABLE IF NOT EXISTS site_sections (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS site_settings (
+  setting_key TEXT PRIMARY KEY,
+  setting_value TEXT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS bookings (
   id SERIAL PRIMARY KEY,
   trace_id UUID UNIQUE NOT NULL,
@@ -144,3 +150,13 @@ VALUES
   ('contact_main','Get in Touch','We are here to help plan your perfect mountain getaway','Reach us by phone, WhatsApp, or email for bookings, group rates, and personalized trip support.'),
   ('home_hero','Generations of joy where memories meet the mountains','A boutique nature retreat blending mango and coconut farms with elevated hospitality.','Stay in handcrafted cottages, host intimate events, or bring your group for a private escape in Pollachi.')
 ON CONFLICT (section_key) DO NOTHING;
+
+INSERT INTO site_settings (setting_key, setting_value)
+VALUES
+  ('contact_phone', '+1-949-282-8611'),
+  ('contact_whatsapp', '+1-949-282-8611'),
+  ('contact_email', 'info@thehillsideoasis.com'),
+  ('contact_address', 'Arthanaripalayam, Pollachi, Tamil Nadu 642007'),
+  ('facebook_url', 'https://facebook.com/thehillsideoasis'),
+  ('instagram_url', 'https://instagram.com/thehillsideoasis')
+ON CONFLICT (setting_key) DO NOTHING;

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Lato } from "next/font/google";
 import SiteFooter from "@/components/site-footer";
 import SiteHeader from "@/components/site-header";
+import { getCachedSiteSettings } from "@/lib/site-settings";
 import "./globals.css";
 
 const lato = Lato({
@@ -68,17 +69,24 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settings = await getCachedSiteSettings();
+
   return (
     <html lang="en">
       <body className={`${lato.variable} ${cormorant.variable} antialiased`}>
-        <SiteHeader />
+        <SiteHeader contactPhoneHref={settings.contactPhoneHref} />
         {children}
-        <SiteFooter />
+        <SiteFooter
+          contactPhoneDisplay={settings.contactPhoneDisplay}
+          contactAddressDisplay={settings.contactAddressDisplay}
+          facebookUrl={settings.facebookUrl}
+          instagramUrl={settings.instagramUrl}
+        />
       </body>
     </html>
   );
