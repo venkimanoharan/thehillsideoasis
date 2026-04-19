@@ -6,6 +6,8 @@ import { getRooms } from "@/lib/content";
 
 // Removed force-dynamic to allow SSG/ISR for better performance and SEO
 
+
+export const metadata: Metadata = {
   title: "Luxury Cottages and Farm Stay in Pollachi",
   description:
     "Explore luxury cottages and private farm stay suites in Pollachi at The HillSide Oasis with Western Ghats views and concierge hospitality.",

@@ -5,6 +5,8 @@ import { getSection } from "@/lib/content";
 
 // Removed force-dynamic to allow SSG/ISR for better performance and SEO
 
+
+export const metadata: Metadata = {
   title: "About The HillSide Oasis Luxury Farm Retreat",
   description:
     "Learn about The HillSide Oasis, a luxury farm retreat in Pollachi built on sustainability, hospitality, and authentic local experiences.",

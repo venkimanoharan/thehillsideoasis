@@ -5,6 +5,8 @@ import { getGalleryItems } from "@/lib/content";
 
 // Removed force-dynamic to allow SSG/ISR for better performance and SEO
 
+
+export const metadata: Metadata = {
   title: "Resort Gallery | Luxury Farm Stay in Pollachi",
   description:
     "View the luxury farm stay gallery of The HillSide Oasis in Pollachi featuring suites, landscapes, and curated guest experiences.",

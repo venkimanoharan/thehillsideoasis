@@ -5,6 +5,8 @@ import { getActivities } from "@/lib/content";
 
 // Removed force-dynamic to allow SSG/ISR for better performance and SEO
 
+
+export const metadata: Metadata = {
   title: "Best Activities in Pollachi and Around The Western Ghats",
   description:
     "Discover curated on-property activities, local sightseeing, and nature experiences in Pollachi at The HillSide Oasis.",
