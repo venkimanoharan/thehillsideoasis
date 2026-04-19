@@ -3,7 +3,7 @@ import BookingClient from "@/components/booking/booking-client";
 import { getRooms } from "@/lib/content";
 import { getCachedSiteSettings } from "@/lib/site-settings";
 
-export const dynamic = "force-dynamic";
+// Removed force-dynamic to allow SSG/ISR for better performance and SEO
 
 export const metadata: Metadata = {
   title: "Book Luxury Stay in Pollachi",

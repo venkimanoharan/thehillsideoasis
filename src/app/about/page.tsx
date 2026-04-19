@@ -3,14 +3,36 @@ import Link from "next/link";
 import LogoMark from "@/components/logo-mark";
 import { getSection } from "@/lib/content";
 
-export const dynamic = "force-dynamic";
+// Removed force-dynamic to allow SSG/ISR for better performance and SEO
 
-export const metadata: Metadata = {
   title: "About The HillSide Oasis Luxury Farm Retreat",
   description:
     "Learn about The HillSide Oasis, a luxury farm retreat in Pollachi built on sustainability, hospitality, and authentic local experiences.",
+  keywords: [
+    "About HillSide Oasis",
+    "Pollachi farm stay",
+    "Western Ghats retreat",
+    "nature resort Pollachi",
+    "sustainable resort Tamil Nadu",
+  ],
   alternates: {
     canonical: "/about",
+  },
+  openGraph: {
+    title: "About The HillSide Oasis Luxury Farm Retreat",
+    description:
+      "Learn about The HillSide Oasis, a luxury farm retreat in Pollachi built on sustainability, hospitality, and authentic local experiences.",
+    url: "https://thehillsideoasis.com/about",
+    type: "website",
+    images: ["/images/2.jpeg"],
+    siteName: "The HillSide Oasis",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About The HillSide Oasis Luxury Farm Retreat",
+    description:
+      "Learn about The HillSide Oasis, a luxury farm retreat in Pollachi built on sustainability, hospitality, and authentic local experiences.",
+    images: ["/images/2.jpeg"],
   },
 };
 

@@ -3,14 +3,37 @@ import Link from "next/link";
 import LogoMark from "@/components/logo-mark";
 import { getActivities } from "@/lib/content";
 
-export const dynamic = "force-dynamic";
+// Removed force-dynamic to allow SSG/ISR for better performance and SEO
 
-export const metadata: Metadata = {
   title: "Best Activities in Pollachi and Around The Western Ghats",
   description:
     "Discover curated on-property activities, local sightseeing, and nature experiences in Pollachi at The HillSide Oasis.",
+  keywords: [
+    "Pollachi things to do",
+    "Western Ghats experiences",
+    "farm activities Pollachi",
+    "birdwatching Pollachi",
+    "nature walk Pollachi",
+    "HillSide Oasis activities",
+  ],
   alternates: {
     canonical: "/activities",
+  },
+  openGraph: {
+    title: "Best Activities in Pollachi and Around The Western Ghats",
+    description:
+      "Discover curated on-property activities, local sightseeing, and nature experiences in Pollachi at The HillSide Oasis.",
+    url: "https://thehillsideoasis.com/activities",
+    type: "website",
+    images: ["/images/2.jpeg"],
+    siteName: "The HillSide Oasis",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Best Activities in Pollachi and Around The Western Ghats",
+    description:
+      "Discover curated on-property activities, local sightseeing, and nature experiences in Pollachi at The HillSide Oasis.",
+    images: ["/images/2.jpeg"],
   },
 };
 

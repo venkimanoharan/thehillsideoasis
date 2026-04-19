@@ -3,14 +3,36 @@ import Image from "next/image";
 import LogoMark from "@/components/logo-mark";
 import { getGalleryItems } from "@/lib/content";
 
-export const dynamic = "force-dynamic";
+// Removed force-dynamic to allow SSG/ISR for better performance and SEO
 
-export const metadata: Metadata = {
   title: "Resort Gallery | Luxury Farm Stay in Pollachi",
   description:
     "View the luxury farm stay gallery of The HillSide Oasis in Pollachi featuring suites, landscapes, and curated guest experiences.",
+  keywords: [
+    "Pollachi resort gallery",
+    "HillSide Oasis photos",
+    "Western Ghats nature pictures",
+    "Pollachi farm stay images",
+    "resort gallery Tamil Nadu",
+  ],
   alternates: {
     canonical: "/gallery",
+  },
+  openGraph: {
+    title: "Resort Gallery | Luxury Farm Stay in Pollachi",
+    description:
+      "View the luxury farm stay gallery of The HillSide Oasis in Pollachi featuring suites, landscapes, and curated guest experiences.",
+    url: "https://thehillsideoasis.com/gallery",
+    type: "website",
+    images: ["/images/2.jpeg"],
+    siteName: "The HillSide Oasis",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Resort Gallery | Luxury Farm Stay in Pollachi",
+    description:
+      "View the luxury farm stay gallery of The HillSide Oasis in Pollachi featuring suites, landscapes, and curated guest experiences.",
+    images: ["/images/2.jpeg"],
   },
 };
 

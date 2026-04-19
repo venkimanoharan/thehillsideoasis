@@ -4,11 +4,34 @@ import LogoMark from "@/components/logo-mark";
 import { getCachedSiteSettings } from "@/lib/site-settings";
 
 export const metadata: Metadata = {
-  title: "Luxury Farm Stay in Pollachi",
+  title: "Luxury Farm Stay in Pollachi | The HillSide Oasis",
   description:
     "Book a luxury farm stay in Pollachi at The HillSide Oasis with private cottages, concierge support, and curated Western Ghats experiences.",
+  keywords: [
+    "luxury stay in Pollachi",
+    "farm stay Pollachi",
+    "Western Ghats resort",
+    "boutique retreat Tamil Nadu",
+    "The HillSide Oasis",
+  ],
   alternates: {
     canonical: "/",
+  },
+  openGraph: {
+    title: "Luxury Farm Stay in Pollachi | The HillSide Oasis",
+    description:
+      "Book a luxury farm stay in Pollachi at The HillSide Oasis with private cottages, concierge support, and curated Western Ghats experiences.",
+    url: "https://thehillsideoasis.com/",
+    type: "website",
+    images: ["/images/2.jpeg"],
+    siteName: "The HillSide Oasis",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Luxury Farm Stay in Pollachi | The HillSide Oasis",
+    description:
+      "Book a luxury farm stay in Pollachi at The HillSide Oasis with private cottages, concierge support, and curated Western Ghats experiences.",
+    images: ["/images/2.jpeg"],
   },
 };
 
