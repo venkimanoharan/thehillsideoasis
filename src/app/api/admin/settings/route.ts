@@ -45,6 +45,6 @@ export async function PUT(request: Request) {
   }
 
   const settings = await updateSiteSettings(body);
-  revalidateTag(SITE_SETTINGS_CACHE_TAG);
+  revalidateTag(SITE_SETTINGS_CACHE_TAG, "default");
   return NextResponse.json({ ok: true, settings });
 }
