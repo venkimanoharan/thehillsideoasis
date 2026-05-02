@@ -46,17 +46,30 @@ export async function POST(request: Request) {
     payload.guests,
   ];
 
-  if (requiredFields.some((value) => !value || String(value).trim().length === 0)) {
+  const requiredFieldNames = [
+    "checkin",
+    "checkout",
+    "roomSlug",
+    "name",
+    "email",
+    "phone",
+    "guests",
+  ];
+
+  const missingFields = requiredFields
+    .map((value, idx) =>
+      !value || String(value).trim().length === 0 ? requiredFieldNames[idx] : null,
+    )
+    .filter(Boolean);
+
+  if (missingFields.length > 0) {
     return NextResponse.json(
-      { ok: false, traceId, error: "Missing required booking fields." },
+      { ok: false, traceId, error: `Missing required booking fields: ${missingFields.join(", ")}` },
       { status: 400 },
     );
   }
 
-  const checkinDate = new Date(payload.checkin);
-  const checkoutDate = new Date(payload.checkout);
-
-  if (!(checkinDate < checkoutDate)) {
+  if (checkinDate < checkoutDate) {
     return NextResponse.json(
       { ok: false, traceId, error: "Check-out date must be after check-in date." },
       { status: 400 },

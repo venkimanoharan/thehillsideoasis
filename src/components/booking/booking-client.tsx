@@ -66,6 +66,13 @@ export default function BookingClient({ rooms, settings }: BookingClientProps) {
     }
   }, [rooms]);
 
+  // Ensure selectedRoom is always valid if rooms prop changes
+  useEffect(() => {
+    if (!selectedRoom || !rooms.some((r) => r.slug === selectedRoom.slug)) {
+      setSelectedRoom(rooms[0] ?? null);
+    }
+  }, [rooms]);
+
   const loadAvailability = useCallback(async () => {
     const roomSlug = selectedRoom?.slug ?? null;
 
@@ -260,6 +267,10 @@ export default function BookingClient({ rooms, settings }: BookingClientProps) {
       setAlert({ type: "error", message: "Please select check-in and check-out dates." });
       return;
     }
+
+    // Debug: log selectedRoom and rooms
+    // eslint-disable-next-line no-console
+    console.log("Booking submit: selectedRoom", selectedRoom, "rooms", rooms);
 
     if (!selectedRoom) {
       setAlert({ type: "error", message: "Please select a room before booking." });
@@ -519,6 +530,8 @@ export default function BookingClient({ rooms, settings }: BookingClientProps) {
                 <select
                   value={selectedRoom?.slug ?? ""}
                   onChange={(event) => {
+                    // eslint-disable-next-line no-console
+                    console.log("Dropdown changed to", event.target.value);
                     const room = rooms.find((entry) => entry.slug === event.target.value) ?? null;
                     setSelectedRoom(room);
                     setCheckinDate(null);
