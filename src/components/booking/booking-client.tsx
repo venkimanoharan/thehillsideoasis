@@ -477,18 +477,19 @@ export default function BookingClient({ rooms, settings }: BookingClientProps) {
             </div>
           </div>
 
-          {alert ? (
+          {alert && (
             <div
-              className={[
-                "mt-5 rounded-xl px-4 py-3 text-sm font-medium",
+              className={
                 alert.type === "success"
-                  ? "border border-[#d2c2ae] bg-[#f4ebdf] text-[#6b4f2d]"
-                  : "border border-rose-200 bg-rose-50 text-rose-800",
-              ].join(" ")}
+                  ? "mb-6 rounded-xl border border-green-200 bg-green-50 p-4 text-green-800"
+                  : "mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800"
+              }
+              role="alert"
+              aria-live="polite"
             >
               {alert.message}
             </div>
-          ) : null}
+          )}
 
           <form className="mt-6 grid gap-5" onSubmit={handleSubmit}>
             <div className="grid gap-3 sm:grid-cols-3">
@@ -630,18 +631,20 @@ export default function BookingClient({ rooms, settings }: BookingClientProps) {
         <p className="mt-2 text-zinc-700">Our team is available by phone, WhatsApp, and email.</p>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <a href={settings.contactPhoneHref} className="rounded-xl bg-white p-4 font-medium text-zinc-800 shadow-sm">
+          <a href={settings.contactPhoneHref} className="rounded-xl bg-white p-4 font-medium text-zinc-800 shadow-sm" aria-label={`Call us at ${settings.contactPhoneDisplay}`}>
             Phone: {settings.contactPhoneDisplay}
           </a>
           <a
             href={settings.contactWhatsappHref}
             className="rounded-xl bg-white p-4 font-medium text-zinc-800 shadow-sm"
+            aria-label={`Chat with us on WhatsApp at ${settings.contactWhatsappDisplay}`}
           >
             WhatsApp: {settings.contactWhatsappDisplay}
           </a>
           <a
             href={settings.contactEmailHref}
             className="rounded-xl bg-white p-4 font-medium text-zinc-800 shadow-sm"
+            aria-label={`Email us at ${settings.contactEmailDisplay}`}
           >
             Email: {settings.contactEmailDisplay}
           </a>

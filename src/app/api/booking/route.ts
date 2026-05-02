@@ -1,6 +1,11 @@
-import { dbQuery } from "@/lib/db";
 import { sendBookingEmails } from "@/lib/email";
 import { NextResponse } from "next/server";
+
+import fs from "fs/promises";
+import path from "path";
+
+const BOOKINGS_PATH = path.join(process.cwd(), "data", "bookings.json");
+const ROOMS_PATH = path.join(process.cwd(), "data", "rooms.json");
 
 export const runtime = "nodejs";
 
@@ -58,42 +63,47 @@ export async function POST(request: Request) {
     );
   }
 
-  const overlapResult = await dbQuery<{ id: number }>(
-    `SELECT id
-     FROM bookings
-     WHERE room_slug = $1
-       AND status IN ('new', 'confirmed', 'blocked')
-       AND checkin < $3::date
-       AND checkout > $2::date
-     LIMIT 1`,
-    [payload.roomSlug, payload.checkin, payload.checkout],
+  // Check for overlapping bookings in file
+  let bookings = [];
+  try {
+    const data = await fs.readFile(BOOKINGS_PATH, "utf-8");
+    bookings = JSON.parse(data);
+  } catch {}
+  const overlap = bookings.find((b: any) =>
+    b.room_slug === payload.roomSlug &&
+    ["new", "confirmed", "blocked"].includes(b.status) &&
+    new Date(b.checkin) < new Date(payload.checkout) &&
+    new Date(b.checkout) > new Date(payload.checkin)
   );
-
-  if (overlapResult.rows.length > 0) {
+  if (overlap) {
     return NextResponse.json(
       { ok: false, traceId, error: "Selected dates are not available for this room." },
       { status: 409 },
     );
   }
 
+  // Save booking to file
+  const newId = bookings.length > 0 ? Math.max(...bookings.map((b: any) => b.id || 0)) + 1 : 1;
+  const createdAt = new Date().toISOString();
+  const booking = {
+    id: newId,
+    trace_id: traceId,
+    checkin: payload.checkin,
+    checkout: payload.checkout,
+    room_slug: payload.roomSlug,
+    room_price: payload.roomPrice,
+    total_amount: payload.totalAmount,
+    name: payload.name,
+    email: payload.email,
+    phone: payload.phone,
+    guests: payload.guests,
+    requests: payload.requests ?? "",
+    status: "new",
+    created_at: createdAt,
+  };
+  bookings.push(booking);
   try {
-    await dbQuery(
-      `INSERT INTO bookings (trace_id, checkin, checkout, room_slug, room_price, total_amount, name, email, phone, guests, requests)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
-      [
-        traceId,
-        payload.checkin,
-        payload.checkout,
-        payload.roomSlug,
-        payload.roomPrice,
-        payload.totalAmount,
-        payload.name,
-        payload.email,
-        payload.phone,
-        payload.guests,
-        payload.requests ?? "",
-      ],
-    );
+    await fs.writeFile(BOOKINGS_PATH, JSON.stringify(bookings, null, 2));
   } catch {
     return NextResponse.json(
       {
@@ -108,12 +118,11 @@ export async function POST(request: Request) {
   // Fetch room name for the confirmation email (best-effort, don't fail the booking)
   let roomName = payload.roomSlug;
   try {
-    const roomResult = await dbQuery<{ name: string }>(
-      `SELECT name FROM rooms WHERE slug = $1 LIMIT 1`,
-      [payload.roomSlug],
-    );
-    if (roomResult.rows[0]?.name) {
-      roomName = roomResult.rows[0].name;
+    const data = await fs.readFile(ROOMS_PATH, "utf-8");
+    const rooms = JSON.parse(data);
+    const found = rooms.find((r: any) => r.slug === payload.roomSlug);
+    if (found?.name) {
+      roomName = found.name;
     }
   } catch {
     // ignore — roomName falls back to slug

@@ -1,4 +1,5 @@
-import { dbQuery } from "@/lib/db";
+import fs from "fs/promises";
+import path from "path";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -50,19 +51,22 @@ export async function GET(request: Request) {
   const start = searchParams.get("start") ?? utcTodayStr();
   const end = searchParams.get("end") ?? utcMonthsLater(12);
 
-  const result = await dbQuery<BookingRange>(
-    `SELECT checkin::text, checkout::text
-     FROM bookings
-     WHERE room_slug = $1
-       AND status IN ('new', 'confirmed', 'blocked')
-       AND checkin < $3::date
-       AND checkout > $2::date`,
-    [roomSlug, start, end],
-  );
+    const DATA_PATH = path.join(process.cwd(), "data", "bookings.json");
+    let bookings: BookingRange[] = [];
+    try {
+      const data = await fs.readFile(DATA_PATH, "utf-8");
+      const all = JSON.parse(data);
+      bookings = all.filter((b: any) =>
+        b.room_slug === roomSlug &&
+        ["new", "confirmed", "blocked"].includes(b.status) &&
+        b.checkin < end &&
+        b.checkout > start
+      );
+    } catch {}
 
   const unavailable = new Set<string>();
 
-  for (const row of result.rows) {
+    for (const row of bookings) {
     for (const date of buildDateRange(row.checkin, row.checkout)) {
       unavailable.add(date);
     }

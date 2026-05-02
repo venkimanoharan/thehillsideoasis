@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "category": "on_property",
+    "title": "Guided Nature Walks",
+    "description": "Explore our property and surrounding areas with expert naturalists. Learn about endemic species, medicinal plants, and conservation efforts. Perfect for all fitness levels.",
+    "duration_label": "1-2 hours",
+    "price_label": "Complimentary",
+    "distance_label": null,
+    "sort_order": 1,
+    "is_active": true
+  },
+  {
+    "id": 2,
+    "category": "on_property",
+    "title": "Farm Tours",
+    "description": "Get hands-on experience with our organic farming practices. Tour the mango and coconut orchards, learn about sustainable agriculture, and enjoy seasonal fruit picking.",
+    "duration_label": "1 hour",
+    "price_label": "Complimentary",
+    "distance_label": null,
+    "sort_order": 2,
+    "is_active": true
+  },
+  {
+    "id": 3,
+    "category": "on_property",
+    "title": "Carriage Rides",
+    "description": "Scenic rides around the property at sunset for a magical experience. Perfect for couples or families wanting a unique way to explore the grounds.",
+    "duration_label": "30 minutes",
+    "price_label": "₹500 per ride",
+    "distance_label": null,
+    "sort_order": 3,
+    "is_active": true
+  },
+  {
+    "id": 4,
+    "category": "on_property",
+    "title": "Birdwatching",
+    "description": "Early-morning guided birding excursions to spot rare Western Ghats species. Binoculars provided. Best season: November to March.",
+    "duration_label": "2-3 hours",
+    "price_label": "₹300 per person",
+    "distance_label": null,
+    "sort_order": 4,
+    "is_active": true
+  },
+  {
+    "id": 5,
+    "category": "on_property",
+    "title": "Sunrise Viewpoint",
+    "description": "Wake up early for a guided walk to our best sunrise viewpoint. Enjoy panoramic views of the Western Ghats while sipping hot chai.",
+    "duration_label": "1 hour",
+    "price_label": "Complimentary",
+    "distance_label": null,
+    "sort_order": 5,
+    "is_active": true
+  },
+  {
+    "id": 6,
+    "category": "on_property",
+    "title": "Yoga & Meditation",
+    "description": "Start your day with outdoor yoga sessions in our garden pavilion. Private and group sessions available. Mats and props provided.",
+    "duration_label": "1 hour",
+    "price_label": "₹400 per session",
+    "distance_label": null,
+    "sort_order": 6,
+    "is_active": true
+  }
+]

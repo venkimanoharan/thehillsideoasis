@@ -1,6 +1,10 @@
+
 import { isAdminRequestAuthorized } from "@/lib/admin-api-auth";
-import { dbQuery } from "@/lib/db";
 import { NextResponse } from "next/server";
+import fs from "fs/promises";
+import path from "path";
+
+const DATA_PATH = path.join(process.cwd(), "data", "activities.json");
 
 export const runtime = "nodejs";
 
@@ -8,20 +12,21 @@ export async function GET(request: Request) {
   if (!isAdminRequestAuthorized(request)) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
-
-  const result = await dbQuery(
-    `SELECT id, category, title, description, duration_label, price_label, distance_label, sort_order, is_active
-     FROM activities ORDER BY sort_order ASC, id ASC`,
-  );
-
-  return NextResponse.json({ ok: true, items: result.rows });
+  try {
+    const data = await fs.readFile(DATA_PATH, "utf-8");
+    const items = JSON.parse(data);
+    // Sort by sort_order ASC, then id ASC
+    items.sort((a: any, b: any) => a.sort_order - b.sort_order || a.id - b.id);
+    return NextResponse.json({ ok: true, items });
+  } catch (e) {
+    return NextResponse.json({ ok: true, items: [] });
+  }
 }
 
 export async function POST(request: Request) {
   if (!isAdminRequestAuthorized(request)) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
-
   const body = (await request.json()) as {
     category: string;
     title: string;
@@ -32,30 +37,22 @@ export async function POST(request: Request) {
     sort_order: number;
     is_active: boolean;
   };
-
-  await dbQuery(
-    `INSERT INTO activities (category, title, description, duration_label, price_label, distance_label, sort_order, is_active)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
-    [
-      body.category,
-      body.title,
-      body.description,
-      body.duration_label,
-      body.price_label,
-      body.distance_label,
-      body.sort_order,
-      body.is_active,
-    ],
-  );
-
-  return NextResponse.json({ ok: true });
+  let items = [];
+  try {
+    const data = await fs.readFile(DATA_PATH, "utf-8");
+    items = JSON.parse(data);
+  } catch {}
+  const newId = items.length > 0 ? Math.max(...items.map((a: any) => a.id || 0)) + 1 : 1;
+  const newActivity = { id: newId, ...body };
+  items.push(newActivity);
+  await fs.writeFile(DATA_PATH, JSON.stringify(items, null, 2));
+  return NextResponse.json({ ok: true, item: newActivity });
 }
 
 export async function PUT(request: Request) {
   if (!isAdminRequestAuthorized(request)) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
-
   const body = (await request.json()) as {
     id: number;
     category: string;
@@ -67,35 +64,16 @@ export async function PUT(request: Request) {
     sort_order: number;
     is_active: boolean;
   };
-
-  await dbQuery(
-    `UPDATE activities
-     SET category=$2, title=$3, description=$4, duration_label=$5, price_label=$6,
-         distance_label=$7, sort_order=$8, is_active=$9, updated_at=NOW()
-     WHERE id=$1`,
-    [
-      body.id,
-      body.category,
-      body.title,
-      body.description,
-      body.duration_label,
-      body.price_label,
-      body.distance_label,
-      body.sort_order,
-      body.is_active,
-    ],
-  );
-
-  return NextResponse.json({ ok: true });
-}
-
-export async function DELETE(request: Request) {
-  if (!isAdminRequestAuthorized(request)) {
-    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  let items = [];
+  try {
+    const data = await fs.readFile(DATA_PATH, "utf-8");
+    items = JSON.parse(data);
+  } catch {}
+  const idx = items.findIndex((a: any) => a.id === body.id);
+  if (idx === -1) {
+    return NextResponse.json({ ok: false, error: "Activity not found" }, { status: 404 });
   }
-
-  const { id } = (await request.json()) as { id: number };
-  await dbQuery(`DELETE FROM activities WHERE id = $1`, [id]);
-
-  return NextResponse.json({ ok: true });
+  items[idx] = { ...items[idx], ...body };
+  await fs.writeFile(DATA_PATH, JSON.stringify(items, null, 2));
+  return NextResponse.json({ ok: true, item: items[idx] });
 }

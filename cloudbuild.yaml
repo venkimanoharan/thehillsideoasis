@@ -21,7 +21,7 @@ steps:
       - --region=us-central1
       - --platform=managed
       - --allow-unauthenticated
-      - --add-cloudsql-instances=thehillsideoasisweb:us-central1:thehillsideoasis-web
+      # Removed Cloud SQL instance binding
       - --update-env-vars=NODE_ENV=production
 images:
   - us-central1-docker.pkg.dev/thehillsideoasisweb/thehillsideoasis-web/thehillsideoasis-web:$SHORT_SHA
