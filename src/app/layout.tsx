@@ -74,6 +74,12 @@ export const viewport: Viewport = {
   themeColor: "#214032",
 };
 
+// Content (rooms, activities, gallery, settings) lives in Firestore and is
+// editable from /admin, so every route renders per-request rather than being
+// baked in at build time. This also means `next build` never needs a live
+// Firestore connection — required since CI and the Docker build have none.
+export const dynamic = "force-dynamic";
+
 export default async function RootLayout({
   children,
 }: Readonly<{

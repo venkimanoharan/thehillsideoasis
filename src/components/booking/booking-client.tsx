@@ -71,7 +71,7 @@ export default function BookingClient({ rooms, settings }: BookingClientProps) {
     if (!selectedRoom || !rooms.some((r) => r.slug === selectedRoom.slug)) {
       setSelectedRoom(rooms[0] ?? null);
     }
-  }, [rooms]);
+  }, [rooms, selectedRoom]);
 
   const loadAvailability = useCallback(async () => {
     const roomSlug = selectedRoom?.slug ?? null;

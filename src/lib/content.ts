@@ -72,6 +72,7 @@ export async function getGalleryItems(): Promise<GalleryItemRecord[]> {
 }
 
 // Section support not implemented (no admin UI or seed data manages CMS sections yet).
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function getSection(sectionKey: string): Promise<SectionRecord | null> {
   return null;
 }
