@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import LogoMark from "@/components/logo-mark";
 import { getCachedSiteSettings } from "@/lib/site-settings";
-import Head from "next/head";
 
 export const metadata: Metadata = {
   title: "Luxury Farm Stay in Pollachi | The HillSide Oasis",
@@ -125,23 +124,13 @@ export default async function Home() {
 
   return (
     <>
-      <Head>
-        <title>Luxury Farm Stay in Pollachi | The HillSide Oasis</title>
-        <meta name="description" content="Book a luxury farm stay in Pollachi at The HillSide Oasis with private cottages, concierge support, and curated Western Ghats experiences." />
-        <meta property="og:title" content="Luxury Farm Stay in Pollachi | The HillSide Oasis" />
-        <meta property="og:description" content="Book a luxury farm stay in Pollachi at The HillSide Oasis with private cottages, concierge support, and curated Western Ghats experiences." />
-        <meta property="og:image" content="/images/2.jpeg" />
-        <meta property="og:url" content="https://thehillsideoasis.com/" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Luxury Farm Stay in Pollachi | The HillSide Oasis" />
-        <meta name="twitter:description" content="Book a luxury farm stay in Pollachi at The HillSide Oasis with private cottages, concierge support, and curated Western Ghats experiences." />
-        <meta name="twitter:image" content="/images/2.jpeg" />
-        <link rel="canonical" href="https://thehillsideoasis.com/" />
-        <script type="application/ld+json">{JSON.stringify(resortStructuredData)}</script>
-        <script type="application/ld+json">{JSON.stringify(faqStructuredData)}</script>
-      </Head>
+      <a href="#main-content" className="sr-only focus:not-sr-only absolute left-2 top-2 z-50 bg-white text-black p-2 rounded shadow">
+        Skip to main content
+      </a>
+      <script type="application/ld+json">{JSON.stringify(resortStructuredData)}</script>
+      <script type="application/ld+json">{JSON.stringify(faqStructuredData)}</script>
 
-      <main className="luxury-bg px-5 pb-20 pt-8 sm:px-6">
+      <main id="main-content" role="main" className="luxury-bg px-5 pb-20 pt-8 sm:px-6">
         <section className="hero-shell-xl overflow-hidden rounded-[2.2rem] border border-[#d7c8b5] shadow-[0_30px_70px_-48px_rgba(35,24,14,0.75)]">
           <div className="grid gap-0 lg:grid-cols-[1.2fr_1fr]">
             <div

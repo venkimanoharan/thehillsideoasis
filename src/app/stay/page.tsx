@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import LogoMark from "@/components/logo-mark";
 import { getRooms } from "@/lib/content";
-import Head from "next/head";
 
 // Removed force-dynamic to allow SSG/ISR for better performance and SEO
 
@@ -63,20 +62,7 @@ export default async function StayPage() {
       <a href="#main-content" className="sr-only focus:not-sr-only absolute left-2 top-2 z-50 bg-white text-black p-2 rounded shadow">
         Skip to main content
       </a>
-      <Head>
-        <title>Luxury Cottages and Farm Stay in Pollachi | The HillSide Oasis</title>
-        <meta name="description" content="Explore luxury cottages and private farm stay suites in Pollachi at The HillSide Oasis with Western Ghats views and concierge hospitality." />
-        <meta property="og:title" content="Luxury Cottages and Farm Stay in Pollachi" />
-        <meta property="og:description" content="Explore luxury cottages and private farm stay suites in Pollachi at The HillSide Oasis with Western Ghats views and concierge hospitality." />
-        <meta property="og:image" content="/images/2.jpeg" />
-        <meta property="og:url" content="https://thehillsideoasis.com/stay" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Luxury Cottages and Farm Stay in Pollachi" />
-        <meta name="twitter:description" content="Explore luxury cottages and private farm stay suites in Pollachi at The HillSide Oasis with Western Ghats views and concierge hospitality." />
-        <meta name="twitter:image" content="/images/2.jpeg" />
-        <link rel="canonical" href="https://thehillsideoasis.com/stay" />
-        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
-      </Head>
+      <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
 
       <main id="main-content" className="luxury-bg px-5 pb-16 pt-24 text-foreground sm:px-6" role="main">
         <section

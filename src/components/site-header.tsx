@@ -37,12 +37,15 @@ export default function SiteHeader({ contactPhoneHref }: SiteHeaderProps) {
         <button
           type="button"
           onClick={() => setMenuOpen((value) => !value)}
+          aria-expanded={menuOpen}
+          aria-controls="mobile-nav-menu"
+          aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
           className="rounded-full border border-[#c8b79f] bg-[#fffaf2] px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-zinc-700 lg:hidden"
         >
           Menu
         </button>
 
-        <nav className="hidden items-center rounded-full border border-[#d7c8b5] bg-[#fbf6ee] px-2 py-1.5 lg:flex">
+        <nav className="hidden items-center rounded-full border border-[#d7c8b5] bg-[#fbf6ee] px-2 py-1.5 lg:flex" aria-label="Primary">
           {navItems.map((item) => {
             const active = pathname === item.href;
             return (
@@ -71,8 +74,8 @@ export default function SiteHeader({ contactPhoneHref }: SiteHeaderProps) {
       </div>
 
       {menuOpen ? (
-        <div className="border-t border-[#d6c7b4] bg-[#f9f3ea] p-4 lg:hidden">
-          <nav className="grid gap-1">
+        <div id="mobile-nav-menu" className="border-t border-[#d6c7b4] bg-[#f9f3ea] p-4 lg:hidden">
+          <nav className="grid gap-1" aria-label="Mobile">
             {navItems.map((item) => {
               const active = pathname === item.href;
               return (

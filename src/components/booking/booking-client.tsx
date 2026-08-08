@@ -268,10 +268,6 @@ export default function BookingClient({ rooms, settings }: BookingClientProps) {
       return;
     }
 
-    // Debug: log selectedRoom and rooms
-    // eslint-disable-next-line no-console
-    console.log("Booking submit: selectedRoom", selectedRoom, "rooms", rooms);
-
     if (!selectedRoom) {
       setAlert({ type: "error", message: "Please select a room before booking." });
       return;
@@ -347,7 +343,7 @@ export default function BookingClient({ rooms, settings }: BookingClientProps) {
   };
 
   return (
-    <main className="luxury-bg px-5 pb-16 pt-24 text-foreground sm:px-6">
+    <main id="main-content" className="luxury-bg px-5 pb-16 pt-24 text-foreground sm:px-6" role="main">
       <section
         className="hero-shell overflow-hidden rounded-[2rem] border border-[#d7c8b5] p-8 shadow-[0_26px_56px_-42px_rgba(35,24,14,0.75)] sm:p-12"
         style={{
@@ -530,8 +526,6 @@ export default function BookingClient({ rooms, settings }: BookingClientProps) {
                 <select
                   value={selectedRoom?.slug ?? ""}
                   onChange={(event) => {
-                    // eslint-disable-next-line no-console
-                    console.log("Dropdown changed to", event.target.value);
                     const room = rooms.find((entry) => entry.slug === event.target.value) ?? null;
                     setSelectedRoom(room);
                     setCheckinDate(null);

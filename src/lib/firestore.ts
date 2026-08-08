@@ -1,0 +1,73 @@
+import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
+import { getFirestore, type Firestore } from "firebase-admin/firestore";
+
+let cachedApp: App | undefined;
+
+function buildCredential() {
+  const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+  if (serviceAccountJson) {
+    return cert(JSON.parse(serviceAccountJson));
+  }
+
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+  if (projectId && clientEmail && privateKey) {
+    return cert({
+      projectId,
+      clientEmail,
+      privateKey: privateKey.replace(/\\n/g, "\n"),
+    });
+  }
+
+  // Falls back to Application Default Credentials (Cloud Run's attached
+  // service account, GOOGLE_APPLICATION_CREDENTIALS, or the emulator).
+  return undefined;
+}
+
+function getFirebaseApp(): App {
+  const existing = getApps();
+  if (existing.length > 0) {
+    return existing[0]!;
+  }
+
+  const projectId =
+    process.env.FIREBASE_PROJECT_ID ?? process.env.GOOGLE_CLOUD_PROJECT ?? "hillsideoasis";
+  const credential = buildCredential();
+
+  return initializeApp(credential ? { credential, projectId } : { projectId });
+}
+
+export function getDb(): Firestore {
+  if (!cachedApp) {
+    cachedApp = getFirebaseApp();
+  }
+  return getFirestore(cachedApp);
+}
+
+export const COLLECTIONS = {
+  rooms: "rooms",
+  activities: "activities",
+  gallery: "gallery",
+  siteSettings: "site_settings",
+  bookings: "bookings",
+  counters: "counters",
+  loginAttempts: "login_attempts",
+} as const;
+
+export const SITE_SETTINGS_DOC_ID = "singleton";
+
+/** Atomically allocates the next integer id for a named counter (e.g. "bookings"). */
+export async function nextSequenceId(name: string): Promise<number> {
+  const db = getDb();
+  const ref = db.collection(COLLECTIONS.counters).doc(name);
+
+  return db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    const current = (snap.data()?.value as number | undefined) ?? 0;
+    const next = current + 1;
+    tx.set(ref, { value: next }, { merge: true });
+    return next;
+  });
+}
