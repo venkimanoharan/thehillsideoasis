@@ -1,5 +1,4 @@
-import fs from "fs/promises";
-import path from "path";
+import { COLLECTIONS, getDb } from "@/lib/firestore";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -10,6 +9,7 @@ type BookingRange = {
 };
 
 const MS_PER_DAY = 86_400_000;
+const ACTIVE_STATUSES = ["new", "confirmed", "blocked"];
 
 /** Returns today as "YYYY-MM-DD" in UTC, timezone-safe. */
 function utcTodayStr(): string {
@@ -51,22 +51,19 @@ export async function GET(request: Request) {
   const start = searchParams.get("start") ?? utcTodayStr();
   const end = searchParams.get("end") ?? utcMonthsLater(12);
 
-    const DATA_PATH = path.join(process.cwd(), "data", "bookings.json");
-    let bookings: BookingRange[] = [];
-    try {
-      const data = await fs.readFile(DATA_PATH, "utf-8");
-      const all = JSON.parse(data);
-      bookings = all.filter((b: any) =>
-        b.room_slug === roomSlug &&
-        ["new", "confirmed", "blocked"].includes(b.status) &&
-        b.checkin < end &&
-        b.checkout > start
-      );
-    } catch {}
+  const snapshot = await getDb()
+    .collection(COLLECTIONS.bookings)
+    .where("room_slug", "==", roomSlug)
+    .where("status", "in", ACTIVE_STATUSES)
+    .get();
+
+  const bookings: BookingRange[] = snapshot.docs
+    .map((doc) => doc.data() as BookingRange)
+    .filter((b) => b.checkin < end && b.checkout > start);
 
   const unavailable = new Set<string>();
 
-    for (const row of bookings) {
+  for (const row of bookings) {
     for (const date of buildDateRange(row.checkin, row.checkout)) {
       unavailable.add(date);
     }

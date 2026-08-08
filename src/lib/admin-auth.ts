@@ -4,8 +4,19 @@ import { cookies } from "next/headers";
 const SESSION_COOKIE = "hso_admin_session";
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 8;
 
-function getSecret() {
-  return process.env.ADMIN_SESSION_SECRET ?? "dev-only-secret-change-me";
+function getSecret(): string {
+  const secret = process.env.ADMIN_SESSION_SECRET;
+  if (secret) {
+    return secret;
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    // Fail closed: refuse to sign or verify sessions rather than fall back
+    // to a shared default secret in production.
+    throw new Error("ADMIN_SESSION_SECRET is not configured.");
+  }
+
+  return "dev-only-secret-change-me";
 }
 
 function signPayload(username: string, issuedAt: number) {
@@ -37,7 +48,14 @@ export function verifySessionToken(token?: string | null) {
     return false;
   }
 
-  const expected = signPayload(username, issuedAt);
+  let expected: string;
+  try {
+    expected = signPayload(username, issuedAt);
+  } catch {
+    // ADMIN_SESSION_SECRET missing in production — no session can be valid.
+    return false;
+  }
+
   const expectedBuffer = Buffer.from(expected);
   const signatureBuffer = Buffer.from(signature);
 

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import LogoMark from "@/components/logo-mark";
 import { getSection } from "@/lib/content";
-import Head from "next/head";
 
 // Removed force-dynamic to allow SSG/ISR for better performance and SEO
 
@@ -76,22 +75,12 @@ export default async function AboutPage() {
 
   return (
     <>
-      <Head>
-        <title>About The HillSide Oasis Luxury Farm Retreat</title>
-        <meta name="description" content="Learn about The HillSide Oasis, a luxury farm retreat in Pollachi built on sustainability, hospitality, and authentic local experiences." />
-        <meta property="og:title" content="About The HillSide Oasis Luxury Farm Retreat" />
-        <meta property="og:description" content="Learn about The HillSide Oasis, a luxury farm retreat in Pollachi built on sustainability, hospitality, and authentic local experiences." />
-        <meta property="og:image" content="/images/2.jpeg" />
-        <meta property="og:url" content="https://thehillsideoasis.com/about" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="About The HillSide Oasis Luxury Farm Retreat" />
-        <meta name="twitter:description" content="Learn about The HillSide Oasis, a luxury farm retreat in Pollachi built on sustainability, hospitality, and authentic local experiences." />
-        <meta name="twitter:image" content="/images/2.jpeg" />
-        <link rel="canonical" href="https://thehillsideoasis.com/about" />
-        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
-      </Head>
+      <a href="#main-content" className="sr-only focus:not-sr-only absolute left-2 top-2 z-50 bg-white text-black p-2 rounded shadow">
+        Skip to main content
+      </a>
+      <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
 
-      <main className="luxury-bg px-5 pb-16 pt-24 text-foreground sm:px-6">
+      <main id="main-content" role="main" className="luxury-bg px-5 pb-16 pt-24 text-foreground sm:px-6">
         <section
           className="hero-shell overflow-hidden rounded-[2rem] border border-[#d7c8b5] p-8 shadow-[0_26px_56px_-42px_rgba(35,24,14,0.75)] sm:p-12"
           style={{

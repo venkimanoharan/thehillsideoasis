@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import LogoMark from "@/components/logo-mark";
 import { getActivities } from "@/lib/content";
-import Head from "next/head";
 
 // Removed force-dynamic to allow SSG/ISR for better performance and SEO
 
@@ -59,22 +58,12 @@ export default async function ActivitiesPage() {
 
   return (
     <>
-      <Head>
-        <title>Best Activities in Pollachi and Around The Western Ghats | The HillSide Oasis</title>
-        <meta name="description" content="Discover curated on-property activities, local sightseeing, and nature experiences in Pollachi at The HillSide Oasis." />
-        <meta property="og:title" content="Best Activities in Pollachi and Around The Western Ghats" />
-        <meta property="og:description" content="Discover curated on-property activities, local sightseeing, and nature experiences in Pollachi at The HillSide Oasis." />
-        <meta property="og:image" content="/images/2.jpeg" />
-        <meta property="og:url" content="https://thehillsideoasis.com/activities" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Best Activities in Pollachi and Around The Western Ghats" />
-        <meta name="twitter:description" content="Discover curated on-property activities, local sightseeing, and nature experiences in Pollachi at The HillSide Oasis." />
-        <meta name="twitter:image" content="/images/2.jpeg" />
-        <link rel="canonical" href="https://thehillsideoasis.com/activities" />
-        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
-      </Head>
+      <a href="#main-content" className="sr-only focus:not-sr-only absolute left-2 top-2 z-50 bg-white text-black p-2 rounded shadow">
+        Skip to main content
+      </a>
+      <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
 
-      <main className="luxury-bg px-5 pb-16 pt-24 text-foreground sm:px-6">
+      <main id="main-content" role="main" className="luxury-bg px-5 pb-16 pt-24 text-foreground sm:px-6">
         <section
           className="hero-shell overflow-hidden rounded-[2rem] border border-[#d7c8b5] p-8 shadow-[0_26px_56px_-42px_rgba(35,24,14,0.75)] sm:p-12"
           style={{

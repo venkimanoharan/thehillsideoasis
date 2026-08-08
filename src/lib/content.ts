@@ -1,5 +1,4 @@
-import fs from "fs/promises";
-import path from "path";
+import { getDb, COLLECTIONS } from "@/lib/firestore";
 
 export type RoomRecord = {
   id: number;
@@ -37,44 +36,42 @@ export type SectionRecord = {
   body: string;
 };
 
-export async function getRooms(): Promise<RoomRecord[]> {
-  try {
-    const data = await fs.readFile(path.join(process.cwd(), "data", "rooms.json"), "utf-8");
-    const items = JSON.parse(data).filter((r: any) => r.is_active !== false);
-    items.sort((a: any, b: any) => a.sort_order - b.sort_order || a.id - b.id);
-    return items;
-  } catch {
-    return [];
-  }
+function sortByOrder<T extends { sort_order?: number; id: number }>(items: T[]): T[] {
+  return [...items].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.id - b.id);
 }
+
+export async function getRooms(): Promise<RoomRecord[]> {
+  const snapshot = await getDb().collection(COLLECTIONS.rooms).get();
+  const items = snapshot.docs
+    .map((doc) => doc.data() as RoomRecord & { sort_order?: number; is_active?: boolean })
+    .filter((room) => room.is_active !== false);
+  return sortByOrder(items);
+}
+
 export async function getActivities(
   category?: "on_property" | "local_attraction",
 ): Promise<ActivityRecord[]> {
-  try {
-    const data = await fs.readFile(path.join(process.cwd(), "data", "activities.json"), "utf-8");
-    let items = JSON.parse(data).filter((a: any) => a.is_active !== false);
-    if (category) {
-      items = items.filter((a: any) => a.category === category);
-    }
-    items.sort((a: any, b: any) => a.sort_order - b.sort_order || a.id - b.id);
-    return items;
-  } catch {
-    return [];
+  const snapshot = await getDb().collection(COLLECTIONS.activities).get();
+  let items = snapshot.docs
+    .map((doc) => doc.data() as ActivityRecord & { sort_order?: number; is_active?: boolean })
+    .filter((activity) => activity.is_active !== false);
+
+  if (category) {
+    items = items.filter((activity) => activity.category === category);
   }
+
+  return sortByOrder(items);
 }
 
 export async function getGalleryItems(): Promise<GalleryItemRecord[]> {
-  try {
-    const data = await fs.readFile(path.join(process.cwd(), "data", "gallery.json"), "utf-8");
-    const items = JSON.parse(data).filter((g: any) => g.is_active !== false);
-    items.sort((a: any, b: any) => a.sort_order - b.sort_order || a.id - b.id);
-    return items;
-  } catch {
-    return [];
-  }
+  const snapshot = await getDb().collection(COLLECTIONS.gallery).get();
+  const items = snapshot.docs
+    .map((doc) => doc.data() as GalleryItemRecord & { sort_order?: number; is_active?: boolean })
+    .filter((item) => item.is_active !== false);
+  return sortByOrder(items);
 }
 
-// Section support not implemented in file-based mode
+// Section support not implemented (no admin UI or seed data manages CMS sections yet).
 export async function getSection(sectionKey: string): Promise<SectionRecord | null> {
   return null;
 }

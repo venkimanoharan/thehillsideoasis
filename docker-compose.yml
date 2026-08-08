@@ -1,9 +1,0 @@
-services:
-  # Add your app service here if needed
-  # Example:
-  # app:
-  #   build: .
-  #   ports:
-  #     - "8080:8080"
-  #   environment:
-  #     NODE_ENV: development

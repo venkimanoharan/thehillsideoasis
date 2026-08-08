@@ -3,16 +3,32 @@ import Link from "next/link";
 import LogoMark from "@/components/logo-mark";
 import { getSection } from "@/lib/content";
 import { getCachedSiteSettings } from "@/lib/site-settings";
-import Head from "next/head";
 
 export const dynamic = "force-dynamic";
 
+const TITLE = "Contact and Booking Enquiries | The HillSide Oasis Pollachi";
+const DESCRIPTION =
+  "Contact The HillSide Oasis in Pollachi for room bookings, family holidays, private events, and concierge-planned getaways.";
+
 export const metadata: Metadata = {
-  title: "Contact and Booking Enquiries | The HillSide Oasis Pollachi",
-  description:
-    "Contact The HillSide Oasis in Pollachi for room bookings, family holidays, private events, and concierge-planned getaways.",
+  title: TITLE,
+  description: DESCRIPTION,
   alternates: {
     canonical: "/contact",
+  },
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: "https://thehillsideoasis.com/contact",
+    type: "website",
+    images: ["/images/2.jpeg"],
+    siteName: "The HillSide Oasis",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/images/2.jpeg"],
   },
 };
 
@@ -41,20 +57,7 @@ export default async function ContactPage() {
       <a href="#main-content" className="sr-only focus:not-sr-only absolute left-2 top-2 z-50 bg-white text-black p-2 rounded shadow">
         Skip to main content
       </a>
-      <Head>
-        <title>Contact and Booking Enquiries | The HillSide Oasis Pollachi</title>
-        <meta name="description" content="Contact The HillSide Oasis in Pollachi for room bookings, family holidays, private events, and concierge-planned getaways." />
-        <meta property="og:title" content="Contact and Booking Enquiries | The HillSide Oasis Pollachi" />
-        <meta property="og:description" content="Contact The HillSide Oasis in Pollachi for room bookings, family holidays, private events, and concierge-planned getaways." />
-        <meta property="og:image" content="/images/2.jpeg" />
-        <meta property="og:url" content="https://thehillsideoasis.com/contact" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Contact and Booking Enquiries | The HillSide Oasis Pollachi" />
-        <meta name="twitter:description" content="Contact The HillSide Oasis in Pollachi for room bookings, family holidays, private events, and concierge-planned getaways." />
-        <meta name="twitter:image" content="/images/2.jpeg" />
-        <link rel="canonical" href="https://thehillsideoasis.com/contact" />
-        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
-      </Head>
+      <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
 
       <main id="main-content" className="luxury-bg px-5 pb-16 pt-24 text-foreground sm:px-6" role="main">
         <section

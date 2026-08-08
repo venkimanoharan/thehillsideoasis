@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import LogoMark from "@/components/logo-mark";
 import { getGalleryItems } from "@/lib/content";
-import Head from "next/head";
 
 // Removed force-dynamic to allow SSG/ISR for better performance and SEO
 
@@ -51,20 +50,7 @@ export default async function GalleryPage() {
 
   return (
     <>
-      <Head>
-        <title>Resort Gallery | Luxury Farm Stay in Pollachi</title>
-        <meta name="description" content="View the luxury farm stay gallery of The HillSide Oasis in Pollachi featuring suites, landscapes, and curated guest experiences." />
-        <meta property="og:title" content="Resort Gallery | Luxury Farm Stay in Pollachi" />
-        <meta property="og:description" content="View the luxury farm stay gallery of The HillSide Oasis in Pollachi featuring suites, landscapes, and curated guest experiences." />
-        <meta property="og:image" content="/images/2.jpeg" />
-        <meta property="og:url" content="https://thehillsideoasis.com/gallery" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Resort Gallery | Luxury Farm Stay in Pollachi" />
-        <meta name="twitter:description" content="View the luxury farm stay gallery of The HillSide Oasis in Pollachi featuring suites, landscapes, and curated guest experiences." />
-        <meta name="twitter:image" content="/images/2.jpeg" />
-        <link rel="canonical" href="https://thehillsideoasis.com/gallery" />
-        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
-      </Head>
+      <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
 
       {/* Skip to main content link for accessibility */}
       <a href="#main-content" className="sr-only focus:not-sr-only absolute left-2 top-2 z-50 bg-white text-black p-2 rounded shadow">

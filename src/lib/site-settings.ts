@@ -1,7 +1,5 @@
-
-import fs from "fs/promises";
-import path from "path";
 import { unstable_cache } from "next/cache";
+import { COLLECTIONS, getDb, SITE_SETTINGS_DOC_ID } from "@/lib/firestore";
 
 const CONTACT_PHONE_KEY = "contact_phone";
 const CONTACT_WHATSAPP_KEY = "contact_whatsapp";
@@ -27,11 +25,6 @@ const DEFAULT_SETTINGS = {
 } as const;
 
 type SiteSettingKey = keyof typeof DEFAULT_SETTINGS;
-
-type SiteSettingRow = {
-  setting_key: SiteSettingKey;
-  setting_value: string;
-};
 
 export type SiteSettings = {
   contactPhoneDisplay: string;
@@ -69,47 +62,35 @@ function normalizeEmailForMailto(email: string) {
   return `mailto:${email.trim()}`;
 }
 
-
-const SETTINGS_PATH = path.join(process.cwd(), "data", "site-settings.json");
-
-async function ensureSiteSettingsFile() {
-  try {
-    await fs.access(SETTINGS_PATH);
-  } catch {
-    await fs.writeFile(SETTINGS_PATH, JSON.stringify(DEFAULT_SETTINGS, null, 2));
-  }
+function settingsDocRef() {
+  return getDb().collection(COLLECTIONS.siteSettings).doc(SITE_SETTINGS_DOC_ID);
 }
 
-
-async function readSiteSettings(): Promise<SiteSettings> {
-  await ensureSiteSettingsFile();
-  let settingsRaw: Record<string, string> = {};
-  try {
-    const data = await fs.readFile(SETTINGS_PATH, "utf-8");
-    settingsRaw = JSON.parse(data);
-  } catch {
-    settingsRaw = { ...DEFAULT_SETTINGS };
-  }
+function toSiteSettings(settingsRaw: Record<string, string>): SiteSettings {
   const contactPhoneDisplay = settingsRaw[CONTACT_PHONE_KEY] || DEFAULT_CONTACT_PHONE;
   const contactWhatsappDisplay = settingsRaw[CONTACT_WHATSAPP_KEY] || DEFAULT_CONTACT_WHATSAPP;
   const contactEmailDisplay = settingsRaw[CONTACT_EMAIL_KEY] || DEFAULT_CONTACT_EMAIL;
   const contactAddressDisplay = settingsRaw[CONTACT_ADDRESS_KEY] || DEFAULT_CONTACT_ADDRESS;
   const facebookUrl = settingsRaw[FACEBOOK_URL_KEY] || DEFAULT_FACEBOOK_URL;
   const instagramUrl = settingsRaw[INSTAGRAM_URL_KEY] || DEFAULT_INSTAGRAM_URL;
-  const contactPhoneHref = `tel:${normalizePhoneForTel(contactPhoneDisplay)}`;
-  const contactWhatsappHref = `https://wa.me/${normalizePhoneForWhatsApp(contactWhatsappDisplay)}`;
-  const contactEmailHref = normalizeEmailForMailto(contactEmailDisplay);
+
   return {
     contactPhoneDisplay,
-    contactPhoneHref,
+    contactPhoneHref: `tel:${normalizePhoneForTel(contactPhoneDisplay)}`,
     contactWhatsappDisplay,
-    contactWhatsappHref,
+    contactWhatsappHref: `https://wa.me/${normalizePhoneForWhatsApp(contactWhatsappDisplay)}`,
     contactEmailDisplay,
-    contactEmailHref,
+    contactEmailHref: normalizeEmailForMailto(contactEmailDisplay),
     contactAddressDisplay,
     facebookUrl,
     instagramUrl,
   };
+}
+
+async function readSiteSettings(): Promise<SiteSettings> {
+  const snapshot = await settingsDocRef().get();
+  const settingsRaw = (snapshot.data() as Record<string, string> | undefined) ?? { ...DEFAULT_SETTINGS };
+  return toSiteSettings(settingsRaw);
 }
 
 const getCachedSiteSettingsInternal = unstable_cache(readSiteSettings, [SITE_SETTINGS_CACHE_TAG], {
@@ -125,7 +106,6 @@ export async function getCachedSiteSettings(): Promise<SiteSettings> {
   return getCachedSiteSettingsInternal();
 }
 
-
 export async function updateSiteSettings(input: SiteSettingsUpdateInput): Promise<SiteSettings> {
   const nextValues: Record<SiteSettingKey, string> = {
     [CONTACT_PHONE_KEY]: input.contactPhoneDisplay?.trim() || DEFAULT_CONTACT_PHONE,
@@ -135,7 +115,6 @@ export async function updateSiteSettings(input: SiteSettingsUpdateInput): Promis
     [FACEBOOK_URL_KEY]: input.facebookUrl?.trim() || DEFAULT_FACEBOOK_URL,
     [INSTAGRAM_URL_KEY]: input.instagramUrl?.trim() || DEFAULT_INSTAGRAM_URL,
   };
-  await ensureSiteSettingsFile();
-  await fs.writeFile(SETTINGS_PATH, JSON.stringify(nextValues, null, 2));
+  await settingsDocRef().set(nextValues, { merge: true });
   return readSiteSettings();
 }
