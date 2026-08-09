@@ -61,3 +61,21 @@ export async function PUT(request: Request) {
   const updated = await ref.get();
   return NextResponse.json({ ok: true, item: updated.data() });
 }
+
+export async function DELETE(request: Request) {
+  if (!isAdminRequestAuthorized(request)) {
+    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = (await request.json()) as { id: number };
+  const db = getDb();
+  const ref = db.collection(COLLECTIONS.activities).doc(String(id));
+  const snapshot = await ref.get();
+
+  if (!snapshot.exists) {
+    return NextResponse.json({ ok: false, error: "Activity not found" }, { status: 404 });
+  }
+
+  await ref.delete();
+  return NextResponse.json({ ok: true });
+}

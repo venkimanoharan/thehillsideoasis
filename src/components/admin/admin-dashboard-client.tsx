@@ -65,7 +65,16 @@ type SettingsItem = {
   instagramUrl: string;
 };
 
-type TabKey = "rooms" | "activities" | "gallery" | "bookings" | "settings";
+type CustomerSummary = {
+  email: string;
+  name: string;
+  phone: string;
+  bookings: BookingItem[];
+  totalStays: number;
+  totalSpend: number;
+};
+
+type TabKey = "rooms" | "activities" | "gallery" | "bookings" | "customers" | "settings";
 
 const dayHeaders = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -125,6 +134,62 @@ function dayCellClass(status?: string) {
   return "border-zinc-200 bg-white text-zinc-700";
 }
 
+function stayPillClass(stay: "past" | "current" | "future") {
+  if (stay === "current") {
+    return "bg-orange-100 text-[#9e3e12] border border-orange-200";
+  }
+
+  if (stay === "future") {
+    return "bg-amber-100 text-amber-700 border border-amber-200";
+  }
+
+  return "bg-zinc-100 text-zinc-600 border border-zinc-200";
+}
+
+function classifyStay(booking: BookingItem, todayKey: string): "past" | "current" | "future" {
+  if (booking.checkout <= todayKey) {
+    return "past";
+  }
+
+  if (booking.checkin <= todayKey && booking.checkout > todayKey) {
+    return "current";
+  }
+
+  return "future";
+}
+
+const BLANK_ROOM: Omit<RoomItem, "id"> = {
+  slug: "",
+  name: "New Room",
+  capacity: "",
+  bed: "",
+  view_label: "",
+  description: "",
+  amenities: [],
+  price_per_night: 0,
+  image_url: "",
+  sort_order: 0,
+  is_active: true,
+};
+
+const BLANK_ACTIVITY: Omit<ActivityItem, "id"> = {
+  category: "on_property",
+  title: "New Activity",
+  description: "",
+  duration_label: "",
+  price_label: "",
+  distance_label: "",
+  sort_order: 0,
+  is_active: true,
+};
+
+const BLANK_GALLERY: Omit<GalleryItem, "id"> = {
+  image_url: "",
+  alt_text: "",
+  sort_order: 0,
+  is_active: true,
+};
+
 export default function AdminDashboardClient() {
   const [tab, setTab] = useState<TabKey>("rooms");
   const [rooms, setRooms] = useState<RoomItem[]>([]);
@@ -149,6 +214,7 @@ export default function AdminDashboardClient() {
   const [blockCheckout, setBlockCheckout] = useState<string>("");
   const [blockNote, setBlockNote] = useState<string>("");
   const [message, setMessage] = useState<string>("");
+  const [customerSearch, setCustomerSearch] = useState<string>("");
 
   const fetchData = useCallback(async () => {
     try {
@@ -246,6 +312,58 @@ export default function AdminDashboardClient() {
     return map;
   }, [bookings, calendarRoom]);
 
+  const customers = useMemo(() => {
+    const map = new Map<string, CustomerSummary>();
+
+    for (const booking of bookings) {
+      const email = booking.email?.trim().toLowerCase();
+      if (!email) {
+        // Admin-created "blocked" entries have no guest — not a customer.
+        continue;
+      }
+
+      const existing = map.get(email);
+      const spend = booking.status === "cancelled" ? 0 : booking.total_amount;
+
+      if (existing) {
+        existing.bookings.push(booking);
+        existing.totalStays += 1;
+        existing.totalSpend += spend;
+      } else {
+        map.set(email, {
+          email: booking.email,
+          name: booking.name,
+          phone: booking.phone,
+          bookings: [booking],
+          totalStays: 1,
+          totalSpend: spend,
+        });
+      }
+    }
+
+    const list = Array.from(map.values());
+
+    for (const customer of list) {
+      customer.bookings.sort((a, b) => (a.checkin < b.checkin ? 1 : -1));
+    }
+
+    list.sort((a, b) => (a.bookings[0]!.created_at < b.bookings[0]!.created_at ? 1 : -1));
+
+    if (!customerSearch.trim()) {
+      return list;
+    }
+
+    const needle = customerSearch.trim().toLowerCase();
+    return list.filter(
+      (customer) =>
+        customer.name.toLowerCase().includes(needle) ||
+        customer.email.toLowerCase().includes(needle) ||
+        customer.phone.toLowerCase().includes(needle),
+    );
+  }, [bookings, customerSearch]);
+
+  const todayKey = useMemo(() => toDateKey(new Date()), []);
+
   useEffect(() => {
     void fetchData();
   }, [fetchData]);
@@ -266,6 +384,43 @@ export default function AdminDashboardClient() {
     await fetchData();
   }
 
+  async function createRoom() {
+    const nextSortOrder = rooms.length > 0 ? Math.max(...rooms.map((r) => r.sort_order)) + 1 : 1;
+    const response = await fetch("/api/admin/rooms", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...BLANK_ROOM, slug: `new-room-${Date.now()}`, sort_order: nextSortOrder }),
+    });
+
+    if (!response.ok) {
+      setMessage("Failed to create room.");
+      return;
+    }
+
+    setMessage("Room created — fill in the details below and save.");
+    await fetchData();
+  }
+
+  async function deleteRoom(id: number) {
+    if (!window.confirm("Delete this room? This cannot be undone.")) {
+      return;
+    }
+
+    const response = await fetch("/api/admin/rooms", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+
+    if (!response.ok) {
+      setMessage("Failed to delete room.");
+      return;
+    }
+
+    setMessage("Room deleted.");
+    await fetchData();
+  }
+
   async function saveActivity(item: ActivityItem) {
     const response = await fetch("/api/admin/activities", {
       method: "PUT",
@@ -282,6 +437,44 @@ export default function AdminDashboardClient() {
     await fetchData();
   }
 
+  async function createActivity() {
+    const nextSortOrder =
+      activities.length > 0 ? Math.max(...activities.map((a) => a.sort_order)) + 1 : 1;
+    const response = await fetch("/api/admin/activities", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...BLANK_ACTIVITY, sort_order: nextSortOrder }),
+    });
+
+    if (!response.ok) {
+      setMessage("Failed to create activity.");
+      return;
+    }
+
+    setMessage("Activity created — fill in the details below and save.");
+    await fetchData();
+  }
+
+  async function deleteActivity(id: number) {
+    if (!window.confirm("Delete this activity? This cannot be undone.")) {
+      return;
+    }
+
+    const response = await fetch("/api/admin/activities", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+
+    if (!response.ok) {
+      setMessage("Failed to delete activity.");
+      return;
+    }
+
+    setMessage("Activity deleted.");
+    await fetchData();
+  }
+
   async function saveGallery(item: GalleryItem) {
     const response = await fetch("/api/admin/gallery", {
       method: "PUT",
@@ -295,6 +488,43 @@ export default function AdminDashboardClient() {
     }
 
     setMessage("Gallery item updated.");
+    await fetchData();
+  }
+
+  async function createGalleryItem() {
+    const nextSortOrder = gallery.length > 0 ? Math.max(...gallery.map((g) => g.sort_order)) + 1 : 1;
+    const response = await fetch("/api/admin/gallery", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...BLANK_GALLERY, sort_order: nextSortOrder }),
+    });
+
+    if (!response.ok) {
+      setMessage("Failed to create gallery item.");
+      return;
+    }
+
+    setMessage("Gallery item created — fill in the details below and save.");
+    await fetchData();
+  }
+
+  async function deleteGalleryItem(id: number) {
+    if (!window.confirm("Delete this gallery image? This cannot be undone.")) {
+      return;
+    }
+
+    const response = await fetch("/api/admin/gallery", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+
+    if (!response.ok) {
+      setMessage("Failed to delete gallery item.");
+      return;
+    }
+
+    setMessage("Gallery item deleted.");
     await fetchData();
   }
 
@@ -385,7 +615,7 @@ export default function AdminDashboardClient() {
       </div>
 
       <div className="mt-6 flex flex-wrap gap-2">
-        {(["rooms", "activities", "gallery", "bookings", "settings"] as TabKey[]).map((key) => (
+        {(["rooms", "activities", "gallery", "bookings", "customers", "settings"] as TabKey[]).map((key) => (
           <button
             key={key}
             onClick={() => setTab(key)}
@@ -403,49 +633,203 @@ export default function AdminDashboardClient() {
 
       {tab === "rooms" ? (
         <div className="mt-6 grid gap-4">
+          <button
+            onClick={createRoom}
+            className="w-fit rounded-xl border border-dashed border-[#c45e2a] px-4 py-2 text-sm font-bold text-[#9e3e12] hover:bg-orange-50"
+          >
+            + Add New Room
+          </button>
+
           {rooms.map((item) => (
             <article key={item.id} className="rounded-2xl border border-zinc-200 p-4">
               <div className="grid gap-3 sm:grid-cols-2">
-                <input
-                  value={item.name}
-                  onChange={(event) =>
-                    setRooms((prev) =>
-                      prev.map((entry) =>
-                        entry.id === item.id ? { ...entry, name: event.target.value } : entry,
-                      ),
-                    )
-                  }
-                  className="rounded-xl border border-zinc-300 px-3 py-2"
-                />
-                <input
-                  value={item.price_per_night}
-                  onChange={(event) =>
-                    setRooms((prev) =>
-                      prev.map((entry) =>
-                        entry.id === item.id ? { ...entry, price_per_night: Number(event.target.value) || 0 } : entry,
-                      ),
-                    )
-                  }
-                  className="rounded-xl border border-zinc-300 px-3 py-2"
-                  type="number"
-                />
+                <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                  Name
+                  <input
+                    value={item.name}
+                    onChange={(event) =>
+                      setRooms((prev) =>
+                        prev.map((entry) =>
+                          entry.id === item.id ? { ...entry, name: event.target.value } : entry,
+                        ),
+                      )
+                    }
+                    className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                  />
+                </label>
+                <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                  Slug (used in booking links)
+                  <input
+                    value={item.slug}
+                    onChange={(event) =>
+                      setRooms((prev) =>
+                        prev.map((entry) =>
+                          entry.id === item.id ? { ...entry, slug: event.target.value } : entry,
+                        ),
+                      )
+                    }
+                    className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                  />
+                </label>
+                <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                  Price per night (INR)
+                  <input
+                    value={item.price_per_night}
+                    onChange={(event) =>
+                      setRooms((prev) =>
+                        prev.map((entry) =>
+                          entry.id === item.id
+                            ? { ...entry, price_per_night: Number(event.target.value) || 0 }
+                            : entry,
+                        ),
+                      )
+                    }
+                    className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                    type="number"
+                  />
+                </label>
+                <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                  Image URL
+                  <input
+                    value={item.image_url}
+                    onChange={(event) =>
+                      setRooms((prev) =>
+                        prev.map((entry) =>
+                          entry.id === item.id ? { ...entry, image_url: event.target.value } : entry,
+                        ),
+                      )
+                    }
+                    placeholder="/images/1.jpeg"
+                    className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                  />
+                </label>
+                <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                  Capacity
+                  <input
+                    value={item.capacity}
+                    onChange={(event) =>
+                      setRooms((prev) =>
+                        prev.map((entry) =>
+                          entry.id === item.id ? { ...entry, capacity: event.target.value } : entry,
+                        ),
+                      )
+                    }
+                    placeholder="2 Guests"
+                    className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                  />
+                </label>
+                <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                  Bed
+                  <input
+                    value={item.bed}
+                    onChange={(event) =>
+                      setRooms((prev) =>
+                        prev.map((entry) =>
+                          entry.id === item.id ? { ...entry, bed: event.target.value } : entry,
+                        ),
+                      )
+                    }
+                    placeholder="King Bed"
+                    className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                  />
+                </label>
+                <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                  View label
+                  <input
+                    value={item.view_label}
+                    onChange={(event) =>
+                      setRooms((prev) =>
+                        prev.map((entry) =>
+                          entry.id === item.id ? { ...entry, view_label: event.target.value } : entry,
+                        ),
+                      )
+                    }
+                    placeholder="Mountain View"
+                    className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                  />
+                </label>
+                <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                  Sort order
+                  <input
+                    value={item.sort_order}
+                    onChange={(event) =>
+                      setRooms((prev) =>
+                        prev.map((entry) =>
+                          entry.id === item.id
+                            ? { ...entry, sort_order: Number(event.target.value) || 0 }
+                            : entry,
+                        ),
+                      )
+                    }
+                    type="number"
+                    className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                  />
+                </label>
               </div>
-              <textarea
-                value={item.description}
-                onChange={(event) =>
-                  setRooms((prev) =>
-                    prev.map((entry) => (entry.id === item.id ? { ...entry, description: event.target.value } : entry)),
-                  )
-                }
-                className="mt-3 w-full rounded-xl border border-zinc-300 px-3 py-2"
-                rows={3}
-              />
-              <button
-                onClick={() => saveRoom(item)}
-                className="mt-3 rounded-xl bg-[#c45e2a] px-4 py-2 text-sm font-bold text-white hover:bg-[#9e3e12]"
-              >
-                Save Room
-              </button>
+
+              <label className="mt-3 grid gap-1 text-xs font-semibold text-zinc-600">
+                Description
+                <textarea
+                  value={item.description}
+                  onChange={(event) =>
+                    setRooms((prev) =>
+                      prev.map((entry) =>
+                        entry.id === item.id ? { ...entry, description: event.target.value } : entry,
+                      ),
+                    )
+                  }
+                  className="w-full rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                  rows={3}
+                />
+              </label>
+
+              <label className="mt-3 grid gap-1 text-xs font-semibold text-zinc-600">
+                Amenities (one per line)
+                <textarea
+                  value={item.amenities.join("\n")}
+                  onChange={(event) =>
+                    setRooms((prev) =>
+                      prev.map((entry) =>
+                        entry.id === item.id
+                          ? { ...entry, amenities: event.target.value.split("\n") }
+                          : entry,
+                      ),
+                    )
+                  }
+                  className="w-full rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                  rows={4}
+                />
+              </label>
+
+              <label className="mt-3 flex items-center gap-2 text-xs font-semibold text-zinc-600">
+                <input
+                  type="checkbox"
+                  checked={item.is_active}
+                  onChange={(event) =>
+                    setRooms((prev) =>
+                      prev.map((entry) =>
+                        entry.id === item.id ? { ...entry, is_active: event.target.checked } : entry,
+                      ),
+                    )
+                  }
+                />
+                Active (visible on the public site)
+              </label>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  onClick={() => saveRoom(item)}
+                  className="rounded-xl bg-[#c45e2a] px-4 py-2 text-sm font-bold text-white hover:bg-[#9e3e12]"
+                >
+                  Save Room
+                </button>
+                <button
+                  onClick={() => deleteRoom(item.id)}
+                  className="rounded-xl border border-rose-300 px-4 py-2 text-sm font-bold text-rose-700 hover:bg-rose-50"
+                >
+                  Delete Room
+                </button>
+              </div>
             </article>
           ))}
         </div>
@@ -453,35 +837,162 @@ export default function AdminDashboardClient() {
 
       {tab === "activities" ? (
         <div className="mt-6 grid gap-4">
+          <button
+            onClick={createActivity}
+            className="w-fit rounded-xl border border-dashed border-[#c45e2a] px-4 py-2 text-sm font-bold text-[#9e3e12] hover:bg-orange-50"
+          >
+            + Add New Activity
+          </button>
+
           {activities.map((item) => (
             <article key={item.id} className="rounded-2xl border border-zinc-200 p-4">
-              <input
-                value={item.title}
-                onChange={(event) =>
-                  setActivities((prev) =>
-                    prev.map((entry) => (entry.id === item.id ? { ...entry, title: event.target.value } : entry)),
-                  )
-                }
-                className="w-full rounded-xl border border-zinc-300 px-3 py-2"
-              />
-              <textarea
-                value={item.description}
-                onChange={(event) =>
-                  setActivities((prev) =>
-                    prev.map((entry) =>
-                      entry.id === item.id ? { ...entry, description: event.target.value } : entry,
-                    ),
-                  )
-                }
-                className="mt-3 w-full rounded-xl border border-zinc-300 px-3 py-2"
-                rows={3}
-              />
-              <button
-                onClick={() => saveActivity(item)}
-                className="mt-3 rounded-xl bg-[#c45e2a] px-4 py-2 text-sm font-bold text-white hover:bg-[#9e3e12]"
-              >
-                Save Activity
-              </button>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                  Title
+                  <input
+                    value={item.title}
+                    onChange={(event) =>
+                      setActivities((prev) =>
+                        prev.map((entry) =>
+                          entry.id === item.id ? { ...entry, title: event.target.value } : entry,
+                        ),
+                      )
+                    }
+                    className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                  />
+                </label>
+                <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                  Category
+                  <select
+                    value={item.category}
+                    onChange={(event) =>
+                      setActivities((prev) =>
+                        prev.map((entry) =>
+                          entry.id === item.id ? { ...entry, category: event.target.value } : entry,
+                        ),
+                      )
+                    }
+                    className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                  >
+                    <option value="on_property">On Property</option>
+                    <option value="local_attraction">Local Attraction</option>
+                  </select>
+                </label>
+                <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                  Duration label
+                  <input
+                    value={item.duration_label ?? ""}
+                    onChange={(event) =>
+                      setActivities((prev) =>
+                        prev.map((entry) =>
+                          entry.id === item.id
+                            ? { ...entry, duration_label: event.target.value || null }
+                            : entry,
+                        ),
+                      )
+                    }
+                    placeholder="1-2 hours"
+                    className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                  />
+                </label>
+                <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                  Price label
+                  <input
+                    value={item.price_label ?? ""}
+                    onChange={(event) =>
+                      setActivities((prev) =>
+                        prev.map((entry) =>
+                          entry.id === item.id
+                            ? { ...entry, price_label: event.target.value || null }
+                            : entry,
+                        ),
+                      )
+                    }
+                    placeholder="Complimentary"
+                    className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                  />
+                </label>
+                <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                  Distance label
+                  <input
+                    value={item.distance_label ?? ""}
+                    onChange={(event) =>
+                      setActivities((prev) =>
+                        prev.map((entry) =>
+                          entry.id === item.id
+                            ? { ...entry, distance_label: event.target.value || null }
+                            : entry,
+                        ),
+                      )
+                    }
+                    placeholder="20 minutes away"
+                    className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                  />
+                </label>
+                <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                  Sort order
+                  <input
+                    value={item.sort_order}
+                    onChange={(event) =>
+                      setActivities((prev) =>
+                        prev.map((entry) =>
+                          entry.id === item.id
+                            ? { ...entry, sort_order: Number(event.target.value) || 0 }
+                            : entry,
+                        ),
+                      )
+                    }
+                    type="number"
+                    className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                  />
+                </label>
+              </div>
+
+              <label className="mt-3 grid gap-1 text-xs font-semibold text-zinc-600">
+                Description
+                <textarea
+                  value={item.description}
+                  onChange={(event) =>
+                    setActivities((prev) =>
+                      prev.map((entry) =>
+                        entry.id === item.id ? { ...entry, description: event.target.value } : entry,
+                      ),
+                    )
+                  }
+                  className="mt-1 w-full rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                  rows={3}
+                />
+              </label>
+
+              <label className="mt-3 flex items-center gap-2 text-xs font-semibold text-zinc-600">
+                <input
+                  type="checkbox"
+                  checked={item.is_active}
+                  onChange={(event) =>
+                    setActivities((prev) =>
+                      prev.map((entry) =>
+                        entry.id === item.id ? { ...entry, is_active: event.target.checked } : entry,
+                      ),
+                    )
+                  }
+                />
+                Active (visible on the public site)
+              </label>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  onClick={() => saveActivity(item)}
+                  className="rounded-xl bg-[#c45e2a] px-4 py-2 text-sm font-bold text-white hover:bg-[#9e3e12]"
+                >
+                  Save Activity
+                </button>
+                <button
+                  onClick={() => deleteActivity(item.id)}
+                  className="rounded-xl border border-rose-300 px-4 py-2 text-sm font-bold text-rose-700 hover:bg-rose-50"
+                >
+                  Delete Activity
+                </button>
+              </div>
             </article>
           ))}
         </div>
@@ -489,32 +1000,91 @@ export default function AdminDashboardClient() {
 
       {tab === "gallery" ? (
         <div className="mt-6 grid gap-4">
+          <button
+            onClick={createGalleryItem}
+            className="w-fit rounded-xl border border-dashed border-[#c45e2a] px-4 py-2 text-sm font-bold text-[#9e3e12] hover:bg-orange-50"
+          >
+            + Add New Image
+          </button>
+
           {gallery.map((item) => (
             <article key={item.id} className="rounded-2xl border border-zinc-200 p-4">
-              <input
-                value={item.image_url}
-                onChange={(event) =>
-                  setGallery((prev) =>
-                    prev.map((entry) => (entry.id === item.id ? { ...entry, image_url: event.target.value } : entry)),
-                  )
-                }
-                className="w-full rounded-xl border border-zinc-300 px-3 py-2"
-              />
-              <input
-                value={item.alt_text}
-                onChange={(event) =>
-                  setGallery((prev) =>
-                    prev.map((entry) => (entry.id === item.id ? { ...entry, alt_text: event.target.value } : entry)),
-                  )
-                }
-                className="mt-3 w-full rounded-xl border border-zinc-300 px-3 py-2"
-              />
-              <button
-                onClick={() => saveGallery(item)}
-                className="mt-3 rounded-xl bg-[#c45e2a] px-4 py-2 text-sm font-bold text-white hover:bg-[#9e3e12]"
-              >
-                Save Image
-              </button>
+              <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                Image URL
+                <input
+                  value={item.image_url}
+                  onChange={(event) =>
+                    setGallery((prev) =>
+                      prev.map((entry) =>
+                        entry.id === item.id ? { ...entry, image_url: event.target.value } : entry,
+                      ),
+                    )
+                  }
+                  placeholder="/images/1.jpeg"
+                  className="w-full rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                />
+              </label>
+              <label className="mt-3 grid gap-1 text-xs font-semibold text-zinc-600">
+                Alt text
+                <input
+                  value={item.alt_text}
+                  onChange={(event) =>
+                    setGallery((prev) =>
+                      prev.map((entry) =>
+                        entry.id === item.id ? { ...entry, alt_text: event.target.value } : entry,
+                      ),
+                    )
+                  }
+                  className="w-full rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                />
+              </label>
+              <label className="mt-3 grid w-32 gap-1 text-xs font-semibold text-zinc-600">
+                Sort order
+                <input
+                  value={item.sort_order}
+                  onChange={(event) =>
+                    setGallery((prev) =>
+                      prev.map((entry) =>
+                        entry.id === item.id
+                          ? { ...entry, sort_order: Number(event.target.value) || 0 }
+                          : entry,
+                      ),
+                    )
+                  }
+                  type="number"
+                  className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                />
+              </label>
+
+              <label className="mt-3 flex items-center gap-2 text-xs font-semibold text-zinc-600">
+                <input
+                  type="checkbox"
+                  checked={item.is_active}
+                  onChange={(event) =>
+                    setGallery((prev) =>
+                      prev.map((entry) =>
+                        entry.id === item.id ? { ...entry, is_active: event.target.checked } : entry,
+                      ),
+                    )
+                  }
+                />
+                Active (visible on the public site)
+              </label>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  onClick={() => saveGallery(item)}
+                  className="rounded-xl bg-[#c45e2a] px-4 py-2 text-sm font-bold text-white hover:bg-[#9e3e12]"
+                >
+                  Save Image
+                </button>
+                <button
+                  onClick={() => deleteGalleryItem(item.id)}
+                  className="rounded-xl border border-rose-300 px-4 py-2 text-sm font-bold text-rose-700 hover:bg-rose-50"
+                >
+                  Delete Image
+                </button>
+              </div>
             </article>
           ))}
         </div>
@@ -675,6 +1245,71 @@ export default function AdminDashboardClient() {
                   </div>
                 </div>
                 {item.requests ? <p className="mt-2 text-xs text-zinc-700">Note: {item.requests}</p> : null}
+              </article>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {tab === "customers" ? (
+        <div className="mt-6 grid gap-4">
+          <input
+            value={customerSearch}
+            onChange={(event) => setCustomerSearch(event.target.value)}
+            placeholder="Search by name, email, or phone"
+            className="w-full rounded-xl border border-zinc-300 px-3 py-2 sm:max-w-sm"
+          />
+
+          {customers.length === 0 ? (
+            <p className="text-sm text-zinc-600">
+              {customerSearch ? "No customers match that search." : "No guest bookings yet."}
+            </p>
+          ) : null}
+
+          <div className="grid gap-4">
+            {customers.map((customer) => (
+              <article key={customer.email} className="rounded-2xl border border-zinc-200 p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-base font-semibold text-zinc-900">{customer.name}</p>
+                    <p className="text-sm text-zinc-600">
+                      {customer.email} {customer.phone ? `| ${customer.phone}` : ""}
+                    </p>
+                  </div>
+                  <div className="text-right text-sm text-zinc-700">
+                    <p className="font-semibold">
+                      {customer.totalStays} {customer.totalStays === 1 ? "stay" : "stays"}
+                    </p>
+                    <p className="text-xs text-zinc-500">
+                      Lifetime total: INR {customer.totalSpend.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-3 grid gap-2">
+                  {customer.bookings.map((booking) => {
+                    const stay = classifyStay(booking, todayKey);
+                    return (
+                      <div
+                        key={booking.id}
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-2 text-xs text-zinc-700"
+                      >
+                        <span>
+                          {booking.room_slug} | {booking.checkin} to {booking.checkout} | INR{" "}
+                          {booking.total_amount.toLocaleString()}
+                        </span>
+                        <span className="flex items-center gap-2">
+                          <span className={["rounded-full px-2 py-1 font-semibold capitalize", stayPillClass(stay)].join(" ")}>
+                            {stay}
+                          </span>
+                          <span className={["rounded-full px-2 py-1 font-semibold", statusPillClass(booking.status)].join(" ")}>
+                            {booking.status}
+                          </span>
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
               </article>
             ))}
           </div>
