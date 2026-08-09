@@ -21,7 +21,10 @@ const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
 const app = initializeApp(
   serviceAccountJson ? { credential: cert(JSON.parse(serviceAccountJson)), projectId } : { projectId },
 );
-const db = getFirestore(app);
+// Set FIRESTORE_DATABASE_ID if the database was created with a custom ID
+// instead of "(default)" (the GCP Console prompts for one).
+const databaseId = process.env.FIRESTORE_DATABASE_ID;
+const db = databaseId ? getFirestore(app, databaseId) : getFirestore(app);
 
 async function readJson(fileName) {
   const filePath = path.join(process.cwd(), "data", fileName);
