@@ -92,7 +92,137 @@ type CustomerSummary = {
   totalSpend: number;
 };
 
-type TabKey = "rooms" | "activities" | "gallery" | "bookings" | "customers" | "settings";
+type RevenueTotals = {
+  confirmedRevenue: number;
+  pendingRevenue: number;
+  totalRevenue: number;
+  confirmedCount: number;
+  pendingCount: number;
+  cancelledCount: number;
+  totalCount: number;
+  averageBookingValue: number;
+};
+
+type RevenueByRoom = {
+  roomSlug: string;
+  roomName: string;
+  revenue: number;
+  count: number;
+};
+
+type RevenueData = {
+  range: { start: string; end: string };
+  totals: RevenueTotals;
+  byRoom: RevenueByRoom[];
+  bookings: BookingItem[];
+};
+
+type RevenuePreset =
+  | "last7"
+  | "last30"
+  | "last90"
+  | "thisMonth"
+  | "lastMonth"
+  | "thisYear"
+  | "lastYear"
+  | "allTime"
+  | "custom";
+
+const REVENUE_PRESET_LABELS: Record<Exclude<RevenuePreset, "custom">, string> = {
+  last7: "Last 7 Days",
+  last30: "Last 30 Days",
+  last90: "Last 90 Days",
+  thisMonth: "This Month",
+  lastMonth: "Last Month",
+  thisYear: "This Year",
+  lastYear: "Last Year",
+  allTime: "All Time",
+};
+
+// Validated categorical order (blue, orange, aqua, yellow, magenta, violet) —
+// fixed order, assigned by stable room identity (sort_order), never by revenue
+// rank, so a bar's color never shifts when the revenue leaderboard reshuffles.
+const ROOM_BAR_COLORS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#4a3aa7"];
+
+function formatINR(amount: number): string {
+  return `INR ${amount.toLocaleString("en-IN")}`;
+}
+
+function computePresetRange(preset: RevenuePreset): { start: string; end: string } {
+  const now = new Date();
+  const todayKey = toDateKey(now);
+
+  if (preset === "last7") {
+    const start = new Date(now);
+    start.setDate(start.getDate() - 6);
+    return { start: toDateKey(start), end: todayKey };
+  }
+
+  if (preset === "last30") {
+    const start = new Date(now);
+    start.setDate(start.getDate() - 29);
+    return { start: toDateKey(start), end: todayKey };
+  }
+
+  if (preset === "last90") {
+    const start = new Date(now);
+    start.setDate(start.getDate() - 89);
+    return { start: toDateKey(start), end: todayKey };
+  }
+
+  if (preset === "thisMonth") {
+    // Full calendar month, including future check-ins later this month —
+    // not capped at today, so a booking made now for the 25th still counts
+    // toward "this month" revenue.
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return { start: toDateKey(start), end: toDateKey(end) };
+  }
+
+  if (preset === "lastMonth") {
+    const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const end = new Date(now.getFullYear(), now.getMonth(), 0);
+    return { start: toDateKey(start), end: toDateKey(end) };
+  }
+
+  if (preset === "thisYear") {
+    const start = new Date(now.getFullYear(), 0, 1);
+    const end = new Date(now.getFullYear(), 11, 31);
+    return { start: toDateKey(start), end: toDateKey(end) };
+  }
+
+  if (preset === "lastYear") {
+    const start = new Date(now.getFullYear() - 1, 0, 1);
+    const end = new Date(now.getFullYear() - 1, 11, 31);
+    return { start: toDateKey(start), end: toDateKey(end) };
+  }
+
+  // allTime
+  return { start: "2000-01-01", end: "2100-01-01" };
+}
+
+function csvEscape(value: string | number): string {
+  const str = String(value);
+  if (/[",\n]/.test(str)) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+}
+
+function downloadCsv(filename: string, rows: string[][]) {
+  const csv = rows.map((row) => row.map(csvEscape).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+type TabKey = "rooms" | "activities" | "gallery" | "bookings" | "customers" | "revenue" | "settings";
 
 const dayHeaders = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -238,6 +368,11 @@ export default function AdminDashboardClient() {
     booking_confirmed: BLANK_EMAIL_TEMPLATE,
     booking_cancelled: BLANK_EMAIL_TEMPLATE,
   });
+  const [revenuePreset, setRevenuePreset] = useState<RevenuePreset>("last30");
+  const [revenueCustomStart, setRevenueCustomStart] = useState<string>("");
+  const [revenueCustomEnd, setRevenueCustomEnd] = useState<string>("");
+  const [revenueData, setRevenueData] = useState<RevenueData | null>(null);
+  const [revenueLoading, setRevenueLoading] = useState<boolean>(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -399,9 +534,85 @@ export default function AdminDashboardClient() {
 
   const todayKey = useMemo(() => toDateKey(new Date()), []);
 
+  // Stable per-room color, assigned by the room's fixed sort order — never by
+  // its rank in the current period's revenue breakdown, so a bar's color
+  // never shifts when the revenue leaderboard reshuffles between periods.
+  const roomColorMap = useMemo(() => {
+    const map = new Map<string, string>();
+    rooms.forEach((room, index) => {
+      map.set(room.slug, ROOM_BAR_COLORS[index % ROOM_BAR_COLORS.length]!);
+    });
+    return map;
+  }, [rooms]);
+
+  const revenueRange = useMemo(() => {
+    if (revenuePreset === "custom") {
+      return { start: revenueCustomStart, end: revenueCustomEnd };
+    }
+    return computePresetRange(revenuePreset);
+  }, [revenuePreset, revenueCustomStart, revenueCustomEnd]);
+
+  const fetchRevenue = useCallback(async () => {
+    if (!revenueRange.start || !revenueRange.end) {
+      return;
+    }
+
+    setRevenueLoading(true);
+    try {
+      const response = await fetch(
+        `/api/admin/revenue?start=${revenueRange.start}&end=${revenueRange.end}`,
+        { cache: "no-store" },
+      );
+
+      if (!response.ok) {
+        setMessage("Unable to load revenue data.");
+        return;
+      }
+
+      const data = (await response.json()) as RevenueData & { ok: boolean };
+      setRevenueData(data);
+    } catch {
+      setMessage("Unable to load revenue data.");
+    } finally {
+      setRevenueLoading(false);
+    }
+  }, [revenueRange]);
+
   useEffect(() => {
     void fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    if (tab === "revenue") {
+      void fetchRevenue();
+    }
+  }, [tab, fetchRevenue]);
+
+  function exportRevenueCsv() {
+    if (!revenueData) {
+      return;
+    }
+
+    const rows: string[][] = [
+      ["Booking ID", "Reference", "Room", "Check-in", "Check-out", "Guests", "Total (INR)", "Status", "Guest Name", "Email", "Phone", "Created At"],
+      ...revenueData.bookings.map((booking) => [
+        String(booking.id),
+        booking.trace_id,
+        booking.room_slug,
+        booking.checkin,
+        booking.checkout,
+        String(booking.guests),
+        String(booking.total_amount),
+        booking.status,
+        booking.name,
+        booking.email,
+        booking.phone,
+        booking.created_at,
+      ]),
+    ];
+
+    downloadCsv(`revenue-${revenueRange.start}-to-${revenueRange.end}.csv`, rows);
+  }
 
   async function saveRoom(item: RoomItem) {
     const response = await fetch("/api/admin/rooms", {
@@ -668,7 +879,7 @@ export default function AdminDashboardClient() {
       </div>
 
       <div className="mt-6 flex flex-wrap gap-2">
-        {(["rooms", "activities", "gallery", "bookings", "customers", "settings"] as TabKey[]).map((key) => (
+        {(["rooms", "activities", "gallery", "bookings", "customers", "revenue", "settings"] as TabKey[]).map((key) => (
           <button
             key={key}
             onClick={() => setTab(key)}
@@ -1366,6 +1577,171 @@ export default function AdminDashboardClient() {
               </article>
             ))}
           </div>
+        </div>
+      ) : null}
+
+      {tab === "revenue" ? (
+        <div className="mt-6 grid gap-6">
+          <article className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold text-zinc-900">Revenue</h2>
+              <button
+                onClick={exportRevenueCsv}
+                disabled={!revenueData || revenueData.bookings.length === 0}
+                className="rounded-full border border-zinc-300 bg-white px-4 py-2 text-xs font-bold uppercase tracking-wide text-zinc-700 hover:border-zinc-500 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Export CSV
+              </button>
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              {(Object.keys(REVENUE_PRESET_LABELS) as Array<Exclude<RevenuePreset, "custom">>).map((preset) => (
+                <button
+                  key={preset}
+                  onClick={() => setRevenuePreset(preset)}
+                  className={[
+                    "rounded-full px-3 py-1.5 text-xs font-semibold",
+                    revenuePreset === preset
+                      ? "bg-[#c45e2a] text-white"
+                      : "border border-zinc-300 bg-white text-zinc-700",
+                  ].join(" ")}
+                >
+                  {REVENUE_PRESET_LABELS[preset]}
+                </button>
+              ))}
+              <button
+                onClick={() => setRevenuePreset("custom")}
+                className={[
+                  "rounded-full px-3 py-1.5 text-xs font-semibold",
+                  revenuePreset === "custom"
+                    ? "bg-[#c45e2a] text-white"
+                    : "border border-zinc-300 bg-white text-zinc-700",
+                ].join(" ")}
+              >
+                Custom Range
+              </button>
+            </div>
+
+            {revenuePreset === "custom" ? (
+              <div className="mt-3 flex flex-wrap gap-3">
+                <input
+                  type="date"
+                  value={revenueCustomStart}
+                  onChange={(event) => setRevenueCustomStart(event.target.value)}
+                  className="rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+                />
+                <input
+                  type="date"
+                  value={revenueCustomEnd}
+                  onChange={(event) => setRevenueCustomEnd(event.target.value)}
+                  className="rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+                />
+              </div>
+            ) : (
+              <p className="mt-3 text-xs text-zinc-500">
+                {revenueRange.start} to {revenueRange.end}
+              </p>
+            )}
+          </article>
+
+          {revenueLoading ? <p className="text-sm text-zinc-600">Loading revenue…</p> : null}
+
+          {revenueData && !revenueLoading ? (
+            <>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                <article className="rounded-2xl border border-zinc-200 p-4">
+                  <p className="text-xs font-semibold text-zinc-500">Total revenue</p>
+                  <p className="mt-1 text-2xl font-semibold text-[#9e3e12]">
+                    {formatINR(revenueData.totals.totalRevenue)}
+                  </p>
+                </article>
+                <article className="rounded-2xl border border-zinc-200 p-4">
+                  <p className="text-xs font-semibold text-zinc-500">Confirmed revenue</p>
+                  <p className="mt-1 text-2xl font-semibold text-zinc-900">
+                    {formatINR(revenueData.totals.confirmedRevenue)}
+                  </p>
+                </article>
+                <article className="rounded-2xl border border-zinc-200 p-4">
+                  <p className="text-xs font-semibold text-zinc-500">Pending revenue</p>
+                  <p className="mt-1 text-2xl font-semibold text-zinc-900">
+                    {formatINR(revenueData.totals.pendingRevenue)}
+                  </p>
+                </article>
+                <article className="rounded-2xl border border-zinc-200 p-4">
+                  <p className="text-xs font-semibold text-zinc-500">Bookings</p>
+                  <p className="mt-1 text-2xl font-semibold text-zinc-900">{revenueData.totals.totalCount}</p>
+                  <p className="text-xs text-zinc-500">{revenueData.totals.cancelledCount} cancelled (excluded)</p>
+                </article>
+                <article className="rounded-2xl border border-zinc-200 p-4">
+                  <p className="text-xs font-semibold text-zinc-500">Average booking value</p>
+                  <p className="mt-1 text-2xl font-semibold text-zinc-900">
+                    {formatINR(revenueData.totals.averageBookingValue)}
+                  </p>
+                </article>
+              </div>
+
+              <article className="rounded-2xl border border-zinc-200 p-4">
+                <h3 className="text-sm font-semibold text-zinc-900">Revenue by room</h3>
+                {revenueData.byRoom.length === 0 ? (
+                  <p className="mt-2 text-sm text-zinc-600">No bookings in this range.</p>
+                ) : (
+                  <div className="mt-3 grid gap-2">
+                    {revenueData.byRoom.map((room) => {
+                      const share =
+                        revenueData.totals.totalRevenue > 0
+                          ? (room.revenue / revenueData.totals.totalRevenue) * 100
+                          : 0;
+                      const color = roomColorMap.get(room.roomSlug) ?? ROOM_BAR_COLORS[0]!;
+                      return (
+                        <div key={room.roomSlug}>
+                          <div className="flex items-center justify-between text-xs text-zinc-700">
+                            <span className="font-semibold">{room.roomName}</span>
+                            <span style={{ fontVariantNumeric: "tabular-nums" }}>
+                              {formatINR(room.revenue)} · {room.count} {room.count === 1 ? "booking" : "bookings"}
+                            </span>
+                          </div>
+                          <div className="mt-1 h-2 w-full rounded-full bg-zinc-100">
+                            <div
+                              className="h-2 rounded-full"
+                              style={{ width: `${Math.max(share, 2)}%`, backgroundColor: color }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </article>
+
+              <article className="rounded-2xl border border-zinc-200 p-4">
+                <h3 className="text-sm font-semibold text-zinc-900">Bookings in this range</h3>
+                {revenueData.bookings.length === 0 ? (
+                  <p className="mt-2 text-sm text-zinc-600">No bookings in this range.</p>
+                ) : (
+                  <div className="mt-3 grid gap-2">
+                    {revenueData.bookings.map((booking) => (
+                      <div
+                        key={booking.id}
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-2 text-xs text-zinc-700"
+                      >
+                        <span>
+                          {booking.checkin} to {booking.checkout} | {booking.room_slug} | {booking.name}
+                        </span>
+                        <span className="flex items-center gap-2">
+                          <span style={{ fontVariantNumeric: "tabular-nums" }}>
+                            {formatINR(booking.total_amount)}
+                          </span>
+                          <span className={["rounded-full px-2 py-1 font-semibold", statusPillClass(booking.status)].join(" ")}>
+                            {booking.status}
+                          </span>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </article>
+            </>
+          ) : null}
         </div>
       ) : null}
 
