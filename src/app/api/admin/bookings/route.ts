@@ -1,4 +1,5 @@
 import { isAdminRequestAuthorized } from "@/lib/admin-api-auth";
+import { sendBookingStatusEmail } from "@/lib/email";
 import { COLLECTIONS, getDb, nextSequenceId } from "@/lib/firestore";
 import { NextResponse } from "next/server";
 
@@ -19,6 +20,42 @@ type BookingRow = {
   status: string;
   created_at: string;
 };
+
+/** Best-effort: booking status change already succeeded regardless of email outcome. */
+async function notifyStatusChange(booking: BookingRow, status: "confirmed" | "cancelled") {
+  try {
+    const db = getDb();
+    let roomName = booking.room_slug;
+    const roomSnapshot = await db
+      .collection(COLLECTIONS.rooms)
+      .where("slug", "==", booking.room_slug)
+      .limit(1)
+      .get();
+
+    if (!roomSnapshot.empty) {
+      const room = roomSnapshot.docs[0]!.data() as { name?: string };
+      roomName = room.name ?? roomName;
+    }
+
+    await sendBookingStatusEmail(
+      {
+        traceId: booking.trace_id,
+        guestName: booking.name,
+        guestEmail: booking.email,
+        guestPhone: booking.phone,
+        checkin: booking.checkin,
+        checkout: booking.checkout,
+        roomName,
+        guests: booking.guests,
+        totalAmount: booking.total_amount,
+        requests: booking.requests ?? undefined,
+      },
+      status,
+    );
+  } catch {
+    // Swallow — the status update itself already committed successfully.
+  }
+}
 
 export async function GET(request: Request) {
   if (!isAdminRequestAuthorized(request)) {
@@ -47,9 +84,21 @@ export async function PUT(request: Request) {
     return NextResponse.json({ ok: false, error: "Booking not found" }, { status: 404 });
   }
 
+  const previous = snapshot.data() as BookingRow;
   await ref.update({ status: body.status });
   const updated = await ref.get();
-  return NextResponse.json({ ok: true, item: updated.data() });
+  const updatedBooking = updated.data() as BookingRow;
+
+  if (
+    (body.status === "confirmed" || body.status === "cancelled") &&
+    body.status !== previous.status &&
+    updatedBooking.email
+  ) {
+    // Fire-and-forget: don't block the admin's status update on email delivery.
+    void notifyStatusChange(updatedBooking, body.status);
+  }
+
+  return NextResponse.json({ ok: true, item: updatedBooking });
 }
 
 /** Creates an internal "blocked" date range so it appears as unavailable to guests. */

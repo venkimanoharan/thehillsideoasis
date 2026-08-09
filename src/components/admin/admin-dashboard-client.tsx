@@ -65,6 +65,24 @@ type SettingsItem = {
   instagramUrl: string;
 };
 
+type EmailTemplateKey = "booking_received" | "booking_confirmed" | "booking_cancelled";
+
+type EmailTemplate = {
+  subject: string;
+  heading: string;
+  message: string;
+};
+
+const EMAIL_TEMPLATE_LABELS: Record<EmailTemplateKey, string> = {
+  booking_received: "Booking Received (sent to guest on new booking)",
+  booking_confirmed: "Booking Confirmed (sent when you mark a booking confirmed)",
+  booking_cancelled: "Booking Cancelled (sent when you mark a booking cancelled)",
+};
+
+const EMAIL_TEMPLATE_KEYS: EmailTemplateKey[] = ["booking_received", "booking_confirmed", "booking_cancelled"];
+
+const BLANK_EMAIL_TEMPLATE: EmailTemplate = { subject: "", heading: "", message: "" };
+
 type CustomerSummary = {
   email: string;
   name: string;
@@ -215,18 +233,31 @@ export default function AdminDashboardClient() {
   const [blockNote, setBlockNote] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [customerSearch, setCustomerSearch] = useState<string>("");
+  const [emailTemplates, setEmailTemplates] = useState<Record<EmailTemplateKey, EmailTemplate>>({
+    booking_received: BLANK_EMAIL_TEMPLATE,
+    booking_confirmed: BLANK_EMAIL_TEMPLATE,
+    booking_cancelled: BLANK_EMAIL_TEMPLATE,
+  });
 
   const fetchData = useCallback(async () => {
     try {
-      const [roomsRes, activitiesRes, galleryRes, bookingsRes, settingsRes] = await Promise.all([
+      const [roomsRes, activitiesRes, galleryRes, bookingsRes, settingsRes, emailTemplatesRes] = await Promise.all([
         fetch("/api/admin/rooms", { cache: "no-store" }),
         fetch("/api/admin/activities", { cache: "no-store" }),
         fetch("/api/admin/gallery", { cache: "no-store" }),
         fetch("/api/admin/bookings", { cache: "no-store" }),
         fetch("/api/admin/settings", { cache: "no-store" }),
+        fetch("/api/admin/email-templates", { cache: "no-store" }),
       ]);
 
-      if (!roomsRes.ok || !activitiesRes.ok || !galleryRes.ok || !bookingsRes.ok || !settingsRes.ok) {
+      if (
+        !roomsRes.ok ||
+        !activitiesRes.ok ||
+        !galleryRes.ok ||
+        !bookingsRes.ok ||
+        !settingsRes.ok ||
+        !emailTemplatesRes.ok
+      ) {
         throw new Error("Failed to load admin data.");
       }
 
@@ -235,12 +266,16 @@ export default function AdminDashboardClient() {
       const galleryData = (await galleryRes.json()) as { items: GalleryItem[] };
       const bookingsData = (await bookingsRes.json()) as { items: BookingItem[] };
       const settingsData = (await settingsRes.json()) as { settings: SettingsItem };
+      const emailTemplatesData = (await emailTemplatesRes.json()) as {
+        templates: Record<EmailTemplateKey, EmailTemplate>;
+      };
 
       setRooms(roomsData.items);
       setActivities(activitiesData.items);
       setGallery(galleryData.items);
       setBookings(bookingsData.items);
       setSettings(settingsData.settings);
+      setEmailTemplates(emailTemplatesData.templates);
 
       if (!blockRoom && roomsData.items[0]?.slug) {
         setBlockRoom(roomsData.items[0].slug);
@@ -566,6 +601,24 @@ export default function AdminDashboardClient() {
     const data = (await response.json()) as { settings: SettingsItem };
     setSettings(data.settings);
     setMessage("Settings updated.");
+  }
+
+  async function saveEmailTemplate(key: EmailTemplateKey) {
+    const template = emailTemplates[key];
+    const response = await fetch("/api/admin/email-templates", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, ...template }),
+    });
+
+    if (!response.ok) {
+      setMessage("Email template update failed.");
+      return;
+    }
+
+    const data = (await response.json()) as { templates: Record<EmailTemplateKey, EmailTemplate> };
+    setEmailTemplates(data.templates);
+    setMessage("Email template updated.");
   }
 
   async function createAvailabilityBlock() {
@@ -1419,6 +1472,77 @@ export default function AdminDashboardClient() {
             >
               Save Settings
             </button>
+          </article>
+
+          <article className="rounded-2xl border border-zinc-200 p-4">
+            <h2 className="text-lg font-semibold text-zinc-900">Email Templates</h2>
+            <p className="mt-1 text-sm text-zinc-600">
+              Customize the emails guests receive. Available placeholders:{" "}
+              <code className="rounded bg-zinc-100 px-1 py-0.5 text-xs">
+                {"{{guestName}} {{roomName}} {{checkin}} {{checkout}} {{guests}} {{totalAmount}} {{traceId}} {{requests}}"}
+              </code>
+            </p>
+
+            <div className="mt-4 grid gap-4">
+              {EMAIL_TEMPLATE_KEYS.map((key) => {
+                const template = emailTemplates[key];
+                return (
+                  <article key={key} className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+                    <h3 className="text-sm font-semibold text-zinc-900">{EMAIL_TEMPLATE_LABELS[key]}</h3>
+
+                    <label className="mt-3 grid gap-1 text-xs font-semibold text-zinc-600">
+                      Subject
+                      <input
+                        value={template.subject}
+                        onChange={(event) =>
+                          setEmailTemplates((prev) => ({
+                            ...prev,
+                            [key]: { ...prev[key], subject: event.target.value },
+                          }))
+                        }
+                        className="rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-900"
+                      />
+                    </label>
+
+                    <label className="mt-3 grid gap-1 text-xs font-semibold text-zinc-600">
+                      Heading
+                      <input
+                        value={template.heading}
+                        onChange={(event) =>
+                          setEmailTemplates((prev) => ({
+                            ...prev,
+                            [key]: { ...prev[key], heading: event.target.value },
+                          }))
+                        }
+                        className="rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-900"
+                      />
+                    </label>
+
+                    <label className="mt-3 grid gap-1 text-xs font-semibold text-zinc-600">
+                      Message
+                      <textarea
+                        value={template.message}
+                        onChange={(event) =>
+                          setEmailTemplates((prev) => ({
+                            ...prev,
+                            [key]: { ...prev[key], message: event.target.value },
+                          }))
+                        }
+                        rows={3}
+                        className="rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-900"
+                      />
+                    </label>
+
+                    <button
+                      onClick={() => saveEmailTemplate(key)}
+                      className="mt-3 rounded-xl bg-[#c45e2a] px-4 py-2 text-sm font-bold text-white hover:bg-[#9e3e12]"
+                    >
+                      Save Template
+                    </button>
+                  </article>
+                );
+              })}
+            </div>
           </article>
         </div>
       ) : null}

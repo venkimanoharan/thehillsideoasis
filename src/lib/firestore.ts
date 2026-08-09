@@ -69,6 +69,7 @@ export const COLLECTIONS = {
   bookings: "bookings",
   counters: "counters",
   loginAttempts: "login_attempts",
+  emailTemplates: "email_templates",
 } as const;
 
 export const SITE_SETTINGS_DOC_ID = "singleton";

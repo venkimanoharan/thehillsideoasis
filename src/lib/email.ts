@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import { getSiteSettings } from "@/lib/site-settings";
+import { getEmailTemplates, renderTemplateString } from "@/lib/email-templates";
 
 export type BookingEmailData = {
   traceId: string;
@@ -36,8 +37,22 @@ function formatCurrency(amount: number): string {
   return `INR ${amount.toLocaleString("en-IN")}`;
 }
 
-function guestConfirmationHtml(
+function templateVars(data: BookingEmailData): Record<string, string> {
+  return {
+    guestName: data.guestName,
+    roomName: data.roomName,
+    checkin: data.checkin,
+    checkout: data.checkout,
+    guests: String(data.guests),
+    totalAmount: formatCurrency(data.totalAmount),
+    traceId: data.traceId.toUpperCase().slice(0, 8),
+    requests: data.requests ?? "",
+  };
+}
+
+function guestEmailHtml(
   data: BookingEmailData,
+  rendered: { heading: string; message: string },
   settings: {
     contactPhoneDisplay: string;
     contactPhoneHref: string;
@@ -51,7 +66,7 @@ function guestConfirmationHtml(
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Booking Request Received</title>
+  <title>${rendered.heading}</title>
 </head>
 <body style="margin:0;padding:0;background:#f6f2ea;font-family:'Helvetica Neue',Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f2ea;padding:32px 16px;">
@@ -71,9 +86,9 @@ function guestConfirmationHtml(
           <tr>
             <td style="padding:40px;">
 
-              <h2 style="margin:0 0 8px;font-size:22px;color:#0b6b53;">Booking Request Received</h2>
+              <h2 style="margin:0 0 8px;font-size:22px;color:#0b6b53;">${rendered.heading}</h2>
               <p style="margin:0 0 24px;color:#4b5563;line-height:1.7;">
-                Dear ${data.guestName}, thank you for choosing The HillSide Oasis. We have received your booking request and will confirm your stay within <strong>24 hours</strong>.
+                ${rendered.message}
               </p>
 
               <!-- Booking details card -->
@@ -117,7 +132,7 @@ function guestConfirmationHtml(
               </table>
 
               <p style="margin:0 0 24px;color:#4b5563;line-height:1.7;font-size:14px;">
-                Our team will reach out to you at <strong>${data.guestEmail}</strong> or <strong>${data.guestPhone}</strong> to confirm the reservation and arrange any further details.
+                Our team will reach out to you at <strong>${data.guestEmail}</strong> or <strong>${data.guestPhone}</strong> if we need any further details.
               </p>
 
               <!-- CTA -->
@@ -145,14 +160,14 @@ function guestConfirmationHtml(
   `.trim();
 }
 
-function adminNotificationHtml(data: BookingEmailData): string {
+function adminNotificationHtml(data: BookingEmailData, headline: string): string {
   return `
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8" /><title>New Booking</title></head>
+<head><meta charset="UTF-8" /><title>${headline}</title></head>
 <body style="font-family:Arial,sans-serif;background:#f4f4f4;padding:24px;">
   <div style="background:#fff;border-radius:8px;padding:24px;max-width:520px;">
-    <h2 style="color:#084c3c;margin:0 0 16px;">New Booking Request</h2>
+    <h2 style="color:#084c3c;margin:0 0 16px;">${headline}</h2>
     <table cellpadding="6" cellspacing="0" width="100%">
       <tr><td style="color:#666;">Reference</td><td><strong>${data.traceId}</strong></td></tr>
       <tr><td style="color:#666;">Guest</td><td><strong>${data.guestName}</strong></td></tr>
@@ -180,14 +195,21 @@ export async function sendBookingEmails(data: BookingEmailData): Promise<void> {
 
   const from = process.env.SMTP_FROM ?? process.env.SMTP_USER ?? "noreply@thehillsideoasis.com";
   const notifyEmail = process.env.NOTIFY_EMAIL;
-  const settings = await getSiteSettings();
+  const [settings, templates] = await Promise.all([getSiteSettings(), getEmailTemplates()]);
+  const vars = templateVars(data);
+  const template = templates.booking_received;
+  const rendered = {
+    subject: renderTemplateString(template.subject, vars),
+    heading: renderTemplateString(template.heading, vars),
+    message: renderTemplateString(template.message, vars),
+  };
 
   const sends: Promise<unknown>[] = [
     transporter.sendMail({
       from: `"The HillSide Oasis" <${from}>`,
       to: data.guestEmail,
-      subject: `Booking Request Received – ${data.roomName} | The HillSide Oasis`,
-      html: guestConfirmationHtml(data, settings),
+      subject: rendered.subject,
+      html: guestEmailHtml(data, rendered, settings),
     }),
   ];
 
@@ -197,10 +219,38 @@ export async function sendBookingEmails(data: BookingEmailData): Promise<void> {
         from: `"HillSide Oasis Bookings" <${from}>`,
         to: notifyEmail,
         subject: `New Booking: ${data.guestName} · ${data.checkin} to ${data.checkout}`,
-        html: adminNotificationHtml(data),
+        html: adminNotificationHtml(data, "New Booking Request"),
       }),
     );
   }
 
   await Promise.allSettled(sends);
+}
+
+/** Sends the guest-facing confirmation/cancellation email when admin changes a booking's status. */
+export async function sendBookingStatusEmail(
+  data: BookingEmailData,
+  status: "confirmed" | "cancelled",
+): Promise<void> {
+  const transporter = createTransporter();
+  if (!transporter) {
+    return;
+  }
+
+  const from = process.env.SMTP_FROM ?? process.env.SMTP_USER ?? "noreply@thehillsideoasis.com";
+  const [settings, templates] = await Promise.all([getSiteSettings(), getEmailTemplates()]);
+  const vars = templateVars(data);
+  const template = status === "confirmed" ? templates.booking_confirmed : templates.booking_cancelled;
+  const rendered = {
+    subject: renderTemplateString(template.subject, vars),
+    heading: renderTemplateString(template.heading, vars),
+    message: renderTemplateString(template.message, vars),
+  };
+
+  await transporter.sendMail({
+    from: `"The HillSide Oasis" <${from}>`,
+    to: data.guestEmail,
+    subject: rendered.subject,
+    html: guestEmailHtml(data, rendered, settings),
+  });
 }
