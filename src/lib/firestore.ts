@@ -51,7 +51,14 @@ export function getDb(): Firestore {
   if (!cachedApp) {
     cachedApp = getFirebaseApp();
   }
-  return getFirestore(cachedApp);
+
+  // The Admin SDK targets the "(default)" database unless told otherwise.
+  // Set this when the Firestore database was created with a custom database
+  // ID (the GCP Console prompts for one; `gcloud firestore databases create`
+  // without --database defaults to "(default)"). Leave unset locally against
+  // the emulator, which only supports "(default)".
+  const databaseId = process.env.FIRESTORE_DATABASE_ID;
+  return databaseId ? getFirestore(cachedApp, databaseId) : getFirestore(cachedApp);
 }
 
 export const COLLECTIONS = {
