@@ -222,7 +222,35 @@ function downloadCsv(filename: string, rows: string[][]) {
   URL.revokeObjectURL(url);
 }
 
-type TabKey = "rooms" | "activities" | "gallery" | "bookings" | "customers" | "revenue" | "settings";
+type ExpenseItem = {
+  id: number;
+  date: string;
+  category: string;
+  amount: number;
+  vendor: string | null;
+  description: string;
+  created_at: string;
+};
+
+const EXPENSE_CATEGORIES = [
+  "Staff Wages",
+  "Utilities",
+  "Maintenance & Repairs",
+  "Supplies & Groceries",
+  "Marketing",
+  "Taxes & Fees",
+  "Other",
+];
+
+type TabKey =
+  | "rooms"
+  | "activities"
+  | "gallery"
+  | "bookings"
+  | "customers"
+  | "revenue"
+  | "expenses"
+  | "settings";
 
 const dayHeaders = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -373,6 +401,18 @@ export default function AdminDashboardClient() {
   const [revenueCustomEnd, setRevenueCustomEnd] = useState<string>("");
   const [revenueData, setRevenueData] = useState<RevenueData | null>(null);
   const [revenueLoading, setRevenueLoading] = useState<boolean>(false);
+  const [revenueExpenseTotal, setRevenueExpenseTotal] = useState<number | null>(null);
+  const [expensePreset, setExpensePreset] = useState<RevenuePreset>("last30");
+  const [expenseCustomStart, setExpenseCustomStart] = useState<string>("");
+  const [expenseCustomEnd, setExpenseCustomEnd] = useState<string>("");
+  const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
+  const [expenseTotal, setExpenseTotal] = useState<number>(0);
+  const [expenseLoading, setExpenseLoading] = useState<boolean>(false);
+  const [newExpenseDate, setNewExpenseDate] = useState<string>(toDateKey(new Date()));
+  const [newExpenseCategory, setNewExpenseCategory] = useState<string>(EXPENSE_CATEGORIES[0]!);
+  const [newExpenseAmount, setNewExpenseAmount] = useState<string>("");
+  const [newExpenseVendor, setNewExpenseVendor] = useState<string>("");
+  const [newExpenseDescription, setNewExpenseDescription] = useState<string>("");
 
   const fetchData = useCallback(async () => {
     try {
@@ -559,24 +599,69 @@ export default function AdminDashboardClient() {
 
     setRevenueLoading(true);
     try {
-      const response = await fetch(
-        `/api/admin/revenue?start=${revenueRange.start}&end=${revenueRange.end}`,
-        { cache: "no-store" },
-      );
+      const [revenueRes, expensesRes] = await Promise.all([
+        fetch(`/api/admin/revenue?start=${revenueRange.start}&end=${revenueRange.end}`, {
+          cache: "no-store",
+        }),
+        fetch(`/api/admin/expenses?start=${revenueRange.start}&end=${revenueRange.end}`, {
+          cache: "no-store",
+        }),
+      ]);
 
-      if (!response.ok) {
+      if (!revenueRes.ok) {
         setMessage("Unable to load revenue data.");
         return;
       }
 
-      const data = (await response.json()) as RevenueData & { ok: boolean };
+      const data = (await revenueRes.json()) as RevenueData & { ok: boolean };
       setRevenueData(data);
+
+      if (expensesRes.ok) {
+        const expensesData = (await expensesRes.json()) as { total: number };
+        setRevenueExpenseTotal(expensesData.total);
+      } else {
+        setRevenueExpenseTotal(null);
+      }
     } catch {
       setMessage("Unable to load revenue data.");
     } finally {
       setRevenueLoading(false);
     }
   }, [revenueRange]);
+
+  const expenseRange = useMemo(() => {
+    if (expensePreset === "custom") {
+      return { start: expenseCustomStart, end: expenseCustomEnd };
+    }
+    return computePresetRange(expensePreset);
+  }, [expensePreset, expenseCustomStart, expenseCustomEnd]);
+
+  const fetchExpenses = useCallback(async () => {
+    if (!expenseRange.start || !expenseRange.end) {
+      return;
+    }
+
+    setExpenseLoading(true);
+    try {
+      const response = await fetch(
+        `/api/admin/expenses?start=${expenseRange.start}&end=${expenseRange.end}`,
+        { cache: "no-store" },
+      );
+
+      if (!response.ok) {
+        setMessage("Unable to load expenses.");
+        return;
+      }
+
+      const data = (await response.json()) as { total: number; items: ExpenseItem[] };
+      setExpenses(data.items);
+      setExpenseTotal(data.total);
+    } catch {
+      setMessage("Unable to load expenses.");
+    } finally {
+      setExpenseLoading(false);
+    }
+  }, [expenseRange]);
 
   useEffect(() => {
     void fetchData();
@@ -587,6 +672,12 @@ export default function AdminDashboardClient() {
       void fetchRevenue();
     }
   }, [tab, fetchRevenue]);
+
+  useEffect(() => {
+    if (tab === "expenses") {
+      void fetchExpenses();
+    }
+  }, [tab, fetchExpenses]);
 
   function exportRevenueCsv() {
     if (!revenueData) {
@@ -612,6 +703,92 @@ export default function AdminDashboardClient() {
     ];
 
     downloadCsv(`revenue-${revenueRange.start}-to-${revenueRange.end}.csv`, rows);
+  }
+
+  async function createExpense() {
+    const amount = Number(newExpenseAmount);
+    if (!newExpenseDate || !newExpenseCategory || !Number.isFinite(amount) || amount <= 0) {
+      setMessage("Date, category, and a positive amount are required.");
+      return;
+    }
+
+    const response = await fetch("/api/admin/expenses", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        date: newExpenseDate,
+        category: newExpenseCategory,
+        amount,
+        vendor: newExpenseVendor,
+        description: newExpenseDescription,
+      }),
+    });
+
+    if (!response.ok) {
+      setMessage("Failed to add expense.");
+      return;
+    }
+
+    setMessage("Expense added.");
+    setNewExpenseAmount("");
+    setNewExpenseVendor("");
+    setNewExpenseDescription("");
+    await fetchExpenses();
+  }
+
+  async function saveExpense(item: ExpenseItem) {
+    const response = await fetch("/api/admin/expenses", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(item),
+    });
+
+    if (!response.ok) {
+      setMessage("Expense update failed.");
+      return;
+    }
+
+    setMessage("Expense updated.");
+    await fetchExpenses();
+  }
+
+  async function deleteExpense(id: number) {
+    if (!window.confirm("Delete this expense? This cannot be undone.")) {
+      return;
+    }
+
+    const response = await fetch("/api/admin/expenses", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+
+    if (!response.ok) {
+      setMessage("Failed to delete expense.");
+      return;
+    }
+
+    setMessage("Expense deleted.");
+    await fetchExpenses();
+  }
+
+  function exportExpensesCsv() {
+    if (expenses.length === 0) {
+      return;
+    }
+
+    const rows: string[][] = [
+      ["Date", "Category", "Amount (INR)", "Vendor", "Description"],
+      ...expenses.map((expense) => [
+        expense.date,
+        expense.category,
+        String(expense.amount),
+        expense.vendor ?? "",
+        expense.description,
+      ]),
+    ];
+
+    downloadCsv(`expenses-${expenseRange.start}-to-${expenseRange.end}.csv`, rows);
   }
 
   async function saveRoom(item: RoomItem) {
@@ -879,7 +1056,7 @@ export default function AdminDashboardClient() {
       </div>
 
       <div className="mt-6 flex flex-wrap gap-2">
-        {(["rooms", "activities", "gallery", "bookings", "customers", "revenue", "settings"] as TabKey[]).map((key) => (
+        {(["rooms", "activities", "gallery", "bookings", "customers", "revenue", "expenses", "settings"] as TabKey[]).map((key) => (
           <button
             key={key}
             onClick={() => setTab(key)}
@@ -1648,7 +1825,7 @@ export default function AdminDashboardClient() {
 
           {revenueData && !revenueLoading ? (
             <>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 <article className="rounded-2xl border border-zinc-200 p-4">
                   <p className="text-xs font-semibold text-zinc-500">Total revenue</p>
                   <p className="mt-1 text-2xl font-semibold text-[#9e3e12]">
@@ -1678,6 +1855,23 @@ export default function AdminDashboardClient() {
                     {formatINR(revenueData.totals.averageBookingValue)}
                   </p>
                 </article>
+                {revenueExpenseTotal !== null ? (
+                  <article className="rounded-2xl border border-zinc-200 p-4">
+                    <p className="text-xs font-semibold text-zinc-500">
+                      Net (revenue − {formatINR(revenueExpenseTotal)} expenses)
+                    </p>
+                    <p
+                      className={[
+                        "mt-1 text-2xl font-semibold",
+                        revenueData.totals.totalRevenue - revenueExpenseTotal >= 0
+                          ? "text-zinc-900"
+                          : "text-rose-700",
+                      ].join(" ")}
+                    >
+                      {formatINR(revenueData.totals.totalRevenue - revenueExpenseTotal)}
+                    </p>
+                  </article>
+                ) : null}
               </div>
 
               <article className="rounded-2xl border border-zinc-200 p-4">
@@ -1742,6 +1936,236 @@ export default function AdminDashboardClient() {
               </article>
             </>
           ) : null}
+        </div>
+      ) : null}
+
+      {tab === "expenses" ? (
+        <div className="mt-6 grid gap-6">
+          <article className="rounded-2xl border border-orange-200 bg-orange-50 p-4">
+            <h2 className="text-lg font-semibold text-[#9e3e12]">Add Expense</h2>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              <input
+                type="date"
+                value={newExpenseDate}
+                onChange={(event) => setNewExpenseDate(event.target.value)}
+                className="rounded-xl border border-zinc-300 px-3 py-2 text-sm"
+              />
+              <select
+                value={newExpenseCategory}
+                onChange={(event) => setNewExpenseCategory(event.target.value)}
+                className="rounded-xl border border-zinc-300 px-3 py-2 text-sm"
+              >
+                {EXPENSE_CATEGORIES.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="number"
+                min={0}
+                value={newExpenseAmount}
+                onChange={(event) => setNewExpenseAmount(event.target.value)}
+                placeholder="Amount (INR)"
+                className="rounded-xl border border-zinc-300 px-3 py-2 text-sm"
+              />
+              <input
+                value={newExpenseVendor}
+                onChange={(event) => setNewExpenseVendor(event.target.value)}
+                placeholder="Vendor (optional)"
+                className="rounded-xl border border-zinc-300 px-3 py-2 text-sm"
+              />
+              <button
+                onClick={createExpense}
+                className="rounded-xl bg-[#c45e2a] px-4 py-2 text-sm font-bold text-white hover:bg-[#9e3e12]"
+              >
+                Add Expense
+              </button>
+            </div>
+            <input
+              value={newExpenseDescription}
+              onChange={(event) => setNewExpenseDescription(event.target.value)}
+              placeholder="Description (optional)"
+              className="mt-3 w-full rounded-xl border border-zinc-300 px-3 py-2 text-sm"
+            />
+          </article>
+
+          <article className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold text-zinc-900">Expenses</h2>
+              <button
+                onClick={exportExpensesCsv}
+                disabled={expenses.length === 0}
+                className="rounded-full border border-zinc-300 bg-white px-4 py-2 text-xs font-bold uppercase tracking-wide text-zinc-700 hover:border-zinc-500 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Export CSV
+              </button>
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              {(Object.keys(REVENUE_PRESET_LABELS) as Array<Exclude<RevenuePreset, "custom">>).map((preset) => (
+                <button
+                  key={preset}
+                  onClick={() => setExpensePreset(preset)}
+                  className={[
+                    "rounded-full px-3 py-1.5 text-xs font-semibold",
+                    expensePreset === preset
+                      ? "bg-[#c45e2a] text-white"
+                      : "border border-zinc-300 bg-white text-zinc-700",
+                  ].join(" ")}
+                >
+                  {REVENUE_PRESET_LABELS[preset]}
+                </button>
+              ))}
+              <button
+                onClick={() => setExpensePreset("custom")}
+                className={[
+                  "rounded-full px-3 py-1.5 text-xs font-semibold",
+                  expensePreset === "custom"
+                    ? "bg-[#c45e2a] text-white"
+                    : "border border-zinc-300 bg-white text-zinc-700",
+                ].join(" ")}
+              >
+                Custom Range
+              </button>
+            </div>
+
+            {expensePreset === "custom" ? (
+              <div className="mt-3 flex flex-wrap gap-3">
+                <input
+                  type="date"
+                  value={expenseCustomStart}
+                  onChange={(event) => setExpenseCustomStart(event.target.value)}
+                  className="rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+                />
+                <input
+                  type="date"
+                  value={expenseCustomEnd}
+                  onChange={(event) => setExpenseCustomEnd(event.target.value)}
+                  className="rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+                />
+              </div>
+            ) : (
+              <p className="mt-3 text-xs text-zinc-500">
+                {expenseRange.start} to {expenseRange.end}
+              </p>
+            )}
+
+            <p className="mt-4 text-2xl font-semibold text-[#9e3e12]">{formatINR(expenseTotal)}</p>
+            <p className="text-xs text-zinc-500">Total for this range</p>
+          </article>
+
+          {expenseLoading ? <p className="text-sm text-zinc-600">Loading expenses…</p> : null}
+
+          {!expenseLoading && expenses.length === 0 ? (
+            <p className="text-sm text-zinc-600">No expenses logged in this range.</p>
+          ) : null}
+
+          <div className="grid gap-4">
+            {expenses.map((expense) => (
+              <article key={expense.id} className="rounded-2xl border border-zinc-200 p-4">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                    Date
+                    <input
+                      type="date"
+                      value={expense.date}
+                      onChange={(event) =>
+                        setExpenses((prev) =>
+                          prev.map((entry) =>
+                            entry.id === expense.id ? { ...entry, date: event.target.value } : entry,
+                          ),
+                        )
+                      }
+                      className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                    />
+                  </label>
+                  <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                    Category
+                    <select
+                      value={expense.category}
+                      onChange={(event) =>
+                        setExpenses((prev) =>
+                          prev.map((entry) =>
+                            entry.id === expense.id ? { ...entry, category: event.target.value } : entry,
+                          ),
+                        )
+                      }
+                      className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                    >
+                      {EXPENSE_CATEGORIES.map((category) => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                    Amount (INR)
+                    <input
+                      type="number"
+                      min={0}
+                      value={expense.amount}
+                      onChange={(event) =>
+                        setExpenses((prev) =>
+                          prev.map((entry) =>
+                            entry.id === expense.id
+                              ? { ...entry, amount: Number(event.target.value) || 0 }
+                              : entry,
+                          ),
+                        )
+                      }
+                      className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                    />
+                  </label>
+                  <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                    Vendor
+                    <input
+                      value={expense.vendor ?? ""}
+                      onChange={(event) =>
+                        setExpenses((prev) =>
+                          prev.map((entry) =>
+                            entry.id === expense.id ? { ...entry, vendor: event.target.value } : entry,
+                          ),
+                        )
+                      }
+                      className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                    />
+                  </label>
+                </div>
+
+                <label className="mt-3 grid gap-1 text-xs font-semibold text-zinc-600">
+                  Description
+                  <input
+                    value={expense.description}
+                    onChange={(event) =>
+                      setExpenses((prev) =>
+                        prev.map((entry) =>
+                          entry.id === expense.id ? { ...entry, description: event.target.value } : entry,
+                        ),
+                      )
+                    }
+                    className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                  />
+                </label>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    onClick={() => saveExpense(expense)}
+                    className="rounded-xl bg-[#c45e2a] px-4 py-2 text-sm font-bold text-white hover:bg-[#9e3e12]"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => deleteExpense(expense.id)}
+                    className="rounded-xl border border-rose-300 px-4 py-2 text-sm font-bold text-rose-700 hover:bg-rose-50"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
       ) : null}
 
