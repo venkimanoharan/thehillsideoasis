@@ -32,11 +32,19 @@ function getFirebaseApp(): App {
     return existing[0]!;
   }
 
-  const projectId =
-    process.env.FIREBASE_PROJECT_ID ?? process.env.GOOGLE_CLOUD_PROJECT ?? "hillsideoasis";
+  const projectId = process.env.FIREBASE_PROJECT_ID ?? process.env.GOOGLE_CLOUD_PROJECT;
   const credential = buildCredential();
 
-  return initializeApp(credential ? { credential, projectId } : { projectId });
+  // Omit unset fields entirely rather than passing a guessed default — on
+  // Cloud Run this lets the Admin SDK auto-discover both the credential and
+  // the project ID from the attached service account via the metadata
+  // server. A hardcoded fallback here would silently point at the wrong
+  // project in any environment that didn't set these explicitly.
+  const options: { credential?: ReturnType<typeof cert>; projectId?: string } = {};
+  if (credential) options.credential = credential;
+  if (projectId) options.projectId = projectId;
+
+  return initializeApp(options);
 }
 
 export function getDb(): Firestore {
