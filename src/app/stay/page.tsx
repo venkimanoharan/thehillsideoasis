@@ -4,9 +4,6 @@ import Link from "next/link";
 import LogoMark from "@/components/logo-mark";
 import { getRooms } from "@/lib/content";
 
-// Removed force-dynamic to allow SSG/ISR for better performance and SEO
-
-
 export const metadata: Metadata = {
   title: "Luxury Cottages and Farm Stay in Pollachi",
   description:

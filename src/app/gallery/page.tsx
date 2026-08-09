@@ -3,9 +3,6 @@ import Image from "next/image";
 import LogoMark from "@/components/logo-mark";
 import { getGalleryItems } from "@/lib/content";
 
-// Removed force-dynamic to allow SSG/ISR for better performance and SEO
-
-
 export const metadata: Metadata = {
   title: "Resort Gallery | Luxury Farm Stay in Pollachi",
   description:
