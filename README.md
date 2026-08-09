@@ -9,7 +9,8 @@ Website and booking platform for The HillSide Oasis, built on Next.js App Router
 - Firebase Admin SDK on the server only; no client-side Firestore access
 - bcrypt-hashed admin credentials, HMAC-signed sessions, Firestore-backed login rate limiting
 - Nonce-based Content-Security-Policy and standard security headers via `src/middleware.ts`
-- GitHub Actions: PR verification (lint/typecheck/build/audit) + CodeQL + Dependabot, main-branch deploy to Cloud Run
+- GitHub Actions: PR/main verification (lint/typecheck/build/audit) + CodeQL + Dependabot
+- Deploys via a Cloud Build trigger configured in the GCP Console (Cloud Run's native GitHub integration) — builds and deploys automatically on every push to `main`, independent of GitHub Actions
 
 ## Routes
 
@@ -75,7 +76,9 @@ See `.env.example` for the full list. Required in production:
 
 If any of these three are missing in production, the login route refuses all logins (fails closed) instead of falling back to defaults.
 
-Firestore credentials are **not** set as environment variables in production — the Cloud Run service uses a dedicated service account (see step 3 below) and the Admin SDK picks it up automatically via Application Default Credentials.
+Firestore credentials are **not** set as environment variables in production — the Cloud Run service uses a dedicated service account (see step 2 below) and the Admin SDK picks it up automatically via Application Default Credentials.
+
+One more that's easy to miss: if your Firestore database was created with a custom **Database ID** instead of `(default)` — the GCP Console's "Create Database" flow prompts for one and doesn't default to `(default)`, unlike `gcloud firestore databases create` — set `FIRESTORE_DATABASE_ID` to that value. Without it, every Firestore call fails with `NOT_FOUND` even though the project ID and credentials are correct. (This is a real production incident we hit and fixed — see git history around the `FIRESTORE_DATABASE_ID` addition if you want the full story.)
 
 ## Production Build
 
@@ -143,72 +146,25 @@ gcloud secrets add-iam-policy-binding admin-password-hash \
   --role="roles/secretmanager.secretAccessor"
 ```
 
-### 4) Set up Workload Identity Federation for GitHub Actions
+### 4) Set up continuous deployment via Cloud Build
 
-Lets GitHub Actions deploy without a long-lived service account key.
+This is the path actually in use for this project — Cloud Run's native GitHub integration, configured once in the Console rather than via `gcloud`:
 
-```bash
-REPO="your-github-org/thehillsideoasis"
+1. Cloud Run → select (or create) the `thehillsideoasis-web` service → **Set up Continuous Deployment**.
+2. Connect the GitHub repository (one-time GitHub App authorization).
+3. Build configuration: **Branch** `^main$`, **Build Type** Dockerfile, **Source location** `/Dockerfile` (the repo root Dockerfile).
+4. Save. Every push to `main` now triggers a Cloud Build build and Cloud Run deploy automatically — no service account keys or GitHub secrets involved, since Cloud Build authenticates via its own GCP-side connection.
 
-gcloud iam service-accounts create thehillsideoasis-deployer \
-  --display-name="GitHub Actions deployer"
+After the trigger is created, set the runtime configuration on the Cloud Run service itself (Edit & Deploy New Revision):
 
-gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-  --member="serviceAccount:thehillsideoasis-deployer@${PROJECT_ID}.iam.gserviceaccount.com" \
-  --role="roles/run.admin"
+- **Security** tab → service account → `thehillsideoasis-run@${PROJECT_ID}.iam.gserviceaccount.com` (created in step 2)
+- **Variables & Secrets** tab → add `ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH` (or reference the Secret Manager secret from step 3), `ADMIN_SESSION_SECRET` (ditto), and `FIRESTORE_DATABASE_ID` if your Firestore database uses a custom database ID (see the Environment Variables section above)
 
-gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-  --member="serviceAccount:thehillsideoasis-deployer@${PROJECT_ID}.iam.gserviceaccount.com" \
-  --role="roles/artifactregistry.writer"
+Deploy that revision once to apply the settings; the Cloud Build trigger keeps it current on every subsequent push.
 
-gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-  --member="serviceAccount:thehillsideoasis-deployer@${PROJECT_ID}.iam.gserviceaccount.com" \
-  --role="roles/iam.serviceAccountUser"
+*(A GitHub Actions-based deploy path using Workload Identity Federation is also possible if you'd rather not depend on Console configuration, but isn't what's wired up today — `.github/workflows/deploy.yml` only runs verification, not deployment.)*
 
-gcloud iam workload-identity-pools create github-pool \
-  --location=global \
-  --display-name="GitHub Actions Pool"
-
-gcloud iam workload-identity-pools providers create-oidc github-provider \
-  --location=global \
-  --workload-identity-pool=github-pool \
-  --display-name="GitHub OIDC" \
-  --attribute-mapping="google.subject=assertion.sub,attribute.repository=assertion.repository" \
-  --attribute-condition="assertion.repository=='${REPO}'" \
-  --issuer-uri="https://token.actions.githubusercontent.com"
-
-gcloud iam service-accounts add-iam-policy-binding \
-  "thehillsideoasis-deployer@${PROJECT_ID}.iam.gserviceaccount.com" \
-  --role="roles/iam.workloadIdentityUser" \
-  --member="principalSet://iam.googleapis.com/projects/$(gcloud projects describe "$PROJECT_ID" --format='value(projectNumber)')/locations/global/workloadIdentityPools/github-pool/attribute.repository/${REPO}"
-```
-
-Add these as GitHub repository secrets (Settings → Secrets and variables → Actions):
-
-| Secret | Value |
-|---|---|
-| `GCP_PROJECT_ID` | `$PROJECT_ID` |
-| `GCP_REGION` | `$REGION` |
-| `GCP_WORKLOAD_IDENTITY_PROVIDER` | `projects/<project-number>/locations/global/workloadIdentityPools/github-pool/providers/github-provider` |
-| `GCP_SERVICE_ACCOUNT` | `thehillsideoasis-deployer@<project-id>.iam.gserviceaccount.com` |
-| `ARTIFACT_REGISTRY_REPO` | `thehillsideoasis-web` |
-| `CLOUD_RUN_SERVICE` | `thehillsideoasis-web` |
-
-### 5) First deploy (manual, before CI takes over)
-
-```bash
-gcloud run deploy thehillsideoasis-web \
-  --source . \
-  --region="$REGION" \
-  --service-account="thehillsideoasis-run@${PROJECT_ID}.iam.gserviceaccount.com" \
-  --set-env-vars="ADMIN_USERNAME=admin,NODE_ENV=production" \
-  --set-secrets="ADMIN_PASSWORD_HASH=admin-password-hash:latest,ADMIN_SESSION_SECRET=admin-session-secret:latest" \
-  --allow-unauthenticated
-```
-
-After this, every push to `main` runs `.github/workflows/deploy.yml`, which builds the image, pushes it to Artifact Registry, and redeploys the Cloud Run service — authenticated via Workload Identity Federation, no service account keys stored anywhere.
-
-### 6) Seed production Firestore
+### 5) Seed production Firestore
 
 ```bash
 gcloud iam service-accounts keys create /tmp/seed-key.json \
@@ -231,8 +187,8 @@ npx firebase deploy --only firestore:rules --project "$PROJECT_ID"
 
 ## CI/CD
 
-- **Pull requests**: `.github/workflows/deploy.yml` runs lint, typecheck, build, and a dependency audit.
-- **Push to `main`**: builds the Docker image, pushes to Artifact Registry, deploys to Cloud Run.
+- **Pull requests and pushes to `main`** (`.github/workflows/deploy.yml`): lint, typecheck, build, and a dependency audit. This is verification only — it does not deploy.
+- **Deployment**: a Cloud Build trigger configured in the Console (Cloud Run → `thehillsideoasis-web` → Triggers) watches `main` and builds/deploys on every push, independent of GitHub Actions. See "Deploy to GCP" above.
 - **CodeQL** (`.github/workflows/codeql.yml`): security scanning on push/PR and weekly.
 - **Dependabot** (`.github/dependabot.yml`): weekly updates for npm, GitHub Actions, and the Dockerfile base image.
 
