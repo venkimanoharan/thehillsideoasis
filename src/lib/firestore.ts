@@ -71,6 +71,8 @@ export const COLLECTIONS = {
   loginAttempts: "login_attempts",
   emailTemplates: "email_templates",
   expenses: "expenses",
+  staff: "staff",
+  shifts: "shifts",
 } as const;
 
 export const SITE_SETTINGS_DOC_ID = "singleton";

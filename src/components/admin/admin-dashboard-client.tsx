@@ -242,6 +242,53 @@ const EXPENSE_CATEGORIES = [
   "Other",
 ];
 
+type StaffItem = {
+  id: number;
+  name: string;
+  role: string;
+  phone: string;
+  is_active: boolean;
+  created_at: string;
+};
+
+const STAFF_ROLES = ["Manager", "Housekeeping", "Cook", "Caretaker", "Security", "Gardener", "Other"];
+
+type ShiftItem = {
+  id: number;
+  staff_id: number;
+  staff_name: string;
+  date: string;
+  start_time: string;
+  end_time: string;
+  role: string;
+  notes: string;
+  status: string;
+  created_at: string;
+};
+
+const SHIFT_STATUSES = ["scheduled", "completed", "missed"];
+
+function shiftHours(shift: ShiftItem): number {
+  const [startH, startM] = shift.start_time.split(":").map(Number);
+  const [endH, endM] = shift.end_time.split(":").map(Number);
+  if (
+    !Number.isFinite(startH) ||
+    !Number.isFinite(startM) ||
+    !Number.isFinite(endH) ||
+    !Number.isFinite(endM)
+  ) {
+    return 0;
+  }
+
+  const startMinutes = startH * 60 + startM;
+  let endMinutes = endH * 60 + endM;
+  if (endMinutes <= startMinutes) {
+    endMinutes += 24 * 60; // shift crosses midnight
+  }
+
+  return Math.round(((endMinutes - startMinutes) / 60) * 10) / 10;
+}
+
 type TabKey =
   | "rooms"
   | "activities"
@@ -250,6 +297,7 @@ type TabKey =
   | "customers"
   | "revenue"
   | "expenses"
+  | "workers"
   | "settings";
 
 const dayHeaders = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -413,17 +461,34 @@ export default function AdminDashboardClient() {
   const [newExpenseAmount, setNewExpenseAmount] = useState<string>("");
   const [newExpenseVendor, setNewExpenseVendor] = useState<string>("");
   const [newExpenseDescription, setNewExpenseDescription] = useState<string>("");
+  const [staff, setStaff] = useState<StaffItem[]>([]);
+  const [newStaffName, setNewStaffName] = useState<string>("");
+  const [newStaffRole, setNewStaffRole] = useState<string>(STAFF_ROLES[0]!);
+  const [newStaffPhone, setNewStaffPhone] = useState<string>("");
+  const [shiftPreset, setShiftPreset] = useState<RevenuePreset>("last7");
+  const [shiftCustomStart, setShiftCustomStart] = useState<string>("");
+  const [shiftCustomEnd, setShiftCustomEnd] = useState<string>("");
+  const [shifts, setShifts] = useState<ShiftItem[]>([]);
+  const [shiftLoading, setShiftLoading] = useState<boolean>(false);
+  const [newShiftStaffId, setNewShiftStaffId] = useState<string>("");
+  const [newShiftDate, setNewShiftDate] = useState<string>(toDateKey(new Date()));
+  const [newShiftStart, setNewShiftStart] = useState<string>("09:00");
+  const [newShiftEnd, setNewShiftEnd] = useState<string>("17:00");
+  const [newShiftRole, setNewShiftRole] = useState<string>("");
+  const [newShiftNotes, setNewShiftNotes] = useState<string>("");
 
   const fetchData = useCallback(async () => {
     try {
-      const [roomsRes, activitiesRes, galleryRes, bookingsRes, settingsRes, emailTemplatesRes] = await Promise.all([
-        fetch("/api/admin/rooms", { cache: "no-store" }),
-        fetch("/api/admin/activities", { cache: "no-store" }),
-        fetch("/api/admin/gallery", { cache: "no-store" }),
-        fetch("/api/admin/bookings", { cache: "no-store" }),
-        fetch("/api/admin/settings", { cache: "no-store" }),
-        fetch("/api/admin/email-templates", { cache: "no-store" }),
-      ]);
+      const [roomsRes, activitiesRes, galleryRes, bookingsRes, settingsRes, emailTemplatesRes, staffRes] =
+        await Promise.all([
+          fetch("/api/admin/rooms", { cache: "no-store" }),
+          fetch("/api/admin/activities", { cache: "no-store" }),
+          fetch("/api/admin/gallery", { cache: "no-store" }),
+          fetch("/api/admin/bookings", { cache: "no-store" }),
+          fetch("/api/admin/settings", { cache: "no-store" }),
+          fetch("/api/admin/email-templates", { cache: "no-store" }),
+          fetch("/api/admin/staff", { cache: "no-store" }),
+        ]);
 
       if (
         !roomsRes.ok ||
@@ -431,7 +496,8 @@ export default function AdminDashboardClient() {
         !galleryRes.ok ||
         !bookingsRes.ok ||
         !settingsRes.ok ||
-        !emailTemplatesRes.ok
+        !emailTemplatesRes.ok ||
+        !staffRes.ok
       ) {
         throw new Error("Failed to load admin data.");
       }
@@ -444,6 +510,7 @@ export default function AdminDashboardClient() {
       const emailTemplatesData = (await emailTemplatesRes.json()) as {
         templates: Record<EmailTemplateKey, EmailTemplate>;
       };
+      const staffData = (await staffRes.json()) as { items: StaffItem[] };
 
       setRooms(roomsData.items);
       setActivities(activitiesData.items);
@@ -451,6 +518,11 @@ export default function AdminDashboardClient() {
       setBookings(bookingsData.items);
       setSettings(settingsData.settings);
       setEmailTemplates(emailTemplatesData.templates);
+      setStaff(staffData.items);
+
+      if (!newShiftStaffId && staffData.items[0]?.id) {
+        setNewShiftStaffId(String(staffData.items[0].id));
+      }
 
       if (!blockRoom && roomsData.items[0]?.slug) {
         setBlockRoom(roomsData.items[0].slug);
@@ -465,7 +537,7 @@ export default function AdminDashboardClient() {
       setMessage("Unable to load admin data.");
       return false;
     }
-  }, [blockRoom, calendarRoom]);
+  }, [blockRoom, calendarRoom, newShiftStaffId]);
 
   const monthLabel = useMemo(() => {
     return new Intl.DateTimeFormat("en-US", {
@@ -679,6 +751,52 @@ export default function AdminDashboardClient() {
     }
   }, [tab, fetchExpenses]);
 
+  const shiftRange = useMemo(() => {
+    if (shiftPreset === "custom") {
+      return { start: shiftCustomStart, end: shiftCustomEnd };
+    }
+    return computePresetRange(shiftPreset);
+  }, [shiftPreset, shiftCustomStart, shiftCustomEnd]);
+
+  const fetchShifts = useCallback(async () => {
+    if (!shiftRange.start || !shiftRange.end) {
+      return;
+    }
+
+    setShiftLoading(true);
+    try {
+      const response = await fetch(`/api/admin/shifts?start=${shiftRange.start}&end=${shiftRange.end}`, {
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        setMessage("Unable to load shifts.");
+        return;
+      }
+
+      const data = (await response.json()) as { items: ShiftItem[] };
+      setShifts(data.items);
+    } catch {
+      setMessage("Unable to load shifts.");
+    } finally {
+      setShiftLoading(false);
+    }
+  }, [shiftRange]);
+
+  useEffect(() => {
+    if (tab === "workers") {
+      void fetchShifts();
+    }
+  }, [tab, fetchShifts]);
+
+  const shiftHoursByStaff = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const shift of shifts) {
+      map.set(shift.staff_name, (map.get(shift.staff_name) ?? 0) + shiftHours(shift));
+    }
+    return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
+  }, [shifts]);
+
   function exportRevenueCsv() {
     if (!revenueData) {
       return;
@@ -789,6 +907,136 @@ export default function AdminDashboardClient() {
     ];
 
     downloadCsv(`expenses-${expenseRange.start}-to-${expenseRange.end}.csv`, rows);
+  }
+
+  async function createStaff() {
+    if (!newStaffName.trim()) {
+      setMessage("Staff name is required.");
+      return;
+    }
+
+    const response = await fetch("/api/admin/staff", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: newStaffName, role: newStaffRole, phone: newStaffPhone }),
+    });
+
+    if (!response.ok) {
+      setMessage("Failed to add staff member.");
+      return;
+    }
+
+    setMessage("Staff member added.");
+    setNewStaffName("");
+    setNewStaffPhone("");
+    await fetchData();
+  }
+
+  async function saveStaff(item: StaffItem) {
+    const response = await fetch("/api/admin/staff", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(item),
+    });
+
+    if (!response.ok) {
+      setMessage("Staff update failed.");
+      return;
+    }
+
+    setMessage("Staff member updated.");
+    await fetchData();
+  }
+
+  async function deleteStaff(id: number) {
+    if (!window.confirm("Remove this staff member? Past shifts keep their record; this only removes them from the roster.")) {
+      return;
+    }
+
+    const response = await fetch("/api/admin/staff", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+
+    if (!response.ok) {
+      setMessage("Failed to remove staff member.");
+      return;
+    }
+
+    setMessage("Staff member removed.");
+    await fetchData();
+  }
+
+  async function createShift() {
+    const staffId = Number(newShiftStaffId);
+    const staffMember = staff.find((entry) => entry.id === staffId);
+
+    if (!staffMember || !newShiftDate || !newShiftStart || !newShiftEnd) {
+      setMessage("Staff member, date, start time, and end time are required.");
+      return;
+    }
+
+    const response = await fetch("/api/admin/shifts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        staff_id: staffId,
+        staff_name: staffMember.name,
+        date: newShiftDate,
+        start_time: newShiftStart,
+        end_time: newShiftEnd,
+        role: newShiftRole || staffMember.role,
+        notes: newShiftNotes,
+        status: "scheduled",
+      }),
+    });
+
+    if (!response.ok) {
+      setMessage("Failed to add shift.");
+      return;
+    }
+
+    setMessage("Shift added.");
+    setNewShiftRole("");
+    setNewShiftNotes("");
+    await fetchShifts();
+  }
+
+  async function saveShift(item: ShiftItem) {
+    const response = await fetch("/api/admin/shifts", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(item),
+    });
+
+    if (!response.ok) {
+      setMessage("Shift update failed.");
+      return;
+    }
+
+    setMessage("Shift updated.");
+    await fetchShifts();
+  }
+
+  async function deleteShift(id: number) {
+    if (!window.confirm("Delete this shift? This cannot be undone.")) {
+      return;
+    }
+
+    const response = await fetch("/api/admin/shifts", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+
+    if (!response.ok) {
+      setMessage("Failed to delete shift.");
+      return;
+    }
+
+    setMessage("Shift deleted.");
+    await fetchShifts();
   }
 
   async function saveRoom(item: RoomItem) {
@@ -1056,7 +1304,7 @@ export default function AdminDashboardClient() {
       </div>
 
       <div className="mt-6 flex flex-wrap gap-2">
-        {(["rooms", "activities", "gallery", "bookings", "customers", "revenue", "expenses", "settings"] as TabKey[]).map((key) => (
+        {(["rooms", "activities", "gallery", "bookings", "customers", "revenue", "expenses", "workers", "settings"] as TabKey[]).map((key) => (
           <button
             key={key}
             onClick={() => setTab(key)}
@@ -2158,6 +2406,384 @@ export default function AdminDashboardClient() {
                   </button>
                   <button
                     onClick={() => deleteExpense(expense.id)}
+                    className="rounded-xl border border-rose-300 px-4 py-2 text-sm font-bold text-rose-700 hover:bg-rose-50"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {tab === "workers" ? (
+        <div className="mt-6 grid gap-6">
+          <article className="rounded-2xl border border-orange-200 bg-orange-50 p-4">
+            <h2 className="text-lg font-semibold text-[#9e3e12]">Add Staff Member</h2>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <input
+                value={newStaffName}
+                onChange={(event) => setNewStaffName(event.target.value)}
+                placeholder="Name"
+                className="rounded-xl border border-zinc-300 px-3 py-2 text-sm"
+              />
+              <select
+                value={newStaffRole}
+                onChange={(event) => setNewStaffRole(event.target.value)}
+                className="rounded-xl border border-zinc-300 px-3 py-2 text-sm"
+              >
+                {STAFF_ROLES.map((role) => (
+                  <option key={role} value={role}>
+                    {role}
+                  </option>
+                ))}
+              </select>
+              <input
+                value={newStaffPhone}
+                onChange={(event) => setNewStaffPhone(event.target.value)}
+                placeholder="Phone (optional)"
+                className="rounded-xl border border-zinc-300 px-3 py-2 text-sm"
+              />
+              <button
+                onClick={createStaff}
+                className="rounded-xl bg-[#c45e2a] px-4 py-2 text-sm font-bold text-white hover:bg-[#9e3e12]"
+              >
+                Add Staff Member
+              </button>
+            </div>
+          </article>
+
+          <article className="rounded-2xl border border-zinc-200 p-4">
+            <h2 className="text-lg font-semibold text-zinc-900">Staff Roster</h2>
+            {staff.length === 0 ? (
+              <p className="mt-2 text-sm text-zinc-600">No staff added yet.</p>
+            ) : (
+              <div className="mt-3 grid gap-3">
+                {staff.map((member) => (
+                  <div
+                    key={member.id}
+                    className="grid gap-3 rounded-xl border border-zinc-100 bg-zinc-50 p-3 sm:grid-cols-2 lg:grid-cols-5 lg:items-center"
+                  >
+                    <input
+                      value={member.name}
+                      onChange={(event) =>
+                        setStaff((prev) =>
+                          prev.map((entry) =>
+                            entry.id === member.id ? { ...entry, name: event.target.value } : entry,
+                          ),
+                        )
+                      }
+                      className="rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+                    />
+                    <select
+                      value={member.role}
+                      onChange={(event) =>
+                        setStaff((prev) =>
+                          prev.map((entry) =>
+                            entry.id === member.id ? { ...entry, role: event.target.value } : entry,
+                          ),
+                        )
+                      }
+                      className="rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+                    >
+                      {STAFF_ROLES.map((role) => (
+                        <option key={role} value={role}>
+                          {role}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      value={member.phone}
+                      onChange={(event) =>
+                        setStaff((prev) =>
+                          prev.map((entry) =>
+                            entry.id === member.id ? { ...entry, phone: event.target.value } : entry,
+                          ),
+                        )
+                      }
+                      placeholder="Phone"
+                      className="rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+                    />
+                    <label className="flex items-center gap-2 text-xs font-semibold text-zinc-600">
+                      <input
+                        type="checkbox"
+                        checked={member.is_active}
+                        onChange={(event) =>
+                          setStaff((prev) =>
+                            prev.map((entry) =>
+                              entry.id === member.id ? { ...entry, is_active: event.target.checked } : entry,
+                            ),
+                          )
+                        }
+                      />
+                      Active
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => saveStaff(member)}
+                        className="rounded-xl bg-[#c45e2a] px-3 py-2 text-xs font-bold text-white hover:bg-[#9e3e12]"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => deleteStaff(member.id)}
+                        className="rounded-xl border border-rose-300 px-3 py-2 text-xs font-bold text-rose-700 hover:bg-rose-50"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </article>
+
+          <article className="rounded-2xl border border-orange-200 bg-orange-50 p-4">
+            <h2 className="text-lg font-semibold text-[#9e3e12]">Log a Shift</h2>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              <select
+                value={newShiftStaffId}
+                onChange={(event) => setNewShiftStaffId(event.target.value)}
+                className="rounded-xl border border-zinc-300 px-3 py-2 text-sm"
+              >
+                <option value="">Select staff…</option>
+                {staff
+                  .filter((member) => member.is_active)
+                  .map((member) => (
+                    <option key={member.id} value={member.id}>
+                      {member.name}
+                    </option>
+                  ))}
+              </select>
+              <input
+                type="date"
+                value={newShiftDate}
+                onChange={(event) => setNewShiftDate(event.target.value)}
+                className="rounded-xl border border-zinc-300 px-3 py-2 text-sm"
+              />
+              <input
+                type="time"
+                value={newShiftStart}
+                onChange={(event) => setNewShiftStart(event.target.value)}
+                className="rounded-xl border border-zinc-300 px-3 py-2 text-sm"
+              />
+              <input
+                type="time"
+                value={newShiftEnd}
+                onChange={(event) => setNewShiftEnd(event.target.value)}
+                className="rounded-xl border border-zinc-300 px-3 py-2 text-sm"
+              />
+              <button
+                onClick={createShift}
+                className="rounded-xl bg-[#c45e2a] px-4 py-2 text-sm font-bold text-white hover:bg-[#9e3e12]"
+              >
+                Add Shift
+              </button>
+            </div>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <input
+                value={newShiftRole}
+                onChange={(event) => setNewShiftRole(event.target.value)}
+                placeholder="Task/role for this shift (defaults to their role)"
+                className="rounded-xl border border-zinc-300 px-3 py-2 text-sm"
+              />
+              <input
+                value={newShiftNotes}
+                onChange={(event) => setNewShiftNotes(event.target.value)}
+                placeholder="Notes (optional)"
+                className="rounded-xl border border-zinc-300 px-3 py-2 text-sm"
+              />
+            </div>
+          </article>
+
+          <article className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+            <h2 className="text-lg font-semibold text-zinc-900">Shifts</h2>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {(Object.keys(REVENUE_PRESET_LABELS) as Array<Exclude<RevenuePreset, "custom">>).map((preset) => (
+                <button
+                  key={preset}
+                  onClick={() => setShiftPreset(preset)}
+                  className={[
+                    "rounded-full px-3 py-1.5 text-xs font-semibold",
+                    shiftPreset === preset
+                      ? "bg-[#c45e2a] text-white"
+                      : "border border-zinc-300 bg-white text-zinc-700",
+                  ].join(" ")}
+                >
+                  {REVENUE_PRESET_LABELS[preset]}
+                </button>
+              ))}
+              <button
+                onClick={() => setShiftPreset("custom")}
+                className={[
+                  "rounded-full px-3 py-1.5 text-xs font-semibold",
+                  shiftPreset === "custom"
+                    ? "bg-[#c45e2a] text-white"
+                    : "border border-zinc-300 bg-white text-zinc-700",
+                ].join(" ")}
+              >
+                Custom Range
+              </button>
+            </div>
+
+            {shiftPreset === "custom" ? (
+              <div className="mt-3 flex flex-wrap gap-3">
+                <input
+                  type="date"
+                  value={shiftCustomStart}
+                  onChange={(event) => setShiftCustomStart(event.target.value)}
+                  className="rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+                />
+                <input
+                  type="date"
+                  value={shiftCustomEnd}
+                  onChange={(event) => setShiftCustomEnd(event.target.value)}
+                  className="rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+                />
+              </div>
+            ) : (
+              <p className="mt-3 text-xs text-zinc-500">
+                {shiftRange.start} to {shiftRange.end}
+              </p>
+            )}
+
+            {shiftHoursByStaff.length > 0 ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {shiftHoursByStaff.map(([name, hours]) => (
+                  <span
+                    key={name}
+                    className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-semibold text-zinc-700"
+                  >
+                    {name}: {hours}h
+                  </span>
+                ))}
+              </div>
+            ) : null}
+          </article>
+
+          {shiftLoading ? <p className="text-sm text-zinc-600">Loading shifts…</p> : null}
+
+          {!shiftLoading && shifts.length === 0 ? (
+            <p className="text-sm text-zinc-600">No shifts logged in this range.</p>
+          ) : null}
+
+          <div className="grid gap-4">
+            {shifts.map((shift) => (
+              <article key={shift.id} className="rounded-2xl border border-zinc-200 p-4">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                    Staff
+                    <input value={shift.staff_name} disabled className="rounded-xl border border-zinc-200 bg-zinc-100 px-3 py-2 text-sm font-normal text-zinc-600" />
+                  </label>
+                  <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                    Date
+                    <input
+                      type="date"
+                      value={shift.date}
+                      onChange={(event) =>
+                        setShifts((prev) =>
+                          prev.map((entry) =>
+                            entry.id === shift.id ? { ...entry, date: event.target.value } : entry,
+                          ),
+                        )
+                      }
+                      className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                    />
+                  </label>
+                  <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                    Start
+                    <input
+                      type="time"
+                      value={shift.start_time}
+                      onChange={(event) =>
+                        setShifts((prev) =>
+                          prev.map((entry) =>
+                            entry.id === shift.id ? { ...entry, start_time: event.target.value } : entry,
+                          ),
+                        )
+                      }
+                      className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                    />
+                  </label>
+                  <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                    End
+                    <input
+                      type="time"
+                      value={shift.end_time}
+                      onChange={(event) =>
+                        setShifts((prev) =>
+                          prev.map((entry) =>
+                            entry.id === shift.id ? { ...entry, end_time: event.target.value } : entry,
+                          ),
+                        )
+                      }
+                      className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                    />
+                  </label>
+                </div>
+
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                    Task/role
+                    <input
+                      value={shift.role}
+                      onChange={(event) =>
+                        setShifts((prev) =>
+                          prev.map((entry) =>
+                            entry.id === shift.id ? { ...entry, role: event.target.value } : entry,
+                          ),
+                        )
+                      }
+                      className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                    />
+                  </label>
+                  <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                    Status
+                    <select
+                      value={shift.status}
+                      onChange={(event) =>
+                        setShifts((prev) =>
+                          prev.map((entry) =>
+                            entry.id === shift.id ? { ...entry, status: event.target.value } : entry,
+                          ),
+                        )
+                      }
+                      className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                    >
+                      {SHIFT_STATUSES.map((status) => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                    Notes
+                    <input
+                      value={shift.notes}
+                      onChange={(event) =>
+                        setShifts((prev) =>
+                          prev.map((entry) =>
+                            entry.id === shift.id ? { ...entry, notes: event.target.value } : entry,
+                          ),
+                        )
+                      }
+                      className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                    />
+                  </label>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className="text-xs font-semibold text-zinc-500">{shiftHours(shift)} hours</span>
+                  <button
+                    onClick={() => saveShift(shift)}
+                    className="rounded-xl bg-[#c45e2a] px-4 py-2 text-sm font-bold text-white hover:bg-[#9e3e12]"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => deleteShift(shift.id)}
                     className="rounded-xl border border-rose-300 px-4 py-2 text-sm font-bold text-rose-700 hover:bg-rose-50"
                   >
                     Delete
