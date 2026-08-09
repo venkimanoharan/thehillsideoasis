@@ -30,7 +30,21 @@ export default function AdminLoginForm() {
       });
 
       if (!response.ok) {
-        setError("Invalid username or password.");
+        if (response.status === 429) {
+          const retryAfterSeconds = Number(response.headers.get("Retry-After"));
+          const minutes = Number.isFinite(retryAfterSeconds)
+            ? Math.max(1, Math.ceil(retryAfterSeconds / 60))
+            : null;
+          setError(
+            minutes
+              ? `Too many login attempts. Try again in about ${minutes} minute${minutes === 1 ? "" : "s"}.`
+              : "Too many login attempts. Please try again later.",
+          );
+          return;
+        }
+
+        const data = (await response.json().catch(() => null)) as { error?: string } | null;
+        setError(data?.error ?? "Unable to sign in right now.");
         return;
       }
 
