@@ -4,7 +4,6 @@
     "slug": "sky-suite",
     "name": "Sky Suite",
     "image_url": "/images/1.jpeg",
-    "alt_text": "Sky Suite luxury cottage with panoramic Western Ghats mountain view at The HillSide Oasis Pollachi",
     "description": "Our most romantic accommodation featuring a modern suite with a panoramic deck overlooking the Western Ghats. Watch the sunrise with your morning coffee and stargaze from your private terrace in the evenings.",
     "amenities": [
       "Private panoramic deck",
@@ -15,11 +14,8 @@
       "Free WiFi"
     ],
     "capacity": "2 Guests",
-    "guests": 2,
     "bed": "King Bed",
-    "bed_type": "King Bed",
     "view_label": "Mountain View",
-    "view": "Mountain View",
     "price_per_night": 4500,
     "sort_order": 1,
     "is_active": true
@@ -29,7 +25,6 @@
     "slug": "hillside-suite",
     "name": "Hillside Suite",
     "image_url": "/images/2.jpeg",
-    "alt_text": "Hillside Suite accommodation with swimming pool and garden view at HillSide Oasis farm resort Pollachi",
     "description": "A spacious suite with a large living area and private garden. Perfect for extended stays with breathtaking farm views and direct access to our walking trails. Ideal for guests who want extra space to relax and unwind.",
     "amenities": [
       "Separate living area",
@@ -41,11 +36,8 @@
       "Free WiFi"
     ],
     "capacity": "3 Guests",
-    "guests": 3,
     "bed": "Queen Bed",
-    "bed_type": "Queen Bed",
     "view_label": "Garden View",
-    "view": "Garden View",
     "price_per_night": 5200,
     "sort_order": 2,
     "is_active": true

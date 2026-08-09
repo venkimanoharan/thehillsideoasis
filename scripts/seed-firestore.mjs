@@ -11,7 +11,11 @@ import path from "node:path";
 import { cert, initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 
-const projectId = process.env.FIREBASE_PROJECT_ID ?? process.env.GOOGLE_CLOUD_PROJECT ?? "hillsideoasis";
+const projectId = process.env.FIREBASE_PROJECT_ID ?? process.env.GOOGLE_CLOUD_PROJECT;
+if (!projectId) {
+  console.error("Set FIREBASE_PROJECT_ID (or GOOGLE_CLOUD_PROJECT) before running this script.");
+  process.exit(1);
+}
 const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
 
 const app = initializeApp(
