@@ -80,6 +80,40 @@ Firestore credentials are **not** set as environment variables in production —
 
 One more that's easy to miss: if your Firestore database was created with a custom **Database ID** instead of `(default)` — the GCP Console's "Create Database" flow prompts for one and doesn't default to `(default)`, unlike `gcloud firestore databases create` — set `FIRESTORE_DATABASE_ID` to that value. Without it, every Firestore call fails with `NOT_FOUND` even though the project ID and credentials are correct. (This is a real production incident we hit and fixed — see git history around the `FIRESTORE_DATABASE_ID` addition if you want the full story.)
 
+## Data retention
+
+`/api/admin/purge-bookings` (POST) permanently deletes bookings whose checkout date is more than 10 years in the past. It's not on the interactive admin session — it authenticates via a shared secret (`PURGE_API_SECRET`) in the `x-purge-secret` header, so it fails closed (401) if that env var isn't set. Meant to be called by Cloud Scheduler on a monthly cron, not from the admin UI.
+
+Preview what would be deleted without deleting anything:
+
+```bash
+curl -X POST "https://<your-cloud-run-url>/api/admin/purge-bookings?dryRun=true" \
+  -H "x-purge-secret: $PURGE_API_SECRET"
+```
+
+### One-time setup (Cloud Shell)
+
+```bash
+# 1. Generate a secret and add it to Cloud Run (Variables & Secrets tab, or:)
+PURGE_SECRET=$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
+gcloud run services update thehillsideoasis-web --region=us-central1 \
+  --set-env-vars="PURGE_API_SECRET=${PURGE_SECRET}"
+
+# 2. Enable Cloud Scheduler (needs an App Engine app in the project for its region)
+gcloud services enable cloudscheduler.googleapis.com
+gcloud app create --region=us-central 2>/dev/null || true
+
+# 3. Create the monthly job (1st of each month, 3am IST)
+RUN_URL=$(gcloud run services describe thehillsideoasis-web --region=us-central1 --format='value(status.url)')
+gcloud scheduler jobs create http purge-old-bookings \
+  --location=us-central1 \
+  --schedule="0 3 1 * *" \
+  --time-zone="Asia/Kolkata" \
+  --uri="${RUN_URL}/api/admin/purge-bookings" \
+  --http-method=POST \
+  --headers="x-purge-secret=${PURGE_SECRET}"
+```
+
 ## Tests
 
 Regression coverage for `/api/booking` — this endpoint has broken in production three separate times (undefined request fields, wrong Firestore project, wrong Firestore database ID), always in ways mocked-Firestore unit tests wouldn't have caught. The tests run against a real Firestore emulator instance instead:
