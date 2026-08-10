@@ -1,6 +1,11 @@
 import type { MetadataRoute } from "next";
 import { getJournalPosts } from "@/lib/journal";
 
+// Reads Firestore, so it can't be statically generated at build time —
+// CI's build step has no Firestore credentials available (only the
+// booking-regression-test step starts an emulator).
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://thehillsideoasis.com";
   const now = new Date();
