@@ -141,6 +141,7 @@ export default async function Home() {
                 fill
                 priority
                 fetchPriority="high"
+                quality={45}
                 sizes="(min-width: 1024px) 55vw, 100vw"
                 className="object-cover"
               />
@@ -257,6 +258,7 @@ export default async function Home() {
                   src="/images/12.jpeg"
                   alt=""
                   fill
+                  quality={45}
                   sizes="(min-width: 1024px) 45vw, 100vw"
                   className="object-cover"
                 />
