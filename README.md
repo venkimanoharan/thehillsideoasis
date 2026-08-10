@@ -80,6 +80,22 @@ Firestore credentials are **not** set as environment variables in production —
 
 One more that's easy to miss: if your Firestore database was created with a custom **Database ID** instead of `(default)` — the GCP Console's "Create Database" flow prompts for one and doesn't default to `(default)`, unlike `gcloud firestore databases create` — set `FIRESTORE_DATABASE_ID` to that value. Without it, every Firestore call fails with `NOT_FOUND` even though the project ID and credentials are correct. (This is a real production incident we hit and fixed — see git history around the `FIRESTORE_DATABASE_ID` addition if you want the full story.)
 
+## Tests
+
+Regression coverage for `/api/booking` — this endpoint has broken in production three separate times (undefined request fields, wrong Firestore project, wrong Firestore database ID), always in ways mocked-Firestore unit tests wouldn't have caught. The tests run against a real Firestore emulator instance instead:
+
+```bash
+npm test
+```
+
+This spins up a throwaway Firestore emulator via `firebase emulators:exec`, runs the Vitest suite in `tests/`, and tears the emulator down afterward — no manual setup needed. It also runs in CI (`.github/workflows/deploy.yml`).
+
+If you already have `npm run emulators` running in another terminal, you can run the suite directly against it instead:
+
+```bash
+npm run test:watch
+```
+
 ## Production Build
 
 ```bash
@@ -187,7 +203,7 @@ npx firebase deploy --only firestore:rules --project "$PROJECT_ID"
 
 ## CI/CD
 
-- **Pull requests and pushes to `main`** (`.github/workflows/deploy.yml`): lint, typecheck, build, and a dependency audit. This is verification only — it does not deploy.
+- **Pull requests and pushes to `main`** (`.github/workflows/deploy.yml`): lint, typecheck, build, booking API regression tests (against the Firestore emulator), and a dependency audit. This is verification only — it does not deploy.
 - **Deployment**: a Cloud Build trigger configured in the Console (Cloud Run → `thehillsideoasis-web` → Triggers) watches `main` and builds/deploys on every push, independent of GitHub Actions. See "Deploy to GCP" above.
 - **CodeQL** (`.github/workflows/codeql.yml`): security scanning on push/PR and weekly.
 - **Dependabot** (`.github/dependabot.yml`): weekly updates for npm, GitHub Actions, and the Dockerfile base image.

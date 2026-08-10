@@ -37,6 +37,15 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Set up JDK (Firestore emulator)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Booking API regression tests
+        run: npm test
+
       - name: Dependency audit
         run: npm audit --audit-level=high
         continue-on-error: true
