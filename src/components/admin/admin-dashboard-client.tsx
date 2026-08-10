@@ -37,6 +37,18 @@ type GalleryItem = {
   is_active: boolean;
 };
 
+type JournalPostItem = {
+  id: number;
+  slug: string;
+  title: string;
+  excerpt: string;
+  cover_image_url: string;
+  body: string;
+  seo_description: string;
+  published_at: string;
+  is_published: boolean;
+};
+
 type BookingItem = {
   id: number;
   trace_id: string;
@@ -298,6 +310,7 @@ type TabKey =
   | "revenue"
   | "expenses"
   | "workers"
+  | "journal"
   | "settings";
 
 const dayHeaders = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -414,11 +427,23 @@ const BLANK_GALLERY: Omit<GalleryItem, "id"> = {
   is_active: true,
 };
 
+const BLANK_JOURNAL: Omit<JournalPostItem, "id"> = {
+  slug: "",
+  title: "",
+  excerpt: "",
+  cover_image_url: "",
+  body: "",
+  seo_description: "",
+  published_at: new Date().toISOString().slice(0, 10),
+  is_published: true,
+};
+
 export default function AdminDashboardClient() {
   const [tab, setTab] = useState<TabKey>("rooms");
   const [rooms, setRooms] = useState<RoomItem[]>([]);
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
+  const [journalPosts, setJournalPosts] = useState<JournalPostItem[]>([]);
   const [bookings, setBookings] = useState<BookingItem[]>([]);
   const [settings, setSettings] = useState<SettingsItem>({
     contactPhoneDisplay: "",
@@ -479,7 +504,7 @@ export default function AdminDashboardClient() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [roomsRes, activitiesRes, galleryRes, bookingsRes, settingsRes, emailTemplatesRes, staffRes] =
+      const [roomsRes, activitiesRes, galleryRes, bookingsRes, settingsRes, emailTemplatesRes, staffRes, journalRes] =
         await Promise.all([
           fetch("/api/admin/rooms", { cache: "no-store" }),
           fetch("/api/admin/activities", { cache: "no-store" }),
@@ -488,6 +513,7 @@ export default function AdminDashboardClient() {
           fetch("/api/admin/settings", { cache: "no-store" }),
           fetch("/api/admin/email-templates", { cache: "no-store" }),
           fetch("/api/admin/staff", { cache: "no-store" }),
+          fetch("/api/admin/journal", { cache: "no-store" }),
         ]);
 
       if (
@@ -497,7 +523,8 @@ export default function AdminDashboardClient() {
         !bookingsRes.ok ||
         !settingsRes.ok ||
         !emailTemplatesRes.ok ||
-        !staffRes.ok
+        !staffRes.ok ||
+        !journalRes.ok
       ) {
         throw new Error("Failed to load admin data.");
       }
@@ -511,6 +538,7 @@ export default function AdminDashboardClient() {
         templates: Record<EmailTemplateKey, EmailTemplate>;
       };
       const staffData = (await staffRes.json()) as { items: StaffItem[] };
+      const journalData = (await journalRes.json()) as { items: JournalPostItem[] };
 
       setRooms(roomsData.items);
       setActivities(activitiesData.items);
@@ -519,6 +547,7 @@ export default function AdminDashboardClient() {
       setSettings(settingsData.settings);
       setEmailTemplates(emailTemplatesData.templates);
       setStaff(staffData.items);
+      setJournalPosts(journalData.items);
 
       if (!newShiftStaffId && staffData.items[0]?.id) {
         setNewShiftStaffId(String(staffData.items[0].id));
@@ -1199,6 +1228,59 @@ export default function AdminDashboardClient() {
     await fetchData();
   }
 
+  async function saveJournalPost(item: JournalPostItem) {
+    const response = await fetch("/api/admin/journal", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(item),
+    });
+
+    if (!response.ok) {
+      const data = (await response.json().catch(() => null)) as { error?: string } | null;
+      setMessage(data?.error ?? "Journal post update failed.");
+      return;
+    }
+
+    setMessage("Journal post updated.");
+    await fetchData();
+  }
+
+  async function createJournalPost() {
+    const response = await fetch("/api/admin/journal", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(BLANK_JOURNAL),
+    });
+
+    if (!response.ok) {
+      setMessage("Failed to create journal post.");
+      return;
+    }
+
+    setMessage("Journal post created — fill in the details below and save.");
+    await fetchData();
+  }
+
+  async function deleteJournalPost(id: number) {
+    if (!window.confirm("Delete this journal post? This cannot be undone.")) {
+      return;
+    }
+
+    const response = await fetch("/api/admin/journal", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+
+    if (!response.ok) {
+      setMessage("Failed to delete journal post.");
+      return;
+    }
+
+    setMessage("Journal post deleted.");
+    await fetchData();
+  }
+
   async function saveBookingStatus(item: BookingItem, status: string) {
     const response = await fetch("/api/admin/bookings", {
       method: "PUT",
@@ -1304,7 +1386,7 @@ export default function AdminDashboardClient() {
       </div>
 
       <div className="mt-6 flex flex-wrap gap-2">
-        {(["rooms", "activities", "gallery", "bookings", "customers", "revenue", "expenses", "workers", "settings"] as TabKey[]).map((key) => (
+        {(["rooms", "activities", "gallery", "bookings", "customers", "revenue", "expenses", "workers", "journal", "settings"] as TabKey[]).map((key) => (
           <button
             key={key}
             onClick={() => setTab(key)}
@@ -1773,6 +1855,174 @@ export default function AdminDashboardClient() {
                 >
                   Delete Image
                 </button>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : null}
+
+      {tab === "journal" ? (
+        <div className="mt-6 grid gap-4">
+          <button
+            onClick={createJournalPost}
+            className="w-fit rounded-xl border border-dashed border-[#c45e2a] px-4 py-2 text-sm font-bold text-[#9e3e12] hover:bg-orange-50"
+          >
+            + Add New Post
+          </button>
+
+          {journalPosts.map((item) => (
+            <article key={item.id} className="rounded-2xl border border-zinc-200 p-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                  Title
+                  <input
+                    value={item.title}
+                    onChange={(event) =>
+                      setJournalPosts((prev) =>
+                        prev.map((entry) =>
+                          entry.id === item.id ? { ...entry, title: event.target.value } : entry,
+                        ),
+                      )
+                    }
+                    className="w-full rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                  />
+                </label>
+                <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                  Slug (used in the URL: /journal/…)
+                  <input
+                    value={item.slug}
+                    onChange={(event) =>
+                      setJournalPosts((prev) =>
+                        prev.map((entry) =>
+                          entry.id === item.id ? { ...entry, slug: event.target.value } : entry,
+                        ),
+                      )
+                    }
+                    className="w-full rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                  />
+                </label>
+              </div>
+
+              <label className="mt-3 grid gap-1 text-xs font-semibold text-zinc-600">
+                Cover image URL
+                <input
+                  value={item.cover_image_url}
+                  onChange={(event) =>
+                    setJournalPosts((prev) =>
+                      prev.map((entry) =>
+                        entry.id === item.id ? { ...entry, cover_image_url: event.target.value } : entry,
+                      ),
+                    )
+                  }
+                  placeholder="/images/9.jpeg"
+                  className="w-full rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                />
+              </label>
+
+              <label className="mt-3 grid gap-1 text-xs font-semibold text-zinc-600">
+                Excerpt (shown on the Journal index page)
+                <textarea
+                  value={item.excerpt}
+                  onChange={(event) =>
+                    setJournalPosts((prev) =>
+                      prev.map((entry) =>
+                        entry.id === item.id ? { ...entry, excerpt: event.target.value } : entry,
+                      ),
+                    )
+                  }
+                  rows={2}
+                  className="w-full rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                />
+              </label>
+
+              <label className="mt-3 grid gap-1 text-xs font-semibold text-zinc-600">
+                Body — blank line between paragraphs; start a line with &quot;## &quot; for a heading
+                <textarea
+                  value={item.body}
+                  onChange={(event) =>
+                    setJournalPosts((prev) =>
+                      prev.map((entry) =>
+                        entry.id === item.id ? { ...entry, body: event.target.value } : entry,
+                      ),
+                    )
+                  }
+                  rows={10}
+                  className="w-full rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                />
+              </label>
+
+              <label className="mt-3 grid gap-1 text-xs font-semibold text-zinc-600">
+                SEO description (falls back to the excerpt if left blank)
+                <textarea
+                  value={item.seo_description}
+                  onChange={(event) =>
+                    setJournalPosts((prev) =>
+                      prev.map((entry) =>
+                        entry.id === item.id ? { ...entry, seo_description: event.target.value } : entry,
+                      ),
+                    )
+                  }
+                  rows={2}
+                  className="w-full rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                />
+              </label>
+
+              <div className="mt-3 flex flex-wrap items-center gap-4">
+                <label className="grid gap-1 text-xs font-semibold text-zinc-600">
+                  Published date
+                  <input
+                    type="date"
+                    value={item.published_at.slice(0, 10)}
+                    onChange={(event) =>
+                      setJournalPosts((prev) =>
+                        prev.map((entry) =>
+                          entry.id === item.id ? { ...entry, published_at: event.target.value } : entry,
+                        ),
+                      )
+                    }
+                    className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-normal text-zinc-900"
+                  />
+                </label>
+
+                <label className="flex items-center gap-2 text-xs font-semibold text-zinc-600">
+                  <input
+                    type="checkbox"
+                    checked={item.is_published}
+                    onChange={(event) =>
+                      setJournalPosts((prev) =>
+                        prev.map((entry) =>
+                          entry.id === item.id ? { ...entry, is_published: event.target.checked } : entry,
+                        ),
+                      )
+                    }
+                  />
+                  Published (visible on the public site)
+                </label>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  onClick={() => saveJournalPost(item)}
+                  className="rounded-xl bg-[#c45e2a] px-4 py-2 text-sm font-bold text-white hover:bg-[#9e3e12]"
+                >
+                  Save Post
+                </button>
+                <button
+                  onClick={() => deleteJournalPost(item.id)}
+                  className="rounded-xl border border-rose-300 px-4 py-2 text-sm font-bold text-rose-700 hover:bg-rose-50"
+                >
+                  Delete Post
+                </button>
+                {item.is_published ? (
+                  <a
+                    href={`/journal/${item.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-xl border border-zinc-300 px-4 py-2 text-sm font-bold text-zinc-700 hover:bg-zinc-50"
+                  >
+                    View Live &rarr;
+                  </a>
+                ) : null}
               </div>
             </article>
           ))}

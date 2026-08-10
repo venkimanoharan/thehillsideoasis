@@ -73,6 +73,7 @@ export const COLLECTIONS = {
   expenses: "expenses",
   staff: "staff",
   shifts: "shifts",
+  journalPosts: "journal_posts",
 } as const;
 
 export const SITE_SETTINGS_DOC_ID = "singleton";
