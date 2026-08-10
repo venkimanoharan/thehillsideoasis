@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import LogoMark from "@/components/logo-mark";
 import { getCachedSiteSettings } from "@/lib/site-settings";
@@ -133,41 +134,52 @@ export default async function Home() {
       <main id="main-content" role="main" className="luxury-bg px-5 pb-20 pt-8 sm:px-6">
         <section className="hero-shell-xl overflow-hidden rounded-[2.2rem] border border-[#d7c8b5] shadow-[0_30px_70px_-48px_rgba(35,24,14,0.75)]">
           <div className="grid gap-0 lg:grid-cols-[1.2fr_1fr]">
-            <div
-              className="relative min-h-[33rem] px-8 py-10 sm:px-12"
-              style={{
-                backgroundImage:
-                  "linear-gradient(118deg, rgba(18, 35, 28, 0.84), rgba(18, 35, 28, 0.62), rgba(89, 66, 42, 0.45)), url('/images/DSC_0072-PANO.jpg')",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-            >
-              <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur">
-                <LogoMark className="h-10 w-10" />
-                <p className="eyebrow text-[#f4e7d6]">Heritage Nature Retreat</p>
-              </div>
+            <div className="relative min-h-[33rem] overflow-hidden px-8 py-10 sm:px-12">
+              <Image
+                src="/images/DSC_0072-PANO.jpg"
+                alt=""
+                fill
+                priority
+                fetchPriority="high"
+                sizes="(min-width: 1024px) 55vw, 100vw"
+                className="object-cover"
+              />
+              <div
+                className="absolute inset-0"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(118deg, rgba(18, 35, 28, 0.84), rgba(18, 35, 28, 0.62), rgba(89, 66, 42, 0.45))",
+                }}
+              />
 
-              <p className="eyebrow text-[#e9d3b5]">The HillSide Oasis . Pollachi</p>
-              <h1 className="hero-title mt-4 max-w-3xl text-[#fbf1e4]">
-                Grand hillside living with timeless Indian hospitality
-              </h1>
-              <p className="mt-6 max-w-2xl text-[1.02rem] leading-8 text-[#e6d4bc] sm:text-[1.08rem]">
-                Inspired by the elegance of legacy hill destinations, The HillSide Oasis invites you to experience refined stays, tranquil landscape views, and concierge-led journeys.
-              </p>
+              <div className="relative z-10">
+                <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur">
+                  <LogoMark className="h-10 w-10" />
+                  <p className="eyebrow text-[#f4e7d6]">Heritage Nature Retreat</p>
+                </div>
 
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link
-                  href="/booking"
-                  className="luxury-btn-primary rounded-full px-6 py-3 text-xs font-bold uppercase tracking-[0.12em]"
-                >
-                  Reserve Your Stay
-                </Link>
-                <Link
-                  href="/stay"
-                  className="luxury-btn-secondary rounded-full px-6 py-3 text-xs font-bold uppercase tracking-[0.12em]"
-                >
-                  Explore Suites
-                </Link>
+                <p className="eyebrow text-[#e9d3b5]">The HillSide Oasis . Pollachi</p>
+                <h1 className="hero-title mt-4 max-w-3xl text-[#fbf1e4]">
+                  Grand hillside living with timeless Indian hospitality
+                </h1>
+                <p className="mt-6 max-w-2xl text-[1.02rem] leading-8 text-[#e6d4bc] sm:text-[1.08rem]">
+                  Inspired by the elegance of legacy hill destinations, The HillSide Oasis invites you to experience refined stays, tranquil landscape views, and concierge-led journeys.
+                </p>
+
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <Link
+                    href="/booking"
+                    className="luxury-btn-primary rounded-full px-6 py-3 text-xs font-bold uppercase tracking-[0.12em]"
+                  >
+                    Reserve Your Stay
+                  </Link>
+                  <Link
+                    href="/stay"
+                    className="luxury-btn-secondary rounded-full px-6 py-3 text-xs font-bold uppercase tracking-[0.12em]"
+                  >
+                    Explore Suites
+                  </Link>
+                </div>
               </div>
             </div>
 
@@ -209,7 +221,7 @@ export default async function Home() {
           <div className="mt-8 grid gap-4 lg:grid-cols-3">
             {journey.map((step) => (
               <article key={step.label} className="rounded-2xl border border-[#d8cab7] bg-white/90 p-5">
-                <p className="eyebrow text-[#8a744f]">{step.label}</p>
+                <p className="eyebrow text-[#6b5638]">{step.label}</p>
                 <p className="mt-3 text-sm leading-7 text-[#5d5044]">{step.text}</p>
                 <Link href={step.href} className="mt-4 inline-block text-xs font-bold uppercase tracking-[0.11em] text-[#214032]">
                   {step.cta}
@@ -240,14 +252,19 @@ export default async function Home() {
             </div>
 
             <div className="p-7 sm:p-10">
-              <div className="arched-media h-[22rem] border border-[#d3c4b0]">
+              <div className="arched-media relative h-[22rem] border border-[#d3c4b0]">
+                <Image
+                  src="/images/12.jpeg"
+                  alt=""
+                  fill
+                  sizes="(min-width: 1024px) 45vw, 100vw"
+                  className="object-cover"
+                />
                 <div
-                  className="h-full w-full"
+                  className="absolute inset-0"
                   style={{
                     backgroundImage:
-                      "linear-gradient(180deg, rgba(11, 22, 19, 0.18), rgba(11, 22, 19, 0.52)), url('/images/12.jpeg')",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
+                      "linear-gradient(180deg, rgba(11, 22, 19, 0.18), rgba(11, 22, 19, 0.52))",
                   }}
                 />
               </div>
