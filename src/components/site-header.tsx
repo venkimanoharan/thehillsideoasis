@@ -11,6 +11,7 @@ const navItems = [
   { href: "/stay", label: "Stay" },
   { href: "/activities", label: "Activities" },
   { href: "/gallery", label: "Gallery" },
+  { href: "/journal", label: "Journal" },
   { href: "/contact", label: "Contact" },
   { href: "/booking", label: "Booking" },
 ];

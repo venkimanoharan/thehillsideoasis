@@ -66,15 +66,17 @@ async function seedBookingsCounter() {
 }
 
 async function main() {
-  const [rooms, activities, gallery] = await Promise.all([
+  const [rooms, activities, gallery, journalPosts] = await Promise.all([
     readJson("rooms.json"),
     readJson("activities.json"),
     readJson("gallery.json"),
+    readJson("journal-posts.json"),
   ]);
 
   await seedCollection("rooms", rooms);
   await seedCollection("activities", activities);
   await seedCollection("gallery", gallery);
+  await seedCollection("journal_posts", journalPosts);
   await seedSiteSettings();
   await seedBookingsCounter();
 
