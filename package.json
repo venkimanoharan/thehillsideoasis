@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "seed:firestore": "node scripts/seed-firestore.mjs",
+    "seed:journal": "node scripts/seed-journal.mjs",
     "emulators": "firebase emulators:start --only firestore",
     "test": "firebase emulators:exec --project demo-hillsideoasis --only firestore \"vitest run\"",
     "test:watch": "vitest"
